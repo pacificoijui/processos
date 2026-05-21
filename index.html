@@ -449,13 +449,22 @@ var STATUS_DEFAULT=[
 ];
 
 // ── Listeners Firestore ───────────────────────────────────────────────────────
+// Timeout de segurança: se não conectar em 8s, esconde o overlay e mostra erro
+setTimeout(function(){
+  var ov=document.getElementById("loadingOverlay");
+  if(!ov.classList.contains("hide")){
+    ov.classList.add("hide");
+    document.getElementById("grid").innerHTML='<div class="empty"><div class="empty-icon">&#9888;</div><h3>Sem conexão</h3><p>Verifique sua internet e as regras do Firestore, depois recarregue a página.</p></div>';
+  }
+}, 8000);
+
 colRef.onSnapshot(function(snap){
   processos = snap.docs.map(function(d){ return Object.assign({id:d.id}, d.data()); });
   document.getElementById("loadingOverlay").classList.add("hide");
   renderizar();
 }, function(err){
   document.getElementById("loadingOverlay").classList.add("hide");
-  document.getElementById("grid").innerHTML = '<div class="empty"><div class="empty-icon">&#9888;</div><h3>Erro de conexão</h3><p>' + err.message + '</p></div>';
+  document.getElementById("grid").innerHTML = '<div class="empty"><div class="empty-icon">&#9888;</div><h3>Erro de conexão</h3><p>'+err.message+'</p></div>';
 });
 
 agColRef.onSnapshot(function(snap){
@@ -652,7 +661,7 @@ function renderizar(){
     html+='<div class="card-obj">'+escHtml(p.objeto)+'</div></div>';
     html+='<span class="badge '+respCls+'">'+escHtml(p.responsavel)+'</span>';
     html+='</div>';
-    html+='<div class="card-meta"><span class="status-tag '+st.cls+'">'+st.label+'</span>'+dataLabel+linkBtn+'</div>';
+    html+='<div class="card-meta"><span class="status-tag" style="'+getStatusStyle(p.status)+'">'+escHtml((st.nome||st.label||p.status))+'</span>'+dataLabel+linkBtn+'</div>';
     html+=contatoHtml;
     html+='</div>';
     html+='<div class="updates-area">'+updHtml+'</div>';
@@ -1132,31 +1141,26 @@ function _gerarRelatorioStatusPDF(lista, statusNome){
     }
     y+=identificacaoH+4;
 
-    // ── Atualizações ──
-    if(!sortedAt.length){
+    // ── Última atualização apenas ──
+    var ultimaAt = sortedAt.length ? sortedAt[sortedAt.length-1] : null;
+    if(!ultimaAt){
       if(y+12>PH-16){ doc.addPage(); addPageHeader(false); y=50; }
       setTextC(90,110,153); doc.setFontSize(9); doc.setFont("helvetica","italic");
       doc.text("Nenhuma atualizacao registrada.",ML+4,y+5); y+=12;
     } else {
-      for(var ai=0;ai<sortedAt.length;ai++){
-        var u=sortedAt[ai];
-        var tL=doc.splitTextToSize(u.texto, CW-28);
-        var bH=Math.max(tL.length*5.2+14,18);
-        if(y+bH>PH-16){
-          doc.addPage(); addPageHeader(false); y=50;
-        }
-        setFill.apply(null,(ai%2===0)?[245,248,255]:[255,255,255]);
-        doc.roundedRect(ML,y,CW,bH,2,2,"F");
-        setDraw(200,212,232); doc.setLineWidth(0.25); doc.roundedRect(ML,y,CW,bH,2,2,"S");
-        setFill(26,58,107); doc.circle(ML+6.5,y+bH/2,4,"F");
-        setTextC(255,255,255); doc.setFontSize(7.5); doc.setFont("helvetica","bold");
-        doc.text(String(ai+1),ML+6.5,y+bH/2+1,{align:"center"});
-        setTextC(90,110,153); doc.setFontSize(8); doc.setFont("helvetica","bold");
-        doc.text("Data: "+(u.data?formatarData(u.data):"---"),PW-MR-4,y+6.5,{align:"right"});
-        setTextC(22,32,56); doc.setFontSize(9); doc.setFont("helvetica","normal");
-        doc.text(tL,ML+13,y+bH/2-(tL.length-1)*2.6+1.5);
-        y+=bH+2;
-      }
+      var tL=doc.splitTextToSize(ultimaAt.texto, CW-28);
+      var bH=Math.max(tL.length*5.2+14,18);
+      if(y+bH>PH-16){ doc.addPage(); addPageHeader(false); y=50; }
+      setFill(245,248,255); doc.roundedRect(ML,y,CW,bH,2,2,"F");
+      setDraw(200,212,232); doc.setLineWidth(0.25); doc.roundedRect(ML,y,CW,bH,2,2,"S");
+      setFill(26,58,107); doc.circle(ML+6.5,y+bH/2,4,"F");
+      setTextC(255,255,255); doc.setFontSize(7.5); doc.setFont("helvetica","bold");
+      doc.text("U",ML+6.5,y+bH/2+1,{align:"center"});
+      setTextC(90,110,153); doc.setFontSize(8); doc.setFont("helvetica","bold");
+      doc.text("Ult. atualizacao: "+(ultimaAt.data?formatarData(ultimaAt.data):"---"),PW-MR-4,y+6.5,{align:"right"});
+      setTextC(22,32,56); doc.setFontSize(9); doc.setFont("helvetica","normal");
+      doc.text(tL,ML+13,y+bH/2-(tL.length-1)*2.6+1.5);
+      y+=bH+2;
     }
     y+=8; // espaço entre processos
   }
