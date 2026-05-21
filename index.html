@@ -102,8 +102,8 @@
   .card-num { font-size: 17px; font-weight: 700; color: var(--navy); line-height: 1.2; }
   .card-obj { font-size: 14px; color: var(--text); margin-top: 3px; line-height: 1.4; font-weight: 500; }
   .card-meta { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 7px; }
-  .card-contato { font-size: 12px; color: var(--muted); margin-top: 5px; font-weight: 600; }
-  .card-contato span { color: var(--navy); }
+  .card-contato { font-size: 13.5px; color: var(--navy); margin-top: 6px; font-weight: 700; background: var(--blue-bg); display: inline-block; padding: 3px 10px; border-radius: 6px; border: 1px solid #c0d4f5; }
+  .card-contato span { color: var(--navy-light); }
   .badge { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 700; white-space: nowrap; flex-shrink: 0; }
   .badge-pedro { background: var(--blue-bg); color: var(--blue-text); }
   .badge-lucilda { background: #f0e8f8; color: #6a20b0; }
@@ -345,6 +345,10 @@
             <input type="text" id="agNomeCompleto" placeholder="Ex: Pedro Henrique da Silva">
           </div>
         </div>
+        <div class="field">
+          <label>2&#186; Nome Completo <span style="font-weight:400;text-transform:none;font-size:11px;color:var(--muted)">(opcional – para 2&#186; assinatura no PDF)</span></label>
+          <input type="text" id="agNomeCompleto2" placeholder="Ex: Maria Souza – Secretária">
+        </div>
         <div style="display:flex;gap:8px;justify-content:flex-end">
           <button class="btn-cancel" onclick="limparFormAgente()" style="padding:8px 16px;font-size:13px">Limpar</button>
           <button class="btn-save" id="btnSalvarAgente" onclick="salvarAgente()" style="padding:8px 20px;font-size:13px">Salvar Agente</button>
@@ -553,6 +557,7 @@ function limparFormAgente(){
   editandoAgId=null;
   document.getElementById("agNomeAbrev").value="";
   document.getElementById("agNomeCompleto").value="";
+  document.getElementById("agNomeCompleto2").value="";
   document.getElementById("btnSalvarAgente").textContent="Salvar Agente";
 }
 function editarAgente(id){
@@ -560,6 +565,7 @@ function editarAgente(id){
   editandoAgId=id;
   document.getElementById("agNomeAbrev").value=ag.nomeAbrev;
   document.getElementById("agNomeCompleto").value=ag.nomeCompleto;
+  document.getElementById("agNomeCompleto2").value=ag.nomeCompleto2||"";
   document.getElementById("btnSalvarAgente").textContent="Atualizar";
   document.getElementById("agNomeAbrev").focus();
 }
@@ -574,7 +580,8 @@ function renderListaAgentes(){
     var a=agentes[i];
     html+='<div style="display:flex;align-items:center;justify-content:space-between;background:#fff;border:1.5px solid var(--border);border-radius:9px;padding:10px 14px;gap:10px">';
     html+='<div><div style="font-weight:700;font-size:14px;color:var(--navy)">'+escHtml(a.nomeAbrev)+'</div>';
-    html+='<div style="font-size:12.5px;color:var(--muted);margin-top:2px">'+escHtml(a.nomeCompleto)+'</div></div>';
+    var nc2=a.nomeCompleto2?'<div style="font-size:11.5px;color:var(--muted);margin-top:1px">'+escHtml(a.nomeCompleto2)+'</div>':'';
+    html+='<div style="font-size:12.5px;color:var(--muted);margin-top:2px">'+escHtml(a.nomeCompleto)+'</div>'+nc2+'</div>';
     html+='<div style="display:flex;gap:6px;flex-shrink:0">';
     html+='<button class="btn-sm" style="flex:none;padding:5px 12px;font-size:12px" data-action="editar-ag" data-agid="'+escHtml(a.id)+'">Editar</button>';
     html+='<button class="btn-sm danger" style="flex:none;padding:5px 12px;font-size:12px" data-action="excluir-ag" data-agid="'+escHtml(a.id)+'">Excluir</button>';
@@ -586,14 +593,16 @@ function salvarAgente(){
   var btn=document.getElementById("btnSalvarAgente");
   var nomeAbrev=document.getElementById("agNomeAbrev").value.trim();
   var nomeCompleto=document.getElementById("agNomeCompleto").value.trim();
-  if(!nomeAbrev||!nomeCompleto){alert("Preencha os dois campos.");return;}
+  var nomeCompleto2=document.getElementById("agNomeCompleto2").value.trim();
+  if(!nomeAbrev||!nomeCompleto){alert("Preencha o nome abreviado e o nome completo.");return;}
   btn.disabled=true; btn.textContent="Salvando...";
   var ts=firebase.firestore.FieldValue.serverTimestamp();
+  var data={nomeAbrev:nomeAbrev,nomeCompleto:nomeCompleto,nomeCompleto2:nomeCompleto2,updatedAt:ts};
   var op=editandoAgId
-    ? agColRef.doc(editandoAgId).set({nomeAbrev:nomeAbrev,nomeCompleto:nomeCompleto,updatedAt:ts})
-    : agColRef.add({nomeAbrev:nomeAbrev,nomeCompleto:nomeCompleto,createdAt:ts,updatedAt:ts});
+    ? agColRef.doc(editandoAgId).set(data)
+    : agColRef.add(Object.assign({createdAt:ts},data));
   op.then(function(){toast(editandoAgId?"Agente atualizado!":"Agente cadastrado!"); limparFormAgente();})
-    .catch(function(e){alert("Erro: "+e.message);})
+    .catch(function(e){alert("Erro ao salvar agente: "+e.message);})
     .finally(function(){btn.disabled=false; btn.textContent=editandoAgId?"Atualizar":"Salvar Agente";});
 }
 function excluirAgente(id){
@@ -693,6 +702,7 @@ function gerarPDF(id){
   var p=processos.find(function(x){return x.id===id;}); if(!p)return;
   var agente=agentes.find(function(a){return a.nomeAbrev===p.responsavel;});
   var nomeCompletoAgente=agente?agente.nomeCompleto:(p.responsavel||"");
+  var nomeCompleto2Agente=agente&&agente.nomeCompleto2?agente.nomeCompleto2:"";
   var jsPDFCls=window.jspdf.jsPDF;
   var doc=new jsPDFCls({orientation:"portrait",unit:"mm",format:"a4"});
   var PW=210,PH=297,ML=15,MR=15,CW=PW-ML-MR;
@@ -705,7 +715,7 @@ function gerarPDF(id){
   // Cabeçalho branco
   setFill(255,255,255); doc.rect(0,0,PW,42,"F");
   setFill(26,58,107);   doc.rect(0,42,PW,2.5,"F");
-  try{doc.addImage(LOGO_B64_PDF,"JPEG",ML,4,52,32);}catch(e){}
+  try{doc.addImage(LOGO_B64_PDF,"JPEG",ML,8,56,22);}catch(e){}
   setTextC(26,58,107); doc.setFontSize(15); doc.setFont("helvetica","bold");
   doc.text("Relatorio de Processo Licitatorio",ML+58,17);
   doc.setFontSize(9.5); doc.setFont("helvetica","normal"); setTextC(90,110,153);
@@ -772,7 +782,7 @@ function gerarPDF(id){
         doc.addPage();
         setFill(255,255,255); doc.rect(0,0,PW,15,"F");
         setFill(26,58,107);   doc.rect(0,15,PW,2,"F");
-        try{doc.addImage(LOGO_B64_PDF,"JPEG",ML,1,28,13);}catch(e){}
+        try{doc.addImage(LOGO_B64_PDF,"JPEG",ML,2,30,12);}catch(e){}
         setTextC(26,58,107); doc.setFontSize(9); doc.setFont("helvetica","bold");
         doc.text("Relatorio: "+p.numero,ML+32,10); y=22;
       }
@@ -795,7 +805,7 @@ function gerarPDF(id){
     doc.addPage();
     setFill(255,255,255); doc.rect(0,0,PW,15,"F");
     setFill(26,58,107);   doc.rect(0,15,PW,2,"F");
-    try{doc.addImage(LOGO_B64_PDF,"JPEG",ML,1,28,13);}catch(e){}
+    try{doc.addImage(LOGO_B64_PDF,"JPEG",ML,2,30,12);}catch(e){}
     y=28;
   }
   var sigX=PW/2;
@@ -805,6 +815,16 @@ function gerarPDF(id){
   doc.text(nomeCompletoAgente,sigX,y,{align:"center"}); y+=6;
   doc.setFontSize(9); doc.setFont("helvetica","normal"); setTextC(90,110,153);
   doc.text("Agente de Contratacao",sigX,y,{align:"center"});
+  if(nomeCompleto2Agente){
+    y+=14;
+    var sigX2=PW/2;
+    setDraw(26,58,107); doc.setLineWidth(0.5);
+    doc.line(sigX2-50,y,sigX2+50,y); y+=7;
+    setTextC(26,58,107); doc.setFontSize(10); doc.setFont("helvetica","bold");
+    doc.text(nomeCompleto2Agente,sigX2,y,{align:"center"}); y+=6;
+    doc.setFontSize(9); doc.setFont("helvetica","normal"); setTextC(90,110,153);
+    doc.text("Agente de Contratacao",sigX2,y,{align:"center"});
+  }
 
   // Rodapé
   var total=doc.internal.getNumberOfPages();
@@ -849,5 +869,3 @@ document.querySelectorAll(".overlay").forEach(function(o){
   o.addEventListener("click",function(e){ if(e.target===o)o.classList.remove("open"); });
 });
 </script>
-</body>
-</html>
