@@ -420,6 +420,31 @@
   </div>
 </div>
 
+
+<!-- MODAL ANDAMENTO DO PORTAL -->
+<div class="overlay" id="modalPortal">
+  <div class="modal" style="max-width:700px;max-height:88vh">
+    <div class="modal-header">
+      <h2 id="portalModalTitulo">&#127760; Andamento no Portal</h2>
+      <button class="modal-close" onclick="fecharModalPortal()">&#10005;</button>
+    </div>
+    <div class="modal-body" style="padding:0;gap:0">
+      <!-- Status bar -->
+      <div id="portalStatusBar" style="padding:12px 20px;background:#f0f4fb;border-bottom:1px solid var(--border);font-size:13px;color:var(--muted);display:flex;align-items:center;gap:10px">
+        <div class="spinner" style="width:18px;height:18px;border-width:3px" id="portalSpinner"></div>
+        <span id="portalStatusMsg">Carregando andamento do portal...</span>
+      </div>
+      <!-- Content -->
+      <div id="portalContent" style="padding:20px;max-height:60vh;overflow-y:auto;display:flex;flex-direction:column;gap:14px">
+      </div>
+    </div>
+    <div class="modal-footer" style="justify-content:space-between">
+      <a id="portalLinkExterno" href="#" target="_blank" rel="noopener" class="btn-primary" style="text-decoration:none;font-size:13px">&#127760; Abrir no Portal</a>
+      <button class="btn-cancel" onclick="fecharModalPortal()">Fechar</button>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast">&#10003; <span id="toastMsg"></span></div>
 
 
@@ -500,6 +525,7 @@ document.addEventListener("click", function(e){
   if(action === "excluir-ag") excluirAgente(btn.dataset.agid);
   if(action === "editar-st")  editarStatus(btn.dataset.stid);
   if(action === "excluir-st") excluirStatus(btn.dataset.stid);
+  if(action === "portal" && pid) abrirPortal(pid);
 });
 
 // ── Status config ─────────────────────────────────────────────────────────────
@@ -662,10 +688,14 @@ function renderizar(){
     html+=contatoHtml;
     html+='</div>';
     html+='<div class="updates-area">'+updHtml+'</div>';
+    var portalBtn=p.link
+      ? '<button class="btn-sm" data-action="portal" style="background:#e8f0fb;color:#1a3a6b;border-color:#c0d4f5">&#127760; Portal</button>'
+      : '';
     html+='<div class="card-footer">';
     html+='<button class="btn-sm" data-action="atualizar">+ Atualizar</button>';
     html+='<button class="btn-sm" data-action="editar">Editar</button>';
     html+='<button class="btn-sm pdf-btn" data-action="pdf">PDF</button>';
+    html+=portalBtn;
     html+='<button class="btn-sm danger" data-action="excluir">Excluir</button>';
     html+='</div></div>';
   }
@@ -1181,6 +1211,134 @@ function _gerarRelatorioStatusPDF(lista, statusNome){
   var nomeArq="relatorio_"+statusNome.replace(/[^a-zA-Z0-9]/g,"_")+"_"+hoje()+".pdf";
   doc.save(nomeArq);
   toast("Relatorio gerado: "+nomeArq);
+}
+
+
+// ── Andamento do Portal ────────────────────────────────────────────────────────
+function fecharModalPortal(){
+  document.getElementById("modalPortal").classList.remove("open");
+  document.getElementById("portalContent").innerHTML="";
+}
+
+function abrirPortal(pid){
+  var p=processos.find(function(x){return x.id===pid;}); if(!p||!p.link)return;
+  document.getElementById("modalPortal").classList.add("open");
+  document.getElementById("portalModalTitulo").textContent="Andamento – "+p.numero;
+  document.getElementById("portalLinkExterno").href=p.link;
+  document.getElementById("portalContent").innerHTML="";
+  document.getElementById("portalSpinner").style.display="block";
+  document.getElementById("portalStatusMsg").textContent="Buscando andamento do portal...";
+
+  // Tenta buscar via proxy CORS público
+  var proxyUrl="https://api.codetabs.com/v1/proxy?quest="+encodeURIComponent(p.link);
+  fetch(proxyUrl)
+    .then(function(r){
+      if(!r.ok) throw new Error("HTTP "+r.status);
+      return r.text();
+    })
+    .then(function(html){ parsePortalHtml(html); })
+    .catch(function(){
+      // fallback: tenta segundo proxy
+      var proxy2="https://thingproxy.freeboard.io/fetch/"+p.link;
+      return fetch(proxy2)
+        .then(function(r){ if(!r.ok) throw new Error("HTTP "+r.status); return r.text(); })
+        .then(function(html){ parsePortalHtml(html); })
+        .catch(function(err){ showPortalErro(p.link); });
+    });
+}
+
+function parsePortalHtml(html){
+  var spinner=document.getElementById("portalSpinner");
+  var statusMsg=document.getElementById("portalStatusMsg");
+  var content=document.getElementById("portalContent");
+  spinner.style.display="none";
+
+  var parser=new DOMParser();
+  var doc=parser.parseFromString(html,"text/html");
+  var allText=doc.body?doc.body.textContent:"";
+  if(!allText||allText.length<30){ allText=html.replace(/<[^>]+>/g," "); }
+
+  // Clean up whitespace
+  var lines=allText.split("\n")
+    .map(function(l){return l.trim();})
+    .filter(function(l){return l.length>2;});
+
+  // Find entries: look for lines with date pattern followed by content
+  var entries=[];
+  var dtRe=new RegExp("^\\d{2}\\/\\d{2}\\/\\d{4}");
+  var dtTimeRe=new RegExp("^\\d{2}\\/\\d{2}\\/\\d{4}\\s+\\d{2}:\\d{2}");
+  
+  for(var i=0;i<lines.length;i++){
+    var line=lines[i];
+    // Line with date+time+author: "24/02/2026 10:01:00 | Pregoeiro"
+    if(dtTimeRe.test(line) && line.indexOf("|")>=0){
+      var parts=line.split("|");
+      var dataParte=parts[0].trim();
+      var autorParte=parts.slice(1).join("|").trim();
+      // Next non-empty line is the message
+      var msg="";
+      for(var j=i+1;j<Math.min(i+5,lines.length);j++){
+        if(lines[j].length>3 && !dtRe.test(lines[j])){
+          msg=lines[j]; break;
+        }
+      }
+      if(msg) entries.push({data:dataParte,autor:autorParte,msg:msg});
+    }
+  }
+
+  // Fallback: look for any meaningful text blocks
+  if(!entries.length){
+    var block="";
+    for(var i=0;i<lines.length;i++){
+      if(dtRe.test(lines[i])){
+        if(block.length>10) entries.push({data:"",autor:"",msg:block.trim()});
+        block=lines[i]+" ";
+      } else {
+        block+=lines[i]+" ";
+      }
+    }
+    if(block.length>10) entries.push({data:"",autor:"",msg:block.trim()});
+  }
+
+  if(entries.length){
+    statusMsg.textContent="Encontradas "+entries.length+" entradas no portal:";
+    var out="";
+    var toShow=entries.slice().reverse().slice(0,15);
+    for(var i=0;i<toShow.length;i++){
+      var e=toShow[i];
+      out+='<div style="background:#f8fafd;border:1.5px solid #d0ddf0;border-radius:10px;padding:13px 15px">';
+      if(e.data||e.autor){
+        out+='<div style="font-size:11.5px;color:var(--muted);font-weight:700;margin-bottom:5px">'+escHtml(e.data);
+        if(e.autor) out+=' &nbsp;|&nbsp; '+escHtml(e.autor);
+        out+='</div>';
+      }
+      out+='<div style="font-size:13.5px;color:var(--text);line-height:1.6">'+escHtml(e.msg)+'</div>';
+      out+='</div>';
+    }
+    content.innerHTML=out;
+  } else {
+    var rawSnip=lines.slice(0,60).join("\n").substring(0,2000);
+    if(rawSnip.length>50){
+      statusMsg.textContent="Conteudo carregado (texto bruto):";
+      content.innerHTML='<div style="background:#f8fafd;border:1.5px solid var(--border);border-radius:10px;padding:14px;font-size:13px;white-space:pre-wrap;line-height:1.7;color:var(--text)">'+escHtml(rawSnip)+'</div>';
+    } else {
+      showPortalErro(document.getElementById("portalLinkExterno").href);
+    }
+  }
+}
+
+function showPortalErro(link){
+  document.getElementById("portalSpinner").style.display="none";
+  document.getElementById("portalStatusMsg").textContent="Não foi possível carregar automaticamente.";
+  var msg='<div style="text-align:center;padding:24px;color:var(--muted)">';
+  msg+='<div style="font-size:36px;margin-bottom:12px">&#128683;</div>';
+  msg+='<div style="font-size:15px;font-weight:700;color:var(--navy);margin-bottom:8px">O portal bloqueou o acesso automático</div>';
+  msg+='<div style="font-size:13.5px;line-height:1.6;margin-bottom:16px">O Portal de Compras Públicas não permite que sistemas externos busquem seus dados diretamente.<br>Você pode acessar o andamento clicando no botão abaixo:</div>';
+  if(link){
+    msg+='<a href="'+escHtml(link)+'" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:8px;background:var(--navy);color:#fff;padding:10px 22px;border-radius:8px;text-decoration:none;font-weight:700;font-size:14px">&#127760; Abrir Portal em Nova Aba</a>';
+  }
+  msg+='</div>';
+  document.getElementById("portalContent").innerHTML=msg;
 }
 
 document.querySelectorAll(".overlay").forEach(function(o){
