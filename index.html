@@ -108,15 +108,13 @@
   .badge-pedro { background: var(--blue-bg); color: var(--blue-text); }
   .badge-lucilda { background: #f0e8f8; color: #6a20b0; }
   .status-tag { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 700; }
-  .status-em-andamento { background: var(--amber-bg); color: var(--amber); }
-  .status-concluido { background: var(--green-bg); color: var(--green); }
-  .status-suspenso { background: var(--red-bg); color: var(--red); }
-  .status-aguardando { background: var(--blue-bg); color: var(--blue-text); }
-  .status-purple { background: #f0e8f8; color: #6a20b0; }
-  .status-gray   { background: #eef0f4; color: #5a6a80; }
-  .date-chip { display: inline-flex; align-items: center; gap: 5px; background: #f0f3fb; border: 1px solid var(--border); border-radius: 6px; padding: 3px 9px; font-size: 12px; color: var(--muted); font-weight: 700; }
-  .date-chip.vencendo { background: #fff4e0; border-color: #f0c060; color: #a05000; }
-  .date-chip.vencido  { background: var(--red-bg); border-color: #f0a0a0; color: var(--red); }
+  .status-em-andamento { background: #ff9800; color: #fff; }
+  .status-concluido    { background: #2e7d32; color: #fff; }
+  .status-suspenso     { background: #d32f2f; color: #fff; }
+  .status-aguardando   { background: #1565c0; color: #fff; }
+  .status-purple       { background: #6a1b9a; color: #fff; }
+  .status-gray         { background: #546e7a; color: #fff; }
+  .date-chip { display: inline-flex; align-items: center; gap: 5px; background: #1e4a8a; color: #fff; border-radius: 6px; padding: 5px 13px; font-size: 12px; font-weight: 700; text-decoration: none; white-space: nowrap; }
   .link-btn { display: inline-flex; align-items: center; gap: 5px; background: var(--navy); color: #fff; border: none; padding: 5px 13px; border-radius: 6px; font-family: Arial, sans-serif; font-size: 12px; font-weight: 700; cursor: pointer; text-decoration: none; transition: background 0.15s; white-space: nowrap; }
   .link-btn:hover { background: var(--navy-light); }
   .link-btn-disabled { background: #dde2ee; color: #99a; cursor: default; }
@@ -434,12 +432,12 @@ const LOGO_B64_PDF = "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUN
 var processos=[], agentes=[], statusList=[], filtroAgente="todos", filtroStatus="todos";
 var editandoId=null, updateId=null, editandoAgId=null, editandoStId=null;
 var STATUS_COR_MAP={
-  amber:  {bg:"#fef3dc",color:"#c07000"},
-  blue:   {bg:"#e8f0fb",color:"#1a4a9a"},
-  red:    {bg:"#fde8e8",color:"#c0282a"},
-  green:  {bg:"#e6f4ea",color:"#2a8a3a"},
-  purple: {bg:"#f0e8f8",color:"#6a20b0"},
-  gray:   {bg:"#eef0f4",color:"#5a6a80"}
+  amber:  {bg:"#ff9800",color:"#fff",border:"#e65c00"},
+  blue:   {bg:"#1565c0",color:"#fff",border:"#0d47a1"},
+  red:    {bg:"#d32f2f",color:"#fff",border:"#b71c1c"},
+  green:  {bg:"#2e7d32",color:"#fff",border:"#1b5e20"},
+  purple: {bg:"#6a1b9a",color:"#fff",border:"#4a148c"},
+  gray:   {bg:"#546e7a",color:"#fff",border:"#37474f"}
 };
 var STATUS_DEFAULT=[
   {id:"em-andamento",nome:"Em Andamento",cor:"amber",builtin:true},
@@ -513,7 +511,7 @@ function getStatusCfg(id){
 function getStatusStyle(id){
   var st=getStatusCfg(id);
   var c=STATUS_COR_MAP[st.cor]||STATUS_COR_MAP.gray;
-  return 'background:'+c.bg+';color:'+c.color+';';
+  return 'background:'+c.bg+';color:'+c.color+';font-weight:700;';
 }
 
 function atualizarStats(){
@@ -644,10 +642,9 @@ function renderizar(){
     } else {
       updHtml='<div class="no-updates">Nenhuma atualizacao registrada</div>';
     }
-    var dataCls=classData(p.dataLicit);
     var dataLabel=p.dataLicit
-      ? '<span class="date-chip '+dataCls+'">&#128198; '+formatarData(p.dataLicit)+'</span>'
-      : '<span class="date-chip" style="opacity:.45">Sem data</span>';
+      ? '<span class="date-chip">&#128198; '+formatarData(p.dataLicit)+'</span>'
+      : '<span class="date-chip" style="opacity:.45;background:#1e4a8a">Sem data</span>';
     var linkBtn=p.link
       ? '<a class="link-btn" href="'+escHtml(p.link)+'" target="_blank" rel="noopener">&#128279; Acessar Portal</a>'
       : '<span class="link-btn link-btn-disabled">Portal</span>';
@@ -825,7 +822,9 @@ function excluirProcesso(id){
 
 // ── Gerar PDF ─────────────────────────────────────────────────────────────────
 function gerarPDF(id){
-  var p=processos.find(function(x){return x.id===id;}); if(!p)return;
+  try {
+  var p=processos.find(function(x){return x.id===id;}); if(!p){alert("Processo não encontrado: "+id);return;}
+  if(!window.jspdf||!window.jspdf.jsPDF){alert("Biblioteca PDF ainda carregando. Aguarde alguns segundos e tente novamente.");return;}
   var agente=agentes.find(function(a){return a.nomeAbrev===p.responsavel;});
   var nomeCompletoAgente=agente?agente.nomeCompleto:(p.responsavel||"");
   var nomeCompleto2Agente=agente&&agente.nomeCompleto2?agente.nomeCompleto2:"";
@@ -870,6 +869,8 @@ function gerarPDF(id){
   doc.text("Objeto",ML+CW/2,ry+objLines.length*5+1.5);
   var ry2=y+16+Math.max(16,objLines.length*5+8)+4;
   var colW=CW/4;
+  var stPdfSingle=getStatusCfg(p.status);
+  var statusLabel=stPdfSingle.nome||stPdfSingle.label||p.status;
   var pdfCols=[
     [p.responsavel,"Responsavel"],
     [statusLabel,"Status"],
@@ -966,6 +967,7 @@ function gerarPDF(id){
   }
   doc.save(p.numero.replace(/[^a-zA-Z0-9]/g,"_")+"_relatorio_"+hoje()+".pdf");
   toast("PDF gerado com sucesso!");
+  } catch(err){ alert("Erro ao gerar PDF: "+err.message); console.error(err); }
 }
 
 // ── Modal Status ─────────────────────────────────────────────────────────────
@@ -991,7 +993,7 @@ function renderListaStatus(){
   for(var i=0;i<statusList.length;i++){
     var s=statusList[i];
     var c=STATUS_COR_MAP[s.cor]||STATUS_COR_MAP.gray;
-    var badge='<span style="background:'+c.bg+';color:'+c.color+';padding:2px 10px;border-radius:5px;font-size:12px;font-weight:700">'+escHtml(s.nome||s.label||s.id)+'</span>';
+    var badge='<span style="background:'+c.bg+';color:'+c.color+';padding:4px 12px;border-radius:6px;font-size:12.5px;font-weight:700">'+escHtml(s.nome||s.label||s.id)+'</span>';
     var btns=s.builtin
       ? '<span style="font-size:11px;color:var(--muted);padding:5px 8px">Padrão</span>'
       : '<div style="display:flex;gap:6px"><button class="btn-sm" style="flex:none;padding:5px 12px;font-size:12px" data-action="editar-st" data-stid="'+escHtml(s.id)+'">Editar</button>'
