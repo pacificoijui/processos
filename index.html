@@ -1749,9 +1749,7 @@ function confirmarExcluirUpdate(pid, ts){
     .catch(function(e){alert("Erro: "+e.message);});
 }
 
-document.querySelectorAll(".overlay").forEach(function(o){
-  o.addEventListener("click",function(e){ if(e.target===o)o.classList.remove("open"); });
-});
+// Click fora nao fecha modal - apenas Salvar/Cancelar fecha
 
 // ── PWA Setup ─────────────────────────────────────────────────────────────────
 (function(){
