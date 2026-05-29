@@ -24,9 +24,10 @@
     messagingSenderId: "385308750932",
     appId: "1:385308750932:web:65e94a26e71451995fe9c1"
   });
-  const db      = firebase.firestore();
-  const colRef  = db.collection("processos");
-  const agColRef = db.collection("agentes");
+  const db         = firebase.firestore();
+  const colRef     = db.collection("processos");
+  const agColRef   = db.collection("agentes");
+  const impColRef  = db.collection("impugnacoes");
 </script>
 <!-- jsPDF -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -231,6 +232,29 @@
     main   { padding-left: max(14px, env(safe-area-inset-left)); padding-right: max(14px, env(safe-area-inset-right)); }
   }
 
+
+  /* ── IMPUGNAÇÕES ─────────────────────────────────────────────────────────── */
+  .imp-section { background: var(--card); border-radius: 14px; box-shadow: var(--shadow); border: 1.5px solid var(--border); margin-bottom: 24px; overflow: hidden; }
+  .imp-section-header { background: linear-gradient(135deg, var(--navy-dark), var(--navy)); padding: 13px 20px; display: flex; align-items: center; justify-content: space-between; cursor: pointer; user-select: none; }
+  .imp-section-header h3 { color: #fff; font-size: 14px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+  .imp-section-header .imp-badge { background: rgba(255,255,255,0.2); color: #fff; border-radius: 20px; padding: 2px 10px; font-size: 12px; font-weight: 700; }
+  .imp-section-body { padding: 14px 16px; }
+  .imp-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; }
+  .imp-card { background: #f8fafd; border: 1.5px solid var(--border); border-radius: 10px; border-left: 4px solid var(--navy); padding: 12px 14px; display: flex; flex-direction: column; gap: 7px; transition: box-shadow 0.15s; }
+  .imp-card:hover { box-shadow: var(--shadow); }
+  .imp-card-title { font-size: 13.5px; font-weight: 700; color: var(--navy); line-height: 1.3; }
+  .imp-card-meta { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+  .imp-tag { font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 5px; }
+  .imp-tag-proc { background: var(--blue-bg); color: var(--blue-text); }
+  .imp-tag-date { background: var(--navy); color: #fff; }
+  .imp-tag-tipo { background: #fff3e0; color: #e65100; }
+  .imp-card-footer { display: flex; gap: 6px; margin-top: 2px; }
+  .imp-btn { flex: 1; padding: 5px 8px; border-radius: 6px; border: 1.5px solid var(--border); background: #fff; font-family: Arial, sans-serif; font-size: 11.5px; font-weight: 700; color: var(--text); cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 4px; transition: all 0.15s; }
+  .imp-btn:hover { background: var(--navy); color: #fff; border-color: var(--navy); }
+  .imp-btn.danger:hover { background: var(--red); color: #fff; border-color: var(--red); }
+  .imp-btn.pdf-view { background: var(--navy); color: #fff; border-color: var(--navy); }
+  .imp-btn.pdf-view:hover { background: var(--navy-light); }
+
 </style>
 </head>
 <body>
@@ -267,6 +291,25 @@
     <div class="stat"><span class="stat-num" id="stat-lucilda">0</span><span class="stat-label">Resp.<br>Lucilda</span></div>
     <div class="stat"><span class="stat-num" id="stat-suspenso">0</span><span class="stat-label">Sessão<br>Suspensa</span></div>
     <div class="stat"><span class="stat-num" id="stat-atualizacoes">0</span><span class="stat-label">Total de<br>Atualizações</span></div>
+  </div>
+</div>
+
+
+<!-- SEÇÃO IMPUGNAÇÕES E ESCLARECIMENTOS -->
+<div style="max-width:1440px;margin:0 auto;padding:20px 32px 0">
+  <div class="imp-section">
+    <div class="imp-section-header" onclick="toggleImpSection()">
+      <h3>&#9888; Impugnações e Esclarecimentos <span class="imp-badge" id="impBadge">0</span></h3>
+      <span id="impToggleIcon" style="color:#fff;font-size:16px">&#9660;</span>
+    </div>
+    <div class="imp-section-body" id="impSectionBody">
+      <div style="display:flex;justify-content:flex-end;margin-bottom:12px">
+        <button class="btn-primary" style="font-size:13px;padding:8px 18px" onclick="abrirModalImp()">&#43; Nova Impugnação / Esclarecimento</button>
+      </div>
+      <div class="imp-grid" id="impGrid">
+        <div style="grid-column:1/-1;text-align:center;color:var(--muted);font-size:13px;padding:20px;font-style:italic">Nenhuma impugnação ou esclarecimento cadastrado.</div>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -563,6 +606,63 @@
   </div>
 </div>
 
+
+<!-- MODAL NOVA IMPUGNAÇÃO/ESCLARECIMENTO -->
+<div class="overlay" id="modalImp">
+  <div class="modal" style="max-width:580px">
+    <div class="modal-header">
+      <h2 id="modalImpTitulo">Nova Impugnação / Esclarecimento</h2>
+      <button class="modal-close" onclick="fecharModalImp()">&#10005;</button>
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <div class="field">
+          <label>Tipo</label>
+          <select id="impTipo">
+            <option value="impugnacao">Impugnação</option>
+            <option value="esclarecimento">Esclarecimento</option>
+            <option value="recurso">Recurso</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Data de Abertura do Certame</label>
+          <input type="date" id="impDataAbertura">
+        </div>
+      </div>
+      <div class="field">
+        <label>Descrição / Título</label>
+        <input type="text" id="impDescricao" placeholder="Ex: Impugnação ao Edital PE 45/2026">
+      </div>
+      <div class="field">
+        <label>Número do Processo</label>
+        <input type="text" id="impNumeroProcesso" placeholder="Ex: PE 45/2026">
+      </div>
+      <div class="field">
+        <label>Agente Vinculado</label>
+        <select id="impAgente">
+          <option value="">-- Selecione o agente --</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Anexar PDF <span style="font-weight:400;font-size:11.5px;color:var(--muted)">(máx. 5MB)</span></label>
+        <input type="file" id="impArquivo" accept=".pdf" style="padding:8px;background:#f8fafd;border:1.5px solid var(--border);border-radius:8px;font-family:Arial,sans-serif;font-size:13px;width:100%">
+        <div id="impUploadStatus" style="font-size:12px;color:var(--muted);margin-top:4px"></div>
+      </div>
+      <div class="field">
+        <label>Observações</label>
+        <textarea id="impObs" placeholder="Informações adicionais..." style="min-height:70px"></textarea>
+      </div>
+    </div>
+    <div class="modal-footer" style="justify-content:space-between">
+      <button class="btn-cancel" id="btnExcluirImp" onclick="excluirImp()" style="color:var(--red);border-color:var(--red);display:none">&#128465; Excluir</button>
+      <div style="display:flex;gap:10px">
+        <button class="btn-cancel" onclick="fecharModalImp()">Cancelar</button>
+        <button class="btn-save" id="btnSalvarImp" onclick="salvarImp()">Salvar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast">&#10003; <span id="toastMsg"></span></div>
 
 
@@ -673,6 +773,25 @@ document.addEventListener("click", function(e){
   if(action === "excluir-st") excluirStatus(btn.dataset.stid);
   if(action === "editar-upd")  abrirModalEditUpdate(btn.dataset.pid, btn.dataset.ts);
   if(action === "excluir-upd") confirmarExcluirUpdate(btn.dataset.pid, btn.dataset.ts);
+  if(action === "ver-pdf"){
+    var impId = btn.dataset.impid;
+    var impItem = impugnacoes.find(function(x){return x.id===impId;});
+    if(impItem && impItem.pdfBase64){
+      // Convert base64 dataURL to blob and open
+      var arr = impItem.pdfBase64.split(",");
+      var mime = (arr[0].match(/:(.*?);/)||["","application/pdf"])[1];
+      var bstr = atob(arr[1]);
+      var n = bstr.length;
+      var u8arr = new Uint8Array(n);
+      while(n--){ u8arr[n]=bstr.charCodeAt(n); }
+      var blob = new Blob([u8arr],{type:mime});
+      var blobUrl = URL.createObjectURL(blob);
+      window.open(blobUrl,"_blank");
+    }
+  }
+  if(action === "editar-imp")  editarImp(btn.dataset.impid);
+  if(action === "excluir-imp")  excluirImpDireto(btn.dataset.impid);
+  if(action === "responder-imp") marcarRespondido(btn.dataset.impid);
   if(action === "portal" && pid) abrirPortal(pid);
 });
 
@@ -748,6 +867,7 @@ function setFiltroAgente(btn){
   filtroAgente=btn.dataset.filterAg;
   atualizarURL();
   renderizar();
+  renderImpugnacoes();
 }
 function setFiltroStatus(btn){
   document.querySelectorAll("#filtroStatus .filter-btn").forEach(function(b){b.classList.remove("active");});
@@ -1800,4 +1920,218 @@ self.addEventListener('fetch', e => {
     navigator.serviceWorker.register(swUrl).catch(function(){});
   }
 })();
+
+// ── Impugnações e Esclarecimentos ─────────────────────────────────────────────
+var impugnacoes   = [];
+var editandoImpId = null;
+var impSectionOpen = true;
+
+impColRef.onSnapshot(function(snap){
+  impugnacoes = snap.docs.map(function(d){ return Object.assign({id:d.id}, d.data()); })
+    .sort(function(a,b){
+      // Sem data vai para o final
+      if(!a.dataAbertura && !b.dataAbertura) return 0;
+      if(!a.dataAbertura) return 1;
+      if(!b.dataAbertura) return -1;
+      return a.dataAbertura.localeCompare(b.dataAbertura);
+    });
+  renderImpugnacoes();
+}, function(err){ console.error("Impugnacoes err:", err); });
+
+function toggleImpSection(){
+  impSectionOpen = !impSectionOpen;
+  document.getElementById("impSectionBody").style.display = impSectionOpen ? "block" : "none";
+  document.getElementById("impToggleIcon").innerHTML = impSectionOpen ? "&#9660;" : "&#9658;";
+}
+
+function renderImpugnacoes(){
+  var el = document.getElementById("impGrid"); if(!el) return;
+  // Filter by current agente
+  var listaImp = filtroAgente === "todos"
+    ? impugnacoes
+    : impugnacoes.filter(function(x){
+        if(!x.agente) return true;  // sem agente aparece pra todos
+        return x.agente === filtroAgente;
+      });
+
+  document.getElementById("impBadge").textContent = impugnacoes.length;
+  if(!listaImp.length){
+    el.innerHTML = '<div style="grid-column:1/-1;text-align:center;color:var(--muted);font-size:13px;padding:20px;font-style:italic">Nenhuma impugnacao ou esclarecimento' + (filtroAgente!=="todos" ? ' para este agente.' : ' cadastrado.') + '</div>';
+    return;
+  }
+  var TIPO_LABELS = {impugnacao:"Impugnacao", esclarecimento:"Esclarecimento", recurso:"Recurso"};
+  var TIPO_COLORS = {impugnacao:"#d32f2f", esclarecimento:"#1565c0", recurso:"#e65100"};
+  var out = "";
+  listaImp.forEach(function(imp){
+    var tipoLabel = TIPO_LABELS[imp.tipo] || imp.tipo;
+    var tipoColor = TIPO_COLORS[imp.tipo] || "#546e7a";
+    // 1 dia util antes da abertura = urgente (card vermelho)
+    var urgente = false;
+    if(imp.dataAbertura){
+      var hoje2=new Date(); hoje2.setHours(0,0,0,0);
+      var ab=new Date(imp.dataAbertura+"T12:00:00");
+      var diff=Math.round((ab-hoje2)/86400000);
+      var diaSem=ab.getDay();
+      // Urgente se: amanha (diff==1), hoje (diff==0), ou abertura segunda e hoje é sexta (diff==3)
+      urgente = diff>=0 && (diff<=1 || (diaSem===1 && diff<=3));
+    }
+    var cardStyle=urgente ? "border:2px solid #d32f2f;border-left:5px solid #d32f2f;background:#fff5f5;" : "";
+    var procNum = imp.numeroProcesso||"Sem numero";
+    var agenteLabel = imp.agente||"";
+    var dataAb = imp.dataAbertura ? formatarData(imp.dataAbertura) : "Sem data";
+    var obsHtml = imp.obs ? ('<div style="font-size:12px;color:var(--muted);line-height:1.4">'+escHtml(imp.obs)+'</div>') : "";
+    var pdfBtn = imp.pdfBase64
+      ? ('<button class="imp-btn pdf-view" data-action="ver-pdf" data-impid="'+escHtml(imp.id)+'">&#128196; '+escHtml(imp.pdfNome||"PDF")+'</button>')
+      : '<span style="font-size:11px;color:var(--muted);padding:4px 6px">Sem PDF</span>';
+    out += '<div class="imp-card" style="'+cardStyle+'">'
+      +'<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:6px">'
+        +'<div style="flex:1"><div class="imp-card-title">'+escHtml(imp.descricao||"Sem titulo")+'</div>'
+        +(urgente ? '<div style="font-size:11px;font-weight:700;color:#d32f2f;margin-top:3px">&#9888; ABERTURA AMANHA</div>' : "")
+        +'</div>'
+        +'<span class="imp-tag" style="background:'+tipoColor+';color:#fff;flex-shrink:0">'+tipoLabel+'</span>'
+      +'</div>'
+      +'<div class="imp-card-meta">'
+        +'<span class="imp-tag imp-tag-proc">&#128196; '+escHtml(procNum)+'</span>'
+        +(agenteLabel ? ('<span class="imp-tag" style="background:var(--blue-bg);color:var(--blue-text)">&#128100; '+escHtml(agenteLabel)+'</span>') : "")
+        +'<span class="imp-tag imp-tag-date">&#128198; '+dataAb+'</span>'
+      +'</div>'
+      +obsHtml
+      +(imp.respondido ? '<div style="background:#2e7d32;color:#fff;border-radius:6px;padding:4px 10px;font-size:11.5px;font-weight:700;text-align:center">&#10003; Respondido</div>' : "")
+      +'<div class="imp-card-footer">'
+        +pdfBtn
+        +(imp.respondido ? "" : ('<button class="imp-btn" style="background:#2e7d32;color:#fff;border-color:#2e7d32" data-action="responder-imp" data-impid="'+escHtml(imp.id)+'">&#10003; Respondido</button>'))
+        +'<button class="imp-btn" data-action="editar-imp" data-impid="'+escHtml(imp.id)+'">&#9998; Editar</button>'
+        +'<button class="imp-btn danger" data-action="excluir-imp" data-impid="'+escHtml(imp.id)+'">&#128465;</button>'
+      +'</div>'
+    +'</div>';
+  });
+  el.innerHTML = out;
+}
+
+function popularSelectAgentes(){
+  var sel = document.getElementById("impAgente"); if(!sel) return;
+  var cur = sel.value;
+  sel.innerHTML = '<option value="">-- Selecione o agente --</option>';
+  agentes.forEach(function(a){
+    sel.innerHTML += '<option value="'+escHtml(a.nomeAbrev)+'">'+escHtml(a.nomeAbrev)+'</option>';
+  });
+  if(cur) sel.value = cur;
+}
+
+function abrirModalImp(){
+  editandoImpId = null;
+  document.getElementById("modalImpTitulo").textContent = "Nova Impugnacao / Esclarecimento";
+  document.getElementById("impTipo").value = "impugnacao";
+  document.getElementById("impDescricao").value = "";
+  document.getElementById("impDataAbertura").value = "";
+  document.getElementById("impObs").value = "";
+  document.getElementById("impArquivo").value = "";
+  document.getElementById("impUploadStatus").textContent = "";
+  document.getElementById("impNumeroProcesso").value = "";
+  document.getElementById("btnExcluirImp").style.display = "none";
+  popularSelectAgentes();
+  document.getElementById("modalImp").classList.add("open");
+}
+
+function editarImp(id){
+  var imp = impugnacoes.find(function(x){return x.id===id;}); if(!imp) return;
+  editandoImpId = id;
+  document.getElementById("modalImpTitulo").textContent = "Editar Impugnacao / Esclarecimento";
+  document.getElementById("impTipo").value = imp.tipo||"impugnacao";
+  document.getElementById("impDescricao").value = imp.descricao||"";
+  document.getElementById("impDataAbertura").value = imp.dataAbertura||"";
+  document.getElementById("impObs").value = imp.obs||"";
+  document.getElementById("impArquivo").value = "";
+  document.getElementById("impUploadStatus").textContent = imp.pdfBase64 ? ("PDF anexado: "+(imp.pdfNome||"documento.pdf")+". Selecione novo para substituir.") : "";
+  document.getElementById("impNumeroProcesso").value = imp.numeroProcesso||"";
+  document.getElementById("btnExcluirImp").style.display = "inline-flex";
+  popularSelectAgentes();
+  document.getElementById("impAgente").value = imp.agente||"";
+  document.getElementById("modalImp").classList.add("open");
+}
+
+function fecharModalImp(){
+  document.getElementById("modalImp").classList.remove("open");
+  editandoImpId = null;
+}
+
+function salvarImp(){
+  var btn = document.getElementById("btnSalvarImp");
+  var tipo           = document.getElementById("impTipo").value;
+  var descricao      = document.getElementById("impDescricao").value.trim();
+  var numeroProcesso = document.getElementById("impNumeroProcesso").value.trim();
+  var agente         = document.getElementById("impAgente").value;
+  var dataAb         = document.getElementById("impDataAbertura").value;
+  var obs            = document.getElementById("impObs").value.trim();
+  var arquivo    = document.getElementById("impArquivo").files[0];
+  if(!descricao){ alert("Informe a descricao."); return; }
+  btn.disabled = true; btn.textContent = "Salvando...";
+  var dadosBase = {
+    tipo:tipo, descricao:descricao,
+    numeroProcesso:numeroProcesso, agente:agente,
+    dataAbertura:dataAb, obs:obs,
+    criadoEm: editandoImpId
+      ? ((impugnacoes.find(function(x){return x.id===editandoImpId;})||{}).criadoEm||hoje())
+      : hoje(),
+    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+  };
+  function gravar(pdfBase64, pdfNome){
+    if(pdfBase64){ dadosBase.pdfBase64 = pdfBase64; dadosBase.pdfNome = pdfNome||"documento.pdf"; }
+    var op = editandoImpId
+      ? impColRef.doc(editandoImpId).set(dadosBase)
+      : impColRef.add(dadosBase);
+    op.then(function(){ fecharModalImp(); toast("Salvo com sucesso!"); })
+      .catch(function(e){ alert("Erro ao salvar: "+e.message); })
+      .finally(function(){ btn.disabled=false; btn.textContent="Salvar"; });
+  }
+  if(arquivo){
+    if(arquivo.size > 5*1024*1024){
+      alert("Arquivo muito grande. Maximo 5MB.");
+      btn.disabled=false; btn.textContent="Salvar"; return;
+    }
+    var statusEl = document.getElementById("impUploadStatus");
+    statusEl.textContent = "Lendo PDF...";
+    var reader = new FileReader();
+    reader.onload = function(e){
+      statusEl.textContent = "Salvando...";
+      gravar(e.target.result, arquivo.name);
+    };
+    reader.onerror = function(){ alert("Erro ao ler o arquivo."); btn.disabled=false; btn.textContent="Salvar"; };
+    reader.readAsDataURL(arquivo);
+  } else {
+    var imp = editandoImpId ? impugnacoes.find(function(x){return x.id===editandoImpId;}) : null;
+    var existBase64 = imp ? imp.pdfBase64||null : null;
+    var existNome   = imp ? imp.pdfNome||null : null;
+    if(existBase64){ dadosBase.pdfBase64 = existBase64; dadosBase.pdfNome = existNome||"documento.pdf"; }
+    gravar(null, null);
+  }
+}
+
+function excluirImp(){
+  if(!editandoImpId) return;
+  var imp = impugnacoes.find(function(x){return x.id===editandoImpId;});
+  if(!confirm("Excluir: "+(imp?imp.descricao:"este item")+"?")) return;
+  impColRef.doc(editandoImpId).delete()
+    .then(function(){ fecharModalImp(); toast("Excluido."); })
+    .catch(function(e){ alert("Erro: "+e.message); });
+}
+
+
+function marcarRespondido(id){
+  var imp = impugnacoes.find(function(x){return x.id===id;}); if(!imp) return;
+  var tipo = imp.tipo==="impugnacao" ? "impugnacao" : (imp.tipo==="esclarecimento" ? "esclarecimento" : "item");
+  if(!confirm(
+    "Marcar como RESPONDIDO e excluir do sistema?\n\n" +
+    '"'+imp.descricao+'"\n\n'+
+    "O registro sera removido do banco de dados (incluindo o PDF)\npara manter o sistema leve."
+  )) return;
+  impColRef.doc(id).delete()
+    .then(function(){ toast("Marcado como respondido e removido!"); })
+    .catch(function(e){ alert("Erro: "+e.message); });
+}
+function excluirImpDireto(id){
+  var imp = impugnacoes.find(function(x){return x.id===id;});
+  if(!confirm("Excluir: "+(imp?imp.descricao:"este item")+"?")) return;
+  impColRef.doc(id).delete().then(function(){ toast("Excluido."); }).catch(function(e){ alert("Erro: "+e.message); });
+}
 </script>
