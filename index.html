@@ -644,9 +644,18 @@
         </select>
       </div>
       <div class="field">
-        <label>Anexar PDF <span style="font-weight:400;font-size:11.5px;color:var(--muted)">(máx. 5MB)</span></label>
+        <label>Anexar PDF <span style="font-weight:400;font-size:11.5px;color:var(--muted)">(máx. 5MB — opcional se usar texto abaixo)</span></label>
         <input type="file" id="impArquivo" accept=".pdf" style="padding:8px;background:#f8fafd;border:1.5px solid var(--border);border-radius:8px;font-family:Arial,sans-serif;font-size:13px;width:100%">
         <div id="impUploadStatus" style="font-size:12px;color:var(--muted);margin-top:4px"></div>
+      </div>
+      <div class="field">
+        <label style="display:flex;align-items:center;gap:8px;cursor:pointer">
+          <input type="checkbox" id="impUsarTexto" onchange="toggleTextoImp()" style="width:16px;height:16px;cursor:pointer">
+          <span>Enviado por texto <span style="font-weight:400;font-size:11.5px;color:var(--muted)">(gera PDF timbrado automaticamente)</span></span>
+        </label>
+        <div id="impTextoArea" style="display:none;margin-top:8px">
+          <textarea id="impTexto" placeholder="Digite aqui o conteúdo da impugnação ou esclarecimento enviado por texto..." style="width:100%;min-height:160px;font-size:13.5px;line-height:1.6;padding:11px 14px;border:1.5px solid var(--border);border-radius:8px;font-family:Arial,sans-serif;outline:none;resize:vertical"></textarea>
+        </div>
       </div>
       <div class="field">
         <label>Observações</label>
@@ -792,6 +801,12 @@ document.addEventListener("click", function(e){
   if(action === "editar-imp")  editarImp(btn.dataset.impid);
   if(action === "excluir-imp")  excluirImpDireto(btn.dataset.impid);
   if(action === "responder-imp") marcarRespondido(btn.dataset.impid);
+  if(action === "baixar-pdf-texto"){
+    var impTxt = impugnacoes.find(function(x){return x.id===btn.dataset.impid;});
+    if(impTxt && impTxt.textoImp){ gerarPDFImpugnacao(impTxt, impTxt.textoImp, true); }
+    else { alert("Texto nao encontrado. Edite e salve novamente."); }
+    return;
+  }
   if(action === "portal" && pid) abrirPortal(pid);
 });
 
@@ -1869,6 +1884,116 @@ function confirmarExcluirUpdate(pid, ts){
     .catch(function(e){alert("Erro: "+e.message);});
 }
 
+
+// ── Gerar PDF timbrado de Impugnação/Esclarecimento ───────────────────────────
+function gerarPDFImpugnacao(imp, texto, download){
+  if(!window.jspdf||!window.jspdf.jsPDF){ alert("Biblioteca PDF ainda carregando. Tente em segundos."); return null; }
+  var jsPDFCls=window.jspdf.jsPDF;
+  var doc=new jsPDFCls({orientation:"portrait",unit:"mm",format:"a4"});
+  var PW=210,PH=297,ML=28,MR=28,CW=PW-ML-MR;
+  var cNavy=[26,58,107],cNavyLt=[42,90,170],cWhite=[255,255,255];
+  var cBg=[238,241,248],cMuted=[90,110,153],cText=[22,32,56],cBorder=[200,212,232];
+  var TIPO_LABELS={impugnacao:"IMPUGNACAO",esclarecimento:"ESCLARECIMENTO",recurso:"RECURSO"};
+  var tipoLabel=TIPO_LABELS[imp.tipo]||((imp.tipo||"").toUpperCase());
+
+  function setFill(r,g,b){doc.setFillColor(r,g,b);}
+  function setDraw(r,g,b){doc.setDrawColor(r,g,b);}
+  function setTxtC(r,g,b){doc.setTextColor(r,g,b);}
+
+  // Cabeçalho branco
+  setFill(255,255,255); doc.rect(0,0,PW,42,"F");
+  try{doc.addImage(LOGO_B64_PDF,"JPEG",ML,5,50,30);}catch(e){}
+  setTxtC(0,0,0); doc.setFontSize(14); doc.setFont("helvetica","bold");
+  var titulo = tipoLabel;
+  if(imp.descricao) titulo += " - "+imp.descricao.substring(0,40).toUpperCase();
+  doc.text(titulo,ML+56,17);
+  doc.setFontSize(9.5); doc.setFont("helvetica","normal"); setTxtC(80,80,80);
+  doc.text("Municipio de Ijui  |  Capital Mundial das Etnias",ML+56,25);
+  doc.text("Emitido em: "+formatarData(hoje())+"  as  "+new Date().toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"}),ML+56,32);
+  var y=50;
+
+  // Box identificação
+  setFill.apply(null,cBg); doc.roundedRect(ML,y,CW,36,3,3,"F");
+  setDraw.apply(null,cBorder); doc.setLineWidth(0.4); doc.roundedRect(ML,y,CW,36,3,3,"S");
+  setFill.apply(null,cNavy); doc.roundedRect(ML,y,CW,10,3,3,"F"); doc.rect(ML,y+6,CW,4,"F");
+  setTxtC.apply(null,cWhite); doc.setFontSize(9.5); doc.setFont("helvetica","bold");
+  doc.text("IDENTIFICACAO",ML+5,y+7.5);
+  var ry=y+16, colW=CW/3;
+  var cols=[
+    [imp.numeroProcesso||"Nao informado","Numero do Processo"],
+    [imp.agente||"Nao informado","Agente Responsavel"],
+    [imp.dataAbertura?formatarData(imp.dataAbertura):"Nao informada","Data Abertura Certame"]
+  ];
+  for(var ci=0;ci<cols.length;ci++){
+    var cx=ML+ci*colW+4;
+    setTxtC.apply(null,cText); doc.setFontSize(10); doc.setFont("helvetica","bold");
+    doc.text(cols[ci][0],cx,ry);
+    doc.setFontSize(8); doc.setFont("helvetica","normal"); setTxtC.apply(null,cMuted);
+    doc.text(cols[ci][1],cx,ry+5);
+  }
+  y+=42;
+
+  // Bloco conteúdo
+  y+=2;
+  setFill.apply(null,cNavy); doc.roundedRect(ML,y,CW,10,2,2,"F"); doc.rect(ML,y+6,CW,4,"F");
+  setTxtC.apply(null,cWhite); doc.setFontSize(9.5); doc.setFont("helvetica","bold");
+  doc.text("CONTEUDO",ML+5,y+7.5);
+  y+=16;
+
+  // Renderizar texto parágrafo a parágrafo
+  setTxtC.apply(null,cText); doc.setFontSize(11); doc.setFont("helvetica","normal");
+  var paragraphs=(texto||"").split("\n");
+  for(var pi=0;pi<paragraphs.length;pi++){
+    var para=paragraphs[pi].trim();
+    if(!para){y+=3;continue;}
+    var lines=doc.splitTextToSize(para,CW);
+    for(var li=0;li<lines.length;li++){
+      if(y+7>PH-30){
+        doc.addPage();
+        setFill(255,255,255); doc.rect(0,0,PW,14,"F");
+        setFill.apply(null,cNavy); doc.rect(0,14,PW,2,"F");
+        try{doc.addImage(LOGO_B64_PDF,"JPEG",ML,1,28,12);}catch(e){}
+        setTxtC.apply(null,cNavy); doc.setFontSize(9); doc.setFont("helvetica","bold");
+        doc.text(tipoLabel+": "+(imp.descricao||"").substring(0,50),ML+32,10);
+        y=22; setTxtC.apply(null,cText); doc.setFontSize(11); doc.setFont("helvetica","normal");
+      }
+      doc.text(lines[li],ML,y); y+=6.5;
+    }
+    y+=2;
+  }
+
+  // Assinatura
+  y+=10;
+  if(y+30>PH-16){doc.addPage();y=28;}
+  var sigX=PW/2;
+  setDraw.apply(null,cNavy); doc.setLineWidth(0.5);
+  doc.line(sigX-50,y,sigX+50,y); y+=7;
+  setTxtC.apply(null,cNavy); doc.setFontSize(10); doc.setFont("helvetica","bold");
+  doc.text(imp.agente||"Agente de Contratacao",sigX,y,{align:"center"}); y+=6;
+  doc.setFontSize(9); doc.setFont("helvetica","normal"); setTxtC.apply(null,cMuted);
+  doc.text("Agente de Contratacao - Municipio de Ijui",sigX,y,{align:"center"});
+
+  // Rodapé
+  var total=doc.internal.getNumberOfPages();
+  for(var pg=1;pg<=total;pg++){
+    doc.setPage(pg);
+    setFill.apply(null,cBg); doc.rect(0,PH-12,PW,12,"F");
+    setDraw.apply(null,cBorder); doc.setLineWidth(0.3); doc.line(ML,PH-12,PW-MR,PH-12);
+    doc.setFontSize(7.5); setTxtC.apply(null,cMuted); doc.setFont("helvetica","normal");
+    doc.text("Municipio de Ijui - Capital Mundial das Etnias  |  Gestao de Processos Licitatorios",ML,PH-5);
+    doc.text("Pagina "+pg+" de "+total,PW-MR,PH-5,{align:"right"});
+  }
+
+  if(download){
+    var nome=tipoLabel+"_"+(imp.numeroProcesso||"").replace(/[^a-zA-Z0-9]/g,"_")+"_"+hoje()+".pdf";
+    doc.save(nome);
+    toast("PDF gerado: "+nome);
+    return null;
+  } else {
+    return {base64:doc.output("datauristring"), nome:tipoLabel+"_"+(imp.numeroProcesso||"").replace(/[^a-zA-Z0-9]/g,"_")+"_"+hoje()+".pdf"};
+  }
+}
+
 // Click fora nao fecha modal - apenas Salvar/Cancelar fecha
 
 // ── PWA Setup ─────────────────────────────────────────────────────────────────
@@ -1980,9 +2105,14 @@ function renderImpugnacoes(){
     var agenteLabel = imp.agente||"";
     var dataAb = imp.dataAbertura ? formatarData(imp.dataAbertura) : "Sem data";
     var obsHtml = imp.obs ? ('<div style="font-size:12px;color:var(--muted);line-height:1.4">'+escHtml(imp.obs)+'</div>') : "";
-    var pdfBtn = imp.pdfBase64
-      ? ('<button class="imp-btn pdf-view" data-action="ver-pdf" data-impid="'+escHtml(imp.id)+'">&#128196; '+escHtml(imp.pdfNome||"PDF")+'</button>')
-      : '<span style="font-size:11px;color:var(--muted);padding:4px 6px">Sem PDF</span>';
+    var pdfBtn;
+    if(imp.pdfBase64){
+      pdfBtn = '<button class="imp-btn pdf-view" data-action="ver-pdf" data-impid="'+escHtml(imp.id)+'">&#128196; '+escHtml(imp.pdfNome||"PDF")+'</button>';
+    } else if(imp.textoImp){
+      pdfBtn = '<button class="imp-btn pdf-view" data-action="baixar-pdf-texto" data-impid="'+escHtml(imp.id)+'">&#128196; Gerar PDF</button>';
+    } else {
+      pdfBtn = '<span style="font-size:11px;color:var(--muted);padding:4px 6px">Sem PDF</span>';
+    }
     out += '<div class="imp-card" style="'+cardStyle+'">'
       +'<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:6px">'
         +'<div style="flex:1"><div class="imp-card-title">'+escHtml(imp.descricao||"Sem titulo")+'</div>'
@@ -2050,6 +2180,12 @@ function editarImp(id){
   document.getElementById("modalImp").classList.add("open");
 }
 
+function toggleTextoImp(){
+  var usar = document.getElementById("impUsarTexto").checked;
+  document.getElementById("impTextoArea").style.display = usar ? "block" : "none";
+  document.getElementById("impArquivo").disabled = usar;
+  document.getElementById("impArquivo").style.opacity = usar ? "0.4" : "1";
+}
 function fecharModalImp(){
   document.getElementById("modalImp").classList.remove("open");
   editandoImpId = null;
@@ -2063,13 +2199,17 @@ function salvarImp(){
   var agente         = document.getElementById("impAgente").value;
   var dataAb         = document.getElementById("impDataAbertura").value;
   var obs            = document.getElementById("impObs").value.trim();
-  var arquivo    = document.getElementById("impArquivo").files[0];
+  var arquivo        = document.getElementById("impArquivo").files[0];
+  var usarTexto      = document.getElementById("impUsarTexto") && document.getElementById("impUsarTexto").checked;
+  var textoImp       = usarTexto ? (document.getElementById("impTexto").value.trim()) : "";
   if(!descricao){ alert("Informe a descricao."); return; }
+  if(usarTexto && !textoImp){ alert("Digite o texto da impugnacao/esclarecimento."); return; }
   btn.disabled = true; btn.textContent = "Salvando...";
   var dadosBase = {
     tipo:tipo, descricao:descricao,
     numeroProcesso:numeroProcesso, agente:agente,
     dataAbertura:dataAb, obs:obs,
+    textoImp: textoImp,
     criadoEm: editandoImpId
       ? ((impugnacoes.find(function(x){return x.id===editandoImpId;})||{}).criadoEm||hoje())
       : hoje(),
@@ -2084,7 +2224,7 @@ function salvarImp(){
       .catch(function(e){ alert("Erro ao salvar: "+e.message); })
       .finally(function(){ btn.disabled=false; btn.textContent="Salvar"; });
   }
-  if(arquivo){
+  if(!usarTexto && arquivo){
     if(arquivo.size > 5*1024*1024){
       alert("Arquivo muito grande. Maximo 5MB.");
       btn.disabled=false; btn.textContent="Salvar"; return;
@@ -2099,10 +2239,10 @@ function salvarImp(){
     reader.onerror = function(){ alert("Erro ao ler o arquivo."); btn.disabled=false; btn.textContent="Salvar"; };
     reader.readAsDataURL(arquivo);
   } else {
-    var imp = editandoImpId ? impugnacoes.find(function(x){return x.id===editandoImpId;}) : null;
-    var existBase64 = imp ? imp.pdfBase64||null : null;
-    var existNome   = imp ? imp.pdfNome||null : null;
-    if(existBase64){ dadosBase.pdfBase64 = existBase64; dadosBase.pdfNome = existNome||"documento.pdf"; }
+    var existImp    = editandoImpId ? impugnacoes.find(function(x){return x.id===editandoImpId;}) : null;
+    var existBase64 = (!usarTexto && existImp) ? existImp.pdfBase64||null : null;
+    var existNome   = (!usarTexto && existImp) ? existImp.pdfNome||null   : null;
+    if(existBase64){ dadosBase.pdfBase64 = existBase64; dadosBase.pdfNome = existNome; }
     gravar(null, null);
   }
 }
