@@ -255,6 +255,70 @@
   .imp-btn.pdf-view { background: var(--navy); color: #fff; border-color: var(--navy); }
   .imp-btn.pdf-view:hover { background: var(--navy-light); }
 
+
+  /* ── RANKING PANEL ──────────────────────────────────────────────────────── */
+  #rankingPanel{position:fixed;inset:0;background:#f0f2f5;z-index:500;display:none;flex-direction:column;overflow:hidden;zoom:1.75}
+  #rankingPanel.open{display:flex}
+  .rk-topbar{background:#102040;padding:0 24px;display:flex;align-items:center;justify-content:space-between;height:56px;flex-shrink:0;gap:16px}
+  .rk-topbar-title{color:#fff;font-size:15px;font-weight:700;display:flex;align-items:center;gap:10px}
+  .rk-topbar-actions{display:flex;align-items:center;gap:10px}
+  .rk-btn{font-size:12px;padding:6px 14px;border-radius:6px;border:none;cursor:pointer;font-weight:700;display:flex;align-items:center;gap:5px}
+  .rk-btn-import{background:rgba(255,255,255,.15);color:#fff}.rk-btn-import:hover{background:rgba(255,255,255,.25)}
+  .rk-btn-pdf{background:#1E5F3A;color:#fff}.rk-btn-pdf:hover{background:#164d2e}
+  .rk-btn-close{background:rgba(255,255,255,.12);color:#fff;width:32px;height:32px;padding:0;border-radius:6px;font-size:18px;justify-content:center}.rk-btn-close:hover{background:rgba(255,255,255,.25)}
+  .rk-body{flex:1;overflow-y:auto;padding:18px 24px}
+  .rk-no-json{text-align:center;padding:60px 20px;color:#888}.rk-no-json h3{font-size:16px;color:#444;margin-bottom:8px}
+  .rk-stats{display:flex;gap:10px;margin-bottom:14px}
+  .rk-stat{background:#fff;border:1px solid #ddd;border-radius:8px;padding:8px 16px;text-align:center;flex:1;cursor:pointer;transition:all .15s}.rk-stat:hover{border-color:#1E3A5F}
+  .rk-stat.rk-active{border-color:#555;background:#f5f5f5}
+  .rk-stat .n{font-size:20px;font-weight:700}.rk-stat .l{font-size:11px;color:#666;margin-top:2px}
+  .rk-stat.stotal .n{color:#1E3A5F}.rk-stat.sap .n{color:#1E5F3A}.rk-stat.sdil .n{color:#1d4ed8}.rk-stat.spe .n{color:#A32D2D}
+  .rk-hint{font-size:11px;color:#888;text-align:center;margin-bottom:10px}
+  .rk-search-wrap{position:relative;margin-bottom:12px}
+  .rk-search-wrap input{width:100%;padding:8px 12px 8px 34px;border:1px solid #ddd;border-radius:8px;font-size:13px;font-family:Arial,sans-serif;background:#fff;outline:none}
+  .rk-search-wrap input:focus{border-color:#1E3A5F}
+  .rk-search-wrap input::placeholder{color:#bbb}
+  .rk-search-icon{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:#bbb;font-size:15px;pointer-events:none}
+  .rk-clear{position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;color:#bbb;font-size:16px;cursor:pointer;display:none;line-height:1}
+  .rk-item-block{margin-bottom:14px;border-radius:8px;overflow:hidden;border:1px solid #ddd}
+  .rk-item-head{padding:7px 14px;display:flex;justify-content:space-between;align-items:center}
+  .rk-item-head.pendente{background:#1E3A5F}.rk-item-head.aprovado{background:#1E5F3A}.rk-item-head.diligencia{background:#1d4ed8}
+  .rk-item-title{color:#fff;font-weight:700;font-size:13px;flex:1}.rk-item-ref{color:rgba(255,255,255,.65);font-size:11px;white-space:nowrap}
+  .rk-table{width:100%;border-collapse:collapse;table-layout:auto}
+  .rk-table th{background:rgba(0,0,0,.12);color:#fff;font-weight:700;font-size:11px;padding:5px 10px;text-align:left;white-space:nowrap}
+  .rk-table th.r{text-align:right}.rk-table th.c{text-align:center}
+  .rk-table tr.rk-forn{cursor:pointer}.rk-table tr.rk-forn:hover{filter:brightness(.96)}
+  .rk-table tr.neutro td{background:#fff;border-bottom:1px solid #f0f0f0}
+  .rk-table tr.aprovado td{background:#F3FFF5;border-bottom:1px solid #c3e6cb}
+  .rk-table tr.reprovado td{background:#FFF3F3;border-bottom:1px solid #f5c6c6}
+  .rk-table tr.diligencia td{background:#EFF6FF;border-bottom:1px solid #bfdbfe}
+  .rk-table td{padding:5px 10px;font-size:12px;vertical-align:middle;word-wrap:break-word;overflow-wrap:break-word}
+  .rk-table td:first-child{min-width:140px;max-width:220px}
+  .rk-table td.r{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+  .rk-table td.c{text-align:center;white-space:nowrap}
+  .rk-table td.sit{vertical-align:top;padding-top:6px;min-width:200px;width:22%}
+  .rk-badge{font-size:11px;padding:2px 8px;border-radius:8px;font-weight:700;display:inline-block;margin-bottom:2px}
+  .rk-badge.ap{background:#d4edda;color:#1E5F3A}.rk-badge.rp{background:#f8d7da;color:#A32D2D}.rk-badge.dil{background:#dbeafe;color:#1d4ed8}
+  .rk-motivo-input{width:100%;font-size:11px;padding:5px 7px;border:1px solid #f5c6c6;border-radius:4px;background:#fff8f8;resize:none;overflow:hidden;min-height:52px;font-family:Arial,sans-serif;line-height:1.5;display:block}
+  .rk-motivo-input:focus{outline:none;border-color:#A32D2D}.rk-motivo-input::placeholder{color:#ccc}
+  .rk-motivo-print{display:none;font-size:11px;color:#A32D2D;font-style:italic;margin-top:3px;line-height:1.4}
+  .rk-pct-abaixo{color:#1d4ed8;font-weight:700;font-size:11px;white-space:nowrap}
+  .rk-pct-acima{color:#A32D2D;font-weight:700;font-size:11px;white-space:nowrap}
+  .rk-pct-zero{color:#888;font-size:11px;white-space:nowrap}
+  .rk-no-results{text-align:center;padding:24px;color:#999;font-size:13px}
+  @media print{
+    body>*:not(#rankingPanel){display:none!important}
+    #rankingPanel{position:static!important;display:block!important;zoom:1!important}
+    .rk-topbar .rk-topbar-actions,.rk-hint,.rk-search-wrap,.rk-stats{display:none!important}
+    .rk-item-head.pendente{background:#1E3A5F!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+    .rk-item-head.aprovado{background:#1E5F3A!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+    .rk-item-head.diligencia{background:#1d4ed8!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+    .rk-table tr.aprovado td{background:#F3FFF5!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+    .rk-table tr.reprovado td{background:#FFF3F3!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+    .rk-table tr.diligencia td{background:#EFF6FF!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+    .rk-motivo-input{display:none!important}.rk-motivo-print{display:block!important}
+    .rk-item-block{page-break-inside:avoid}
+  }
 </style>
 </head>
 <body>
@@ -676,6 +740,43 @@
 
 
 
+<!-- RANKING PANEL — inserido antes do script principal -->
+<div id="rankingPanel">
+  <div class="rk-topbar">
+    <div class="rk-topbar-title"><span>&#128202;</span><span id="rkPanelTitle">Análise de Ranking</span></div>
+    <div class="rk-topbar-actions">
+      <label class="rk-btn rk-btn-import" style="cursor:pointer">
+        &#128196; Importar JSON
+        <input type="file" id="rkFileInput" accept=".json" style="display:none">
+      </label>
+      <button class="rk-btn rk-btn-pdf" onclick="window.print()">&#128438; Exportar PDF</button>
+      <button class="rk-btn rk-btn-close" onclick="fecharRanking()">&#10005;</button>
+    </div>
+  </div>
+  <div class="rk-body" id="rkBody">
+    <div class="rk-no-json" id="rkNoJson">
+      <h3>Nenhum ranking importado para este processo</h3>
+      <p>Clique em <strong>Importar JSON</strong> para carregar o arquivo de ranking.</p>
+    </div>
+    <div id="rkConteudo" style="display:none">
+      <div class="rk-stats">
+        <div class="rk-stat stotal" id="rkBtnTodos" onclick="rkSetFiltro(null)"><div class="n" id="rks-total">0</div><div class="l">Todos os Itens</div></div>
+        <div class="rk-stat sap" id="rkBtnAp" onclick="rkSetFiltro('aprovado')"><div class="n" id="rks-ap">0</div><div class="l">Itens Aprovados</div></div>
+        <div class="rk-stat sdil" id="rkBtnDil" onclick="rkSetFiltro('diligencia')"><div class="n" id="rks-dil">0</div><div class="l">Em Diligência</div></div>
+        <div class="rk-stat spe" id="rkBtnPe" onclick="rkSetFiltro('pendente')"><div class="n" id="rks-pe">0</div><div class="l">Itens Pendentes</div></div>
+      </div>
+      <p class="rk-hint">Clique num fornecedor: Aprovado → Reprovado → Diligência → Neutro &nbsp;|&nbsp; Clique nos filtros para filtrar</p>
+      <div class="rk-search-wrap">
+        <span class="rk-search-icon">&#128269;</span>
+        <input type="text" id="rkCampoBusca" placeholder="Pesquisar por nº do item, descrição ou nome do fornecedor..." oninput="rkOnBusca(this.value)">
+        <button class="rk-clear" id="rkClearBusca" onclick="rkLimparBusca()">&#x2715;</button>
+      </div>
+      <div id="rkRanking"></div>
+    </div>
+  </div>
+</div>
+
+
 
 
 <script>
@@ -808,6 +909,7 @@ document.addEventListener("click", function(e){
     return;
   }
   if(action === "portal" && pid) abrirPortal(pid);
+  if(action === "ranking" && pid) abrirRanking(pid);
 });
 
 // ── Status config ─────────────────────────────────────────────────────────────
@@ -1021,6 +1123,7 @@ function renderizar(){
     html+='<button class="btn-sm" data-action="atualizar">+ Atualizar</button>';
     html+='<button class="btn-sm" data-action="editar">Editar</button>';
     html+='<button class="btn-sm pdf-btn" data-action="pdf">PDF</button>';
+    html+='<button class="btn-sm" data-action="ranking" style="background:#102040;color:#fff;border-color:#102040">&#128202; Ranking</button>';
     html+=portalBtn;
     html+='</div></div>';
   }
@@ -2274,4 +2377,138 @@ function excluirImpDireto(id){
   if(!confirm("Excluir: "+(imp?imp.descricao:"este item")+"?")) return;
   impColRef.doc(id).delete().then(function(){ toast("Excluido."); }).catch(function(e){ alert("Erro: "+e.message); });
 }
+
+
+// ── RANKING PANEL ─────────────────────────────────────────────────────────────
+var rkProcessoAtual = null;
+var rkItens = [];
+var rkFiltroAtivo = null;
+var rkTermoBusca = '';
+
+function rkGetEstados(id){ try{ var d=JSON.parse(localStorage.getItem('rk_est')||'{}'); return d[id]||{}; }catch(e){ return {}; } }
+function rkSaveEstados(id,e){ try{ var d=JSON.parse(localStorage.getItem('rk_est')||'{}'); d[id]=e; localStorage.setItem('rk_est',JSON.stringify(d)); }catch(ex){} }
+function rkGetMotivos(id){ try{ var d=JSON.parse(localStorage.getItem('rk_mot')||'{}'); return d[id]||{}; }catch(e){ return {}; } }
+function rkSaveMotivos(id,m){ try{ var d=JSON.parse(localStorage.getItem('rk_mot')||'{}'); d[id]=m; localStorage.setItem('rk_mot',JSON.stringify(d)); }catch(ex){} }
+
+document.getElementById('rkFileInput').addEventListener('change', function(){
+  var file=this.files[0]; if(!file) return;
+  var r=new FileReader();
+  r.onload=function(e){
+    try{
+      var proc=JSON.parse(e.target.result);
+      if(!proc.itens) return alert('JSON inválido.');
+      rkItens=proc.itens;
+      try{ var all=JSON.parse(localStorage.getItem('rk_itens')||'{}'); all[rkProcessoAtual.id]=rkItens; localStorage.setItem('rk_itens',JSON.stringify(all)); }catch(ex){}
+      document.getElementById('rkNoJson').style.display='none';
+      document.getElementById('rkConteudo').style.display='block';
+      rkRenderProcesso();
+    }catch(ex){ alert('Erro: '+ex.message); }
+  };
+  r.readAsText(file);
+  this.value='';
+});
+
+function abrirRanking(pid){
+  var proc=processos.find(function(p){ return p.id===pid; });
+  if(!proc) return;
+  rkProcessoAtual={id:pid,numero:proc.numero};
+  document.getElementById('rkPanelTitle').textContent='Ranking — '+proc.numero;
+  rkFiltroAtivo=null; rkTermoBusca='';
+  var inp=document.getElementById('rkCampoBusca'); if(inp) inp.value='';
+  var cb=document.getElementById('rkClearBusca'); if(cb) cb.style.display='none';
+  var stored=null;
+  try{ var all=JSON.parse(localStorage.getItem('rk_itens')||'{}'); stored=all[pid]||null; }catch(e){}
+  if(stored&&stored.length){
+    rkItens=stored;
+    document.getElementById('rkNoJson').style.display='none';
+    document.getElementById('rkConteudo').style.display='block';
+    rkRenderProcesso();
+  } else {
+    rkItens=[];
+    document.getElementById('rkNoJson').style.display='block';
+    document.getElementById('rkConteudo').style.display='none';
+  }
+  document.getElementById('rankingPanel').classList.add('open');
+}
+function fecharRanking(){ document.getElementById('rankingPanel').classList.remove('open'); }
+
+function rkItemAp(it){ var e=rkGetEstados(rkProcessoAtual.id); return it.fornecedores.some(function(_,i){ return e[it.num+'-'+i]==='aprovado'; }); }
+function rkItemDil(it){ var e=rkGetEstados(rkProcessoAtual.id); return !rkItemAp(it)&&it.fornecedores.some(function(_,i){ return e[it.num+'-'+i]==='diligencia'; }); }
+function rkItemPe(it){ return !rkItemAp(it)&&!rkItemDil(it); }
+
+function rkSetFiltro(f){
+  rkFiltroAtivo=rkFiltroAtivo===f?null:f;
+  ['rkBtnTodos','rkBtnAp','rkBtnDil','rkBtnPe'].forEach(function(id){ var el=document.getElementById(id); if(el) el.classList.remove('rk-active'); });
+  var m={null:'rkBtnTodos',aprovado:'rkBtnAp',diligencia:'rkBtnDil',pendente:'rkBtnPe'};
+  var el=document.getElementById(m[rkFiltroAtivo]); if(el) el.classList.add('rk-active');
+  rkRenderRanking();
+}
+function rkOnBusca(v){ rkTermoBusca=v.trim().toLowerCase(); var cb=document.getElementById('rkClearBusca'); if(cb) cb.style.display=rkTermoBusca?'block':'none'; rkRenderRanking(); }
+function rkLimparBusca(){ rkTermoBusca=''; var i=document.getElementById('rkCampoBusca'); if(i) i.value=''; var cb=document.getElementById('rkClearBusca'); if(cb) cb.style.display='none'; rkRenderRanking(); }
+
+function rkToggle(key){
+  var e=rkGetEstados(rkProcessoAtual.id);
+  var c={neutro:'aprovado',aprovado:'reprovado',reprovado:'diligencia',diligencia:'neutro'};
+  e[key]=c[e[key]||'neutro']||'neutro';
+  rkSaveEstados(rkProcessoAtual.id,e);
+  rkRenderProcesso();
+}
+function rkSetMotivo(key,val){ var m=rkGetMotivos(rkProcessoAtual.id); m[key]=val; rkSaveMotivos(rkProcessoAtual.id,m); }
+function rkAutoResize(el){ el.style.height='auto'; el.style.height=(el.scrollHeight+2)+'px'; }
+function rkParseBRL(s){ if(!s) return 0; return parseFloat(s.replace(/[R$\s]/g,'').replace(/\./g,'').replace(',','.')) || 0; }
+function rkCalcPct(v,r){ var vv=rkParseBRL(v),rr=rkParseBRL(r); if(!rr) return null; return (vv-rr)/rr*100; }
+function rkFmtPct(p){ if(p===null) return ''; return (p>0?'+':'')+p.toFixed(1).replace('.',',')+'%'; }
+
+function rkRenderProcesso(){
+  if(!rkItens.length) return;
+  var ap=rkItens.filter(rkItemAp).length, dil=rkItens.filter(rkItemDil).length, pe=rkItens.filter(rkItemPe).length;
+  document.getElementById('rks-total').textContent=rkItens.length;
+  document.getElementById('rks-ap').textContent=ap;
+  document.getElementById('rks-dil').textContent=dil;
+  document.getElementById('rks-pe').textContent=pe;
+  ['rkBtnTodos','rkBtnAp','rkBtnDil','rkBtnPe'].forEach(function(id){ var el=document.getElementById(id); if(el) el.classList.remove('rk-active'); });
+  var m={null:'rkBtnTodos',aprovado:'rkBtnAp',diligencia:'rkBtnDil',pendente:'rkBtnPe'};
+  var el=document.getElementById(m[rkFiltroAtivo]); if(el) el.classList.add('rk-active');
+  rkRenderRanking();
+}
+
+function rkRenderRanking(){
+  if(!rkItens.length) return;
+  var c=document.getElementById('rkRanking'); c.innerHTML='';
+  var lista=rkItens;
+  if(rkFiltroAtivo==='aprovado') lista=rkItens.filter(rkItemAp);
+  else if(rkFiltroAtivo==='diligencia') lista=rkItens.filter(rkItemDil);
+  else if(rkFiltroAtivo==='pendente') lista=rkItens.filter(rkItemPe);
+  if(rkTermoBusca){ lista=lista.filter(function(it){ return it.num.toLowerCase().includes(rkTermoBusca)||it.desc.toLowerCase().includes(rkTermoBusca)||it.fornecedores.some(function(f){ return f.nome.toLowerCase().includes(rkTermoBusca); }); }); }
+  if(!lista.length){ var d=document.createElement('div'); d.className='rk-no-results'; d.textContent='Nenhum item encontrado'+(rkTermoBusca?' para "'+rkTermoBusca+'"':''); c.appendChild(d); return; }
+  var est=rkGetEstados(rkProcessoAtual.id), mot=rkGetMotivos(rkProcessoAtual.id);
+  lista.forEach(function(it){
+    var hc=rkItemAp(it)?'aprovado':rkItemDil(it)?'diligencia':'pendente';
+    var block=document.createElement('div'); block.className='rk-item-block';
+    var head=document.createElement('div'); head.className='rk-item-head '+hc;
+    head.innerHTML='<span class="rk-item-title">Item '+escHtml(it.num)+' — '+escHtml(it.desc)+'</span><span class="rk-item-ref">'+escHtml(it.ref)+'</span>';
+    block.appendChild(head);
+    var tbl=document.createElement('table'); tbl.className='rk-table';
+    tbl.innerHTML='<thead><tr><th>Fornecedor</th><th class="r">Valor Unit.</th><th class="r">Ref.</th><th>Modelo</th><th>Marca/Fabricante</th><th class="c" style="min-width:140px">Situação / Motivo</th></tr></thead>';
+    var tbody=document.createElement('tbody');
+    it.fornecedores.forEach(function(f,i){
+      var key=it.num+'-'+i, st=est[key]||'neutro', mv=mot[key]||'';
+      var tr=document.createElement('tr'); tr.className='rk-forn '+st;
+      var pct=rkCalcPct(f.valor,it.ref), pv=rkFmtPct(pct);
+      var pc=pct===null?'':pct>0?'rk-pct-acima':pct===0?'rk-pct-zero':'rk-pct-abaixo';
+      var sitHTML='';
+      if(st==='aprovado') sitHTML='<span class="rk-badge ap">Aprovado</span>';
+      else if(st==='reprovado') sitHTML='<span class="rk-badge rp">Reprovado</span><br><textarea class="rk-motivo-input" placeholder="Motivo da reprovação..." onclick="event.stopPropagation()" oninput="rkSetMotivo(this.dataset.key,this.value);this.nextElementSibling.textContent=this.value;rkAutoResize(this)" data-key="'+escHtml(key)+'">'+escHtml(mv)+'</textarea><div class="rk-motivo-print">'+escHtml(mv)+'</div>';
+      else if(st==='diligencia') sitHTML='<span class="rk-badge dil">Diligência</span><br><textarea class="rk-motivo-input" style="border-color:#bfdbfe;background:#eff6ff" placeholder="Motivo da diligência..." onclick="event.stopPropagation()" oninput="rkSetMotivo(this.dataset.key,this.value);this.nextElementSibling.textContent=this.value;rkAutoResize(this)" data-key="'+escHtml(key)+'">'+escHtml(mv)+'</textarea><div class="rk-motivo-print" style="color:#1d4ed8">'+escHtml(mv)+'</div>';
+      tr.innerHTML='<td>'+escHtml(f.nome)+'</td><td class="r">'+escHtml(f.valor)+'</td><td class="r"><span class="'+pc+'">'+pv+'</span></td><td>'+escHtml(f.modelo)+'</td><td>'+escHtml(f.marca)+'</td><td class="sit">'+sitHTML+'</td>';
+      Array.from(tr.cells).slice(0,5).forEach(function(td){ td.addEventListener('click',function(){ rkToggle(key); }); });
+      var badge=tr.querySelector('.rk-badge'); if(badge) badge.addEventListener('click',function(ev){ ev.stopPropagation(); rkToggle(key); });
+      tbody.appendChild(tr);
+    });
+    tbl.appendChild(tbody); block.appendChild(tbl); c.appendChild(block);
+    block.querySelectorAll('.rk-motivo-input').forEach(rkAutoResize);
+  });
+}
+
+
 </script>
