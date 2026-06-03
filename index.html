@@ -2379,29 +2379,42 @@ function excluirImpDireto(id){
 }
 
 
-// ── RANKING PANEL ─────────────────────────────────────────────────────────────
+// ── RANKING PANEL (Firestore — sincroniza entre computadores) ─────────────────
+var rkColRef = db.collection('rankings');
 var rkProcessoAtual = null;
 var rkItens = [];
+var rkEstados = {};
+var rkMotivos = {};
 var rkFiltroAtivo = null;
 var rkTermoBusca = '';
+var rkMotivoTimer = null;
 
-function rkGetEstados(id){ try{ var d=JSON.parse(localStorage.getItem('rk_est')||'{}'); return d[id]||{}; }catch(e){ return {}; } }
-function rkSaveEstados(id,e){ try{ var d=JSON.parse(localStorage.getItem('rk_est')||'{}'); d[id]=e; localStorage.setItem('rk_est',JSON.stringify(d)); }catch(ex){} }
-function rkGetMotivos(id){ try{ var d=JSON.parse(localStorage.getItem('rk_mot')||'{}'); return d[id]||{}; }catch(e){ return {}; } }
-function rkSaveMotivos(id,m){ try{ var d=JSON.parse(localStorage.getItem('rk_mot')||'{}'); d[id]=m; localStorage.setItem('rk_mot',JSON.stringify(d)); }catch(ex){} }
+function rkSalvarFirestore(){
+  if(!rkProcessoAtual) return;
+  rkColRef.doc(rkProcessoAtual.id).set({
+    itens: rkItens,
+    estados: rkEstados,
+    motivos: rkMotivos,
+    numero: rkProcessoAtual.numero,
+    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+  }).catch(function(e){ console.error('Erro ao salvar ranking:', e); toast('Erro ao salvar na nuvem'); });
+}
 
 document.getElementById('rkFileInput').addEventListener('change', function(){
   var file=this.files[0]; if(!file) return;
+  if(!rkProcessoAtual){ alert('Selecione um processo primeiro.'); return; }
   var r=new FileReader();
   r.onload=function(e){
     try{
       var proc=JSON.parse(e.target.result);
       if(!proc.itens) return alert('JSON inválido.');
       rkItens=proc.itens;
-      try{ var all=JSON.parse(localStorage.getItem('rk_itens')||'{}'); all[rkProcessoAtual.id]=rkItens; localStorage.setItem('rk_itens',JSON.stringify(all)); }catch(ex){}
+      if(proc.motivos) rkMotivos=Object.assign({}, rkMotivos, proc.motivos);
+      rkSalvarFirestore();
       document.getElementById('rkNoJson').style.display='none';
       document.getElementById('rkConteudo').style.display='block';
       rkRenderProcesso();
+      toast('Ranking importado e salvo na nuvem!');
     }catch(ex){ alert('Erro: '+ex.message); }
   };
   r.readAsText(file);
@@ -2416,24 +2429,36 @@ function abrirRanking(pid){
   rkFiltroAtivo=null; rkTermoBusca='';
   var inp=document.getElementById('rkCampoBusca'); if(inp) inp.value='';
   var cb=document.getElementById('rkClearBusca'); if(cb) cb.style.display='none';
-  var stored=null;
-  try{ var all=JSON.parse(localStorage.getItem('rk_itens')||'{}'); stored=all[pid]||null; }catch(e){}
-  if(stored&&stored.length){
-    rkItens=stored;
-    document.getElementById('rkNoJson').style.display='none';
-    document.getElementById('rkConteudo').style.display='block';
-    rkRenderProcesso();
-  } else {
-    rkItens=[];
-    document.getElementById('rkNoJson').style.display='block';
-    document.getElementById('rkConteudo').style.display='none';
-  }
+  rkItens=[]; rkEstados={}; rkMotivos={};
+  var noJson=document.getElementById('rkNoJson');
+  noJson.innerHTML='<h3>Carregando...</h3>';
+  noJson.style.display='block';
+  document.getElementById('rkConteudo').style.display='none';
   document.getElementById('rankingPanel').classList.add('open');
+  rkColRef.doc(pid).get().then(function(doc){
+    if(doc.exists){
+      var d=doc.data();
+      rkItens=d.itens||[];
+      rkEstados=d.estados||{};
+      rkMotivos=d.motivos||{};
+    }
+    if(rkItens.length){
+      noJson.style.display='none';
+      document.getElementById('rkConteudo').style.display='block';
+      rkRenderProcesso();
+    } else {
+      noJson.innerHTML='<h3>Nenhum ranking importado para este processo</h3><p>Clique em <strong>Importar JSON</strong> para carregar o arquivo de ranking.</p>';
+      noJson.style.display='block';
+      document.getElementById('rkConteudo').style.display='none';
+    }
+  }).catch(function(e){
+    noJson.innerHTML='<h3>Erro ao carregar</h3><p>'+e.message+'</p>';
+  });
 }
 function fecharRanking(){ document.getElementById('rankingPanel').classList.remove('open'); }
 
-function rkItemAp(it){ var e=rkGetEstados(rkProcessoAtual.id); return it.fornecedores.some(function(_,i){ return e[it.num+'-'+i]==='aprovado'; }); }
-function rkItemDil(it){ var e=rkGetEstados(rkProcessoAtual.id); return !rkItemAp(it)&&it.fornecedores.some(function(_,i){ return e[it.num+'-'+i]==='diligencia'; }); }
+function rkItemAp(it){ return it.fornecedores.some(function(_,i){ return rkEstados[it.num+'-'+i]==='aprovado'; }); }
+function rkItemDil(it){ return !rkItemAp(it)&&it.fornecedores.some(function(_,i){ return rkEstados[it.num+'-'+i]==='diligencia'; }); }
 function rkItemPe(it){ return !rkItemAp(it)&&!rkItemDil(it); }
 
 function rkSetFiltro(f){
@@ -2447,13 +2472,16 @@ function rkOnBusca(v){ rkTermoBusca=v.trim().toLowerCase(); var cb=document.getE
 function rkLimparBusca(){ rkTermoBusca=''; var i=document.getElementById('rkCampoBusca'); if(i) i.value=''; var cb=document.getElementById('rkClearBusca'); if(cb) cb.style.display='none'; rkRenderRanking(); }
 
 function rkToggle(key){
-  var e=rkGetEstados(rkProcessoAtual.id);
   var c={neutro:'aprovado',aprovado:'reprovado',reprovado:'diligencia',diligencia:'neutro'};
-  e[key]=c[e[key]||'neutro']||'neutro';
-  rkSaveEstados(rkProcessoAtual.id,e);
+  rkEstados[key]=c[rkEstados[key]||'neutro']||'neutro';
+  rkSalvarFirestore();
   rkRenderProcesso();
 }
-function rkSetMotivo(key,val){ var m=rkGetMotivos(rkProcessoAtual.id); m[key]=val; rkSaveMotivos(rkProcessoAtual.id,m); }
+function rkSetMotivo(key,val){
+  rkMotivos[key]=val;
+  if(rkMotivoTimer) clearTimeout(rkMotivoTimer);
+  rkMotivoTimer=setTimeout(rkSalvarFirestore, 900);
+}
 function rkAutoResize(el){ el.style.height='auto'; el.style.height=(el.scrollHeight+2)+'px'; }
 function rkParseBRL(s){ if(!s) return 0; return parseFloat(s.replace(/[R$\s]/g,'').replace(/\./g,'').replace(',','.')) || 0; }
 function rkCalcPct(v,r){ var vv=rkParseBRL(v),rr=rkParseBRL(r); if(!rr) return null; return (vv-rr)/rr*100; }
@@ -2481,18 +2509,17 @@ function rkRenderRanking(){
   else if(rkFiltroAtivo==='pendente') lista=rkItens.filter(rkItemPe);
   if(rkTermoBusca){ lista=lista.filter(function(it){ return it.num.toLowerCase().includes(rkTermoBusca)||it.desc.toLowerCase().includes(rkTermoBusca)||it.fornecedores.some(function(f){ return f.nome.toLowerCase().includes(rkTermoBusca); }); }); }
   if(!lista.length){ var d=document.createElement('div'); d.className='rk-no-results'; d.textContent='Nenhum item encontrado'+(rkTermoBusca?' para "'+rkTermoBusca+'"':''); c.appendChild(d); return; }
-  var est=rkGetEstados(rkProcessoAtual.id), mot=rkGetMotivos(rkProcessoAtual.id);
   lista.forEach(function(it){
     var hc=rkItemAp(it)?'aprovado':rkItemDil(it)?'diligencia':'pendente';
     var block=document.createElement('div'); block.className='rk-item-block';
     var head=document.createElement('div'); head.className='rk-item-head '+hc;
-    head.innerHTML='<span class="rk-item-title">Item '+escHtml(it.num)+' — '+escHtml(it.desc)+'</span><span class="rk-item-ref">'+escHtml(it.ref)+'</span>';
+    head.innerHTML='<span class="rk-item-title">Item '+escHtml(it.num)+' \u2014 '+escHtml(it.desc)+'</span><span class="rk-item-ref">'+escHtml(it.ref)+'</span>';
     block.appendChild(head);
     var tbl=document.createElement('table'); tbl.className='rk-table';
     tbl.innerHTML='<thead><tr><th>Fornecedor</th><th class="r">Valor Unit.</th><th class="r">Ref.</th><th>Modelo</th><th>Marca/Fabricante</th><th class="c" style="min-width:140px">Situação / Motivo</th></tr></thead>';
     var tbody=document.createElement('tbody');
     it.fornecedores.forEach(function(f,i){
-      var key=it.num+'-'+i, st=est[key]||'neutro', mv=mot[key]||'';
+      var key=it.num+'-'+i, st=rkEstados[key]||'neutro', mv=rkMotivos[key]||'';
       var tr=document.createElement('tr'); tr.className='rk-forn '+st;
       var pct=rkCalcPct(f.valor,it.ref), pv=rkFmtPct(pct);
       var pc=pct===null?'':pct>0?'rk-pct-acima':pct===0?'rk-pct-zero':'rk-pct-abaixo';
