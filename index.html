@@ -274,12 +274,11 @@
   .rk-stat .n{font-size:20px;font-weight:700}.rk-stat .l{font-size:11px;color:#666;margin-top:2px}
   .rk-stat.stotal .n{color:#1E3A5F}.rk-stat.sap .n{color:#1E5F3A}.rk-stat.sdil .n{color:#1d4ed8}.rk-stat.spe .n{color:#A32D2D}
   .rk-hint{font-size:11px;color:#888;text-align:center;margin-bottom:10px}
-  .rk-search-wrap{position:relative;margin-bottom:12px}
-  .rk-search-wrap input{width:100%;padding:8px 12px 8px 34px;border:1px solid #ddd;border-radius:8px;font-size:13px;font-family:Arial,sans-serif;background:#fff;outline:none}
-  .rk-search-wrap input:focus{border-color:#1E3A5F}
-  .rk-search-wrap input::placeholder{color:#bbb}
-  .rk-search-icon{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:#bbb;font-size:15px;pointer-events:none}
-  .rk-clear{position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;color:#bbb;font-size:16px;cursor:pointer;display:none;line-height:1}
+  .rk-filters-wrap{display:flex;gap:8px;margin-bottom:12px;align-items:flex-end;flex-wrap:wrap}
+  .rk-filter-field{display:flex;flex-direction:column;gap:3px;flex:1;min-width:80px}
+  .rk-filter-field label{font-size:10px;font-weight:700;color:#666;text-transform:uppercase;letter-spacing:.5px}
+  .rk-filter-field input{padding:7px 10px;border:1px solid #ddd;border-radius:7px;font-size:12px;font-family:Arial,sans-serif;background:#fff;outline:none;height:32px}
+  .rk-filter-field input:focus{border-color:#1E3A5F}
   .rk-item-block{margin-bottom:14px;border-radius:8px;overflow:hidden;border:1px solid #ddd}
   .rk-item-head{padding:7px 14px;display:flex;justify-content:space-between;align-items:center}
   .rk-item-head.pendente{background:#1E3A5F}.rk-item-head.aprovado{background:#1E5F3A}.rk-item-head.diligencia{background:#1d4ed8}
@@ -766,10 +765,20 @@
         <div class="rk-stat spe" id="rkBtnPe" onclick="rkSetFiltro('pendente')"><div class="n" id="rks-pe">0</div><div class="l">Itens Pendentes</div></div>
       </div>
       <p class="rk-hint">Clique num fornecedor: Aprovado → Reprovado → Diligência → Neutro &nbsp;|&nbsp; Clique nos filtros para filtrar</p>
-      <div class="rk-search-wrap">
-        <span class="rk-search-icon">&#128269;</span>
-        <input type="text" id="rkCampoBusca" placeholder="Pesquisar por nº do item, descrição ou nome do fornecedor..." oninput="rkOnBusca(this.value)">
-        <button class="rk-clear" id="rkClearBusca" onclick="rkLimparBusca()">&#x2715;</button>
+      <div class="rk-filters-wrap">
+        <div class="rk-filter-field" style="max-width:110px">
+          <label>Nº do Item</label>
+          <input type="text" id="rkFiltroNum" placeholder="Ex: 36" oninput="rkOnFiltro()">
+        </div>
+        <div class="rk-filter-field">
+          <label>Descrição</label>
+          <input type="text" id="rkFiltroDesc" placeholder="Buscar na descrição..." oninput="rkOnFiltro()">
+        </div>
+        <div class="rk-filter-field">
+          <label>Fornecedor</label>
+          <input type="text" id="rkFiltroForn" placeholder="Nome do fornecedor..." oninput="rkOnFiltro()">
+        </div>
+        <button class="rk-btn" style="background:#546e7a;color:#fff;white-space:nowrap;align-self:flex-end;height:32px" onclick="rkLimparFiltros()">&#x2715; Limpar</button>
       </div>
       <div id="rkRanking"></div>
     </div>
@@ -2386,7 +2395,9 @@ var rkItens = [];
 var rkEstados = {};
 var rkMotivos = {};
 var rkFiltroAtivo = null;
-var rkTermoBusca = '';
+var rkFiltroNum = '';
+var rkFiltroDesc = '';
+var rkFiltroForn = '';
 var rkMotivoTimer = null;
 
 function rkSalvarFirestore(){
@@ -2426,9 +2437,10 @@ function abrirRanking(pid){
   if(!proc) return;
   rkProcessoAtual={id:pid,numero:proc.numero};
   document.getElementById('rkPanelTitle').textContent='Ranking — '+proc.numero;
-  rkFiltroAtivo=null; rkTermoBusca='';
-  var inp=document.getElementById('rkCampoBusca'); if(inp) inp.value='';
-  var cb=document.getElementById('rkClearBusca'); if(cb) cb.style.display='none';
+  rkFiltroAtivo=null; rkFiltroNum=''; rkFiltroDesc=''; rkFiltroForn='';
+  var fn=document.getElementById('rkFiltroNum'); if(fn) fn.value='';
+  var fd=document.getElementById('rkFiltroDesc'); if(fd) fd.value='';
+  var ff=document.getElementById('rkFiltroForn'); if(ff) ff.value='';
   rkItens=[]; rkEstados={}; rkMotivos={};
   var noJson=document.getElementById('rkNoJson');
   noJson.innerHTML='<h3>Carregando...</h3>';
@@ -2468,8 +2480,19 @@ function rkSetFiltro(f){
   var el=document.getElementById(m[rkFiltroAtivo]); if(el) el.classList.add('rk-active');
   rkRenderRanking();
 }
-function rkOnBusca(v){ rkTermoBusca=v.trim().toLowerCase(); var cb=document.getElementById('rkClearBusca'); if(cb) cb.style.display=rkTermoBusca?'block':'none'; rkRenderRanking(); }
-function rkLimparBusca(){ rkTermoBusca=''; var i=document.getElementById('rkCampoBusca'); if(i) i.value=''; var cb=document.getElementById('rkClearBusca'); if(cb) cb.style.display='none'; rkRenderRanking(); }
+function rkOnFiltro(){
+  rkFiltroNum=(document.getElementById('rkFiltroNum').value||'').trim().toLowerCase();
+  rkFiltroDesc=(document.getElementById('rkFiltroDesc').value||'').trim().toLowerCase();
+  rkFiltroForn=(document.getElementById('rkFiltroForn').value||'').trim().toLowerCase();
+  rkRenderRanking();
+}
+function rkLimparFiltros(){
+  rkFiltroNum=''; rkFiltroDesc=''; rkFiltroForn='';
+  var n=document.getElementById('rkFiltroNum'); if(n) n.value='';
+  var d=document.getElementById('rkFiltroDesc'); if(d) d.value='';
+  var f=document.getElementById('rkFiltroForn'); if(f) f.value='';
+  rkRenderRanking();
+}
 
 function rkToggle(key){
   var c={neutro:'aprovado',aprovado:'reprovado',reprovado:'diligencia',diligencia:'neutro'};
@@ -2502,13 +2525,17 @@ function rkRenderProcesso(){
 
 function rkRenderRanking(){
   if(!rkItens.length) return;
+  var body=document.getElementById('rkBody');
+  var savedScroll=body?body.scrollTop:0;
   var c=document.getElementById('rkRanking'); c.innerHTML='';
   var lista=rkItens;
   if(rkFiltroAtivo==='aprovado') lista=rkItens.filter(rkItemAp);
   else if(rkFiltroAtivo==='diligencia') lista=rkItens.filter(rkItemDil);
   else if(rkFiltroAtivo==='pendente') lista=rkItens.filter(rkItemPe);
-  if(rkTermoBusca){ lista=lista.filter(function(it){ return it.num.toLowerCase().includes(rkTermoBusca)||it.desc.toLowerCase().includes(rkTermoBusca)||it.fornecedores.some(function(f){ return f.nome.toLowerCase().includes(rkTermoBusca); }); }); }
-  if(!lista.length){ var d=document.createElement('div'); d.className='rk-no-results'; d.textContent='Nenhum item encontrado'+(rkTermoBusca?' para "'+rkTermoBusca+'"':''); c.appendChild(d); return; }
+  if(rkFiltroNum){ lista=lista.filter(function(it){ return it.num.toLowerCase()===rkFiltroNum; }); }
+  if(rkFiltroDesc){ lista=lista.filter(function(it){ return it.desc.toLowerCase().includes(rkFiltroDesc); }); }
+  if(rkFiltroForn){ lista=lista.filter(function(it){ return it.fornecedores.some(function(f){ return f.nome.toLowerCase().includes(rkFiltroForn); }); }); }
+  if(!lista.length){ var d=document.createElement('div'); d.className='rk-no-results'; d.textContent='Nenhum item encontrado para os filtros aplicados.'; c.appendChild(d); if(body) body.scrollTop=savedScroll; return; }
   lista.forEach(function(it){
     var hc=rkItemAp(it)?'aprovado':rkItemDil(it)?'diligencia':'pendente';
     var block=document.createElement('div'); block.className='rk-item-block';
@@ -2535,6 +2562,7 @@ function rkRenderRanking(){
     tbl.appendChild(tbody); block.appendChild(tbl); c.appendChild(block);
     block.querySelectorAll('.rk-motivo-input').forEach(rkAutoResize);
   });
+  if(body) body.scrollTop=savedScroll;
 }
 
 
