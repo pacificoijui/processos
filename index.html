@@ -272,7 +272,7 @@
   .rk-stat{background:#fff;border:1px solid #ddd;border-radius:8px;padding:8px 16px;text-align:center;flex:1;cursor:pointer;transition:all .15s}.rk-stat:hover{border-color:#1E3A5F}
   .rk-stat.rk-active{border-color:#555;background:#f5f5f5}
   .rk-stat .n{font-size:20px;font-weight:700}.rk-stat .l{font-size:11px;color:#666;margin-top:2px}
-  .rk-stat.stotal .n{color:#1E3A5F}.rk-stat.sap .n{color:#1E5F3A}.rk-stat.sdil .n{color:#1d4ed8}.rk-stat.spe .n{color:#A32D2D}
+  .rk-stat.stotal .n{color:#1E3A5F}.rk-stat.sap .n{color:#1E5F3A}.rk-stat.sdil .n{color:#1d4ed8}.rk-stat.spe .n{color:#A32D2D}.rk-stat.sfrac .n{color:#4B5563}
   .rk-hint{font-size:11px;color:#888;text-align:center;margin-bottom:10px}
   .rk-filters-wrap{display:flex;gap:8px;margin-bottom:12px;align-items:flex-end;flex-wrap:wrap}
   .rk-filter-field{display:flex;flex-direction:column;gap:3px;flex:1;min-width:80px}
@@ -281,7 +281,7 @@
   .rk-filter-field input:focus{border-color:#1E3A5F}
   .rk-item-block{margin-bottom:14px;border-radius:8px;overflow:hidden;border:1px solid #ddd}
   .rk-item-head{padding:7px 14px;display:flex;justify-content:space-between;align-items:center}
-  .rk-item-head.pendente{background:#1E3A5F}.rk-item-head.aprovado{background:#1E5F3A}.rk-item-head.diligencia{background:#1d4ed8}
+  .rk-item-head.pendente{background:#1E3A5F}.rk-item-head.aprovado{background:#1E5F3A}.rk-item-head.diligencia{background:#1d4ed8}.rk-item-head.fracassado{background:#4B5563}
   .rk-item-title{color:#fff;font-weight:700;font-size:13px;flex:1}.rk-item-ref{color:rgba(255,255,255,.65);font-size:11px;white-space:nowrap}
   .rk-table{width:100%;border-collapse:collapse;table-layout:auto}
   .rk-table th{background:rgba(0,0,0,.12);color:#fff;font-weight:700;font-size:11px;padding:5px 10px;text-align:left;white-space:nowrap}
@@ -322,6 +322,7 @@
     .rk-item-head.pendente{background:#1E3A5F!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
     .rk-item-head.aprovado{background:#1E5F3A!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
     .rk-item-head.diligencia{background:#1d4ed8!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+    .rk-item-head.fracassado{background:#4B5563!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
     .rk-table tr.aprovado td{background:#F3FFF5!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
     .rk-table tr.reprovado td{background:#FFF3F3!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
     .rk-table tr.diligencia td{background:#EFF6FF!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
@@ -816,6 +817,7 @@
         <div class="rk-stat stotal" id="rkBtnTodos" onclick="rkSetFiltro(null)"><div class="n" id="rks-total">0</div><div class="l">Todos os Itens</div></div>
         <div class="rk-stat sap" id="rkBtnAp" onclick="rkSetFiltro('aprovado')"><div class="n" id="rks-ap">0</div><div class="l">Itens Aprovados</div></div>
         <div class="rk-stat sdil" id="rkBtnDil" onclick="rkSetFiltro('diligencia')"><div class="n" id="rks-dil">0</div><div class="l">Em Diligência</div></div>
+        <div class="rk-stat sfrac" id="rkBtnFrac" onclick="rkSetFiltro('fracassado')"><div class="n" id="rks-frac">0</div><div class="l">Fracassados</div></div>
         <div class="rk-stat spe" id="rkBtnPe" onclick="rkSetFiltro('pendente')"><div class="n" id="rks-pe">0</div><div class="l">Itens Pendentes</div></div>
       </div>
       <p class="rk-hint">Clique num fornecedor: Aprovado → Reprovado → Diligência → Neutro &nbsp;|&nbsp; Clique nos filtros para filtrar</p>
@@ -2536,20 +2538,20 @@ function rkGerarPDF(){
   if(!window.jspdf||!window.jspdf.jsPDF){ alert('Biblioteca PDF ainda carregando. Aguarde alguns segundos e tente novamente.'); return; }
   if(!rkItens||!rkItens.length){ alert('Nenhum ranking carregado para exportar.'); return; }
   var jsPDFCls=window.jspdf.jsPDF;
-  var doc=new jsPDFCls({orientation:'landscape',unit:'mm',format:'a4'});
-  var PW=297, PH=210, ML=12, MR=12, CW=PW-ML-MR;
-  var HEADER_H=24;            // altura reservada do cabeçalho
-  var BOTTOM=PH-13;          // limite inferior (acima do rodapé)
-  var LH=3.4;                // altura de linha de texto
+  var doc=new jsPDFCls({orientation:'portrait',unit:'mm',format:'a4'});
+  var PW=210, PH=297, ML=12, MR=12, CW=PW-ML-MR;
+  var HEADER_H=24;
+  var BOTTOM=PH-13;
+  var LH=3.4;
 
-  // Colunas (somam CW = 273)
+  // Colunas (somam CW = 186)
   var cols=[
-    {key:'nome',  label:'Fornecedor',        w:55, align:'left'},
-    {key:'valor', label:'Valor Unit.',       w:28, align:'right'},
-    {key:'pct',   label:'Ref.',              w:18, align:'right'},
-    {key:'modelo',label:'Modelo',            w:40, align:'left'},
-    {key:'marca', label:'Marca/Fabricante',  w:42, align:'left'},
-    {key:'sit',   label:'Situação / Motivo', w:90, align:'left'}
+    {key:'nome',  label:'Fornecedor',        w:38, align:'left'},
+    {key:'valor', label:'Valor Unit.',       w:20, align:'right'},
+    {key:'pct',   label:'Ref.',              w:13, align:'right'},
+    {key:'modelo',label:'Modelo',            w:27, align:'left'},
+    {key:'marca', label:'Marca/Fabricante',  w:28, align:'left'},
+    {key:'sit',   label:'Situação / Motivo', w:60, align:'left'}
   ];
   // posições x
   var cx=[]; (function(){ var x=ML; for(var i=0;i<cols.length;i++){ cx.push(x); x+=cols[i].w; } })();
@@ -2589,6 +2591,7 @@ function rkGerarPDF(){
   function itemStatusColor(it){
     if(rkItemAp(it)) return rgb(30,95,58);
     if(rkItemDil(it)) return rgb(29,78,216);
+    if(rkItemFracassado(it)) return rgb(75,85,99);
     return rgb(30,58,95);
   }
   var STATE_BG={aprovado:rgb(243,255,245),reprovado:rgb(255,243,243),diligencia:rgb(239,246,255),neutro:rgb(255,255,255)};
@@ -2601,8 +2604,30 @@ function rkGerarPDF(){
   drawHeader();
   var y=HEADER_H+4;
 
-  for(var it_i=0;it_i<rkItens.length;it_i++){
-    var it=rkItens[it_i];
+  // Aplicar os mesmos filtros ativos na tela
+  var lista=rkItens;
+  if(rkFiltroAtivo==='aprovado') lista=rkItens.filter(rkItemAp);
+  else if(rkFiltroAtivo==='diligencia') lista=rkItens.filter(rkItemDil);
+  else if(rkFiltroAtivo==='fracassado') lista=rkItens.filter(rkItemFracassado);
+  else if(rkFiltroAtivo==='pendente') lista=rkItens.filter(rkItemPe);
+  if(rkFiltroNum){ lista=lista.filter(function(it){ return it.num.toLowerCase()===rkFiltroNum; }); }
+  if(rkFiltroDesc){ lista=lista.filter(function(it){ return it.desc.toLowerCase().includes(rkFiltroDesc); }); }
+  if(rkFiltroForn){ lista=lista.filter(function(it){ return it.fornecedores.some(function(f){ return f.nome.toLowerCase().includes(rkFiltroForn); }); }); }
+
+  if(!lista.length){ alert('Nenhum item para exportar com os filtros atuais.'); return; }
+
+  // Nota de filtro ativo no rodapé da primeira página
+  var filtroDesc='';
+  if(rkFiltroAtivo==='aprovado') filtroDesc='Filtro: Itens Aprovados';
+  else if(rkFiltroAtivo==='diligencia') filtroDesc='Filtro: Itens em Diligência';
+  else if(rkFiltroAtivo==='fracassado') filtroDesc='Filtro: Itens Fracassados';
+  else if(rkFiltroAtivo==='pendente') filtroDesc='Filtro: Itens Pendentes';
+  if(rkFiltroNum) filtroDesc=(filtroDesc?filtroDesc+' · ':'')+'Item nº '+rkFiltroNum;
+  if(rkFiltroDesc) filtroDesc=(filtroDesc?filtroDesc+' · ':'')+'Descrição: "'+rkFiltroDesc+'"';
+  if(rkFiltroForn) filtroDesc=(filtroDesc?filtroDesc+' · ':'')+'Fornecedor: "'+rkFiltroForn+'"';
+
+  for(var it_i=0;it_i<lista.length;it_i++){
+    var it=lista[it_i];
     // cabeçalho do item
     var ic=itemStatusColor(it);
     doc.setFontSize(8.5); doc.setFont('helvetica','bold');
@@ -2679,22 +2704,28 @@ function rkGerarPDF(){
   for(var pp=1; pp<=total; pp++){
     doc.setPage(pp);
     draw([220,220,220]); doc.setLineWidth(0.3); doc.line(ML, PH-10.5, PW-ML, PH-10.5);
+    if(filtroDesc){
+      doc.setFontSize(7); doc.setFont('helvetica','italic'); txt(C_MUTED);
+      doc.text(filtroDesc, ML, PH-5.5);
+    }
     doc.setFontSize(10.5); doc.setFont('helvetica','bold'); txt(rgb(26,58,107));
     doc.text('Página '+pp+' de '+total, PW/2, PH-5.5, {align:'center'});
   }
 
-  var fname='Ranking_'+((rkProcessoAtual&&rkProcessoAtual.numero)||'').replace(/[^a-zA-Z0-9]/g,'_')+'.pdf';
+  var sufixo=rkFiltroAtivo?'_'+rkFiltroAtivo:(rkFiltroNum?'_item'+rkFiltroNum:'');
+  var fname='Ranking_'+((rkProcessoAtual&&rkProcessoAtual.numero)||'').replace(/[^a-zA-Z0-9]/g,'_')+sufixo+'.pdf';
   doc.save(fname);
 }
 
 function rkItemAp(it){ return it.fornecedores.some(function(_,i){ return rkEstados[it.num+'-'+i]==='aprovado'; }); }
 function rkItemDil(it){ return !rkItemAp(it)&&it.fornecedores.some(function(_,i){ return rkEstados[it.num+'-'+i]==='diligencia'; }); }
-function rkItemPe(it){ return !rkItemAp(it)&&!rkItemDil(it); }
+function rkItemFracassado(it){ if(!it.fornecedores||!it.fornecedores.length) return false; return it.fornecedores.every(function(_,i){ return (rkEstados[it.num+'-'+i]||'neutro')==='reprovado'; }); }
+function rkItemPe(it){ return !rkItemAp(it)&&!rkItemDil(it)&&!rkItemFracassado(it); }
 
 function rkSetFiltro(f){
   rkFiltroAtivo=rkFiltroAtivo===f?null:f;
   ['rkBtnTodos','rkBtnAp','rkBtnDil','rkBtnPe'].forEach(function(id){ var el=document.getElementById(id); if(el) el.classList.remove('rk-active'); });
-  var m={null:'rkBtnTodos',aprovado:'rkBtnAp',diligencia:'rkBtnDil',pendente:'rkBtnPe'};
+  var m={null:'rkBtnTodos',aprovado:'rkBtnAp',diligencia:'rkBtnDil',pendente:'rkBtnPe',fracassado:'rkBtnFrac'};
   var el=document.getElementById(m[rkFiltroAtivo]); if(el) el.classList.add('rk-active');
   rkRenderRanking();
 }
@@ -2730,13 +2761,14 @@ function rkFmtPct(p){ if(p===null) return ''; return (p>0?'+':'')+p.toFixed(1).r
 
 function rkRenderProcesso(){
   if(!rkItens.length) return;
-  var ap=rkItens.filter(rkItemAp).length, dil=rkItens.filter(rkItemDil).length, pe=rkItens.filter(rkItemPe).length;
+  var ap=rkItens.filter(rkItemAp).length, dil=rkItens.filter(rkItemDil).length, frac=rkItens.filter(rkItemFracassado).length, pe=rkItens.filter(rkItemPe).length;
   document.getElementById('rks-total').textContent=rkItens.length;
   document.getElementById('rks-ap').textContent=ap;
   document.getElementById('rks-dil').textContent=dil;
+  var fe=document.getElementById('rks-frac'); if(fe) fe.textContent=frac;
   document.getElementById('rks-pe').textContent=pe;
-  ['rkBtnTodos','rkBtnAp','rkBtnDil','rkBtnPe'].forEach(function(id){ var el=document.getElementById(id); if(el) el.classList.remove('rk-active'); });
-  var m={null:'rkBtnTodos',aprovado:'rkBtnAp',diligencia:'rkBtnDil',pendente:'rkBtnPe'};
+  ['rkBtnTodos','rkBtnAp','rkBtnDil','rkBtnFrac','rkBtnPe'].forEach(function(id){ var el=document.getElementById(id); if(el) el.classList.remove('rk-active'); });
+  var m={null:'rkBtnTodos',aprovado:'rkBtnAp',diligencia:'rkBtnDil',pendente:'rkBtnPe',fracassado:'rkBtnFrac'};
   var el=document.getElementById(m[rkFiltroAtivo]); if(el) el.classList.add('rk-active');
   rkRenderRanking();
 }
@@ -2749,13 +2781,14 @@ function rkRenderRanking(){
   var lista=rkItens;
   if(rkFiltroAtivo==='aprovado') lista=rkItens.filter(rkItemAp);
   else if(rkFiltroAtivo==='diligencia') lista=rkItens.filter(rkItemDil);
+  else if(rkFiltroAtivo==='fracassado') lista=rkItens.filter(rkItemFracassado);
   else if(rkFiltroAtivo==='pendente') lista=rkItens.filter(rkItemPe);
   if(rkFiltroNum){ lista=lista.filter(function(it){ return it.num.toLowerCase()===rkFiltroNum; }); }
   if(rkFiltroDesc){ lista=lista.filter(function(it){ return it.desc.toLowerCase().includes(rkFiltroDesc); }); }
   if(rkFiltroForn){ lista=lista.filter(function(it){ return it.fornecedores.some(function(f){ return f.nome.toLowerCase().includes(rkFiltroForn); }); }); }
   if(!lista.length){ var d=document.createElement('div'); d.className='rk-no-results'; d.textContent='Nenhum item encontrado para os filtros aplicados.'; c.appendChild(d); if(body) body.scrollTop=savedScroll; return; }
   lista.forEach(function(it){
-    var hc=rkItemAp(it)?'aprovado':rkItemDil(it)?'diligencia':'pendente';
+    var hc=rkItemAp(it)?'aprovado':rkItemDil(it)?'diligencia':rkItemFracassado(it)?'fracassado':'pendente';
     var block=document.createElement('div'); block.className='rk-item-block';
     var head=document.createElement('div'); head.className='rk-item-head '+hc;
     head.innerHTML='<span class="rk-item-title">Item '+escHtml(it.num)+' \u2014 '+escHtml(it.desc)+'</span><span class="rk-item-ref">'+escHtml(it.ref)+'</span>';
