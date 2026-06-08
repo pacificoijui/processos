@@ -305,10 +305,20 @@
   .rk-pct-acima{color:#A32D2D;font-weight:700;font-size:11px;white-space:nowrap}
   .rk-pct-zero{color:#888;font-size:11px;white-space:nowrap}
   .rk-no-results{text-align:center;padding:24px;color:#999;font-size:13px}
+  /* Print header/footer — hidden on screen */
+  .rk-print-header{display:none}
+  .rk-print-footer{display:none}
+
   @media print{
+    /* Margens da página: reservam o espaço onde o cabeçalho/rodapé fixos aparecem */
+    @page{margin:30mm 12mm 18mm 12mm}
     body>*:not(#rankingPanel){display:none!important}
-    #rankingPanel{position:static!important;display:block!important;zoom:1!important}
-    .rk-topbar .rk-topbar-actions,.rk-hint,.rk-search-wrap,.rk-stats{display:none!important}
+    #rankingPanel{position:static!important;display:block!important;zoom:1!important;overflow:visible!important}
+    .rk-topbar{display:none!important}
+    .rk-hint,.rk-filters-wrap,.rk-stats{display:none!important}
+    /* Conteúdo encostado nas margens laterais da página (alinhado ao cabeçalho) */
+    .rk-body{overflow:visible!important;padding:0!important}
+    /* Cores de fundo impressas */
     .rk-item-head.pendente{background:#1E3A5F!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
     .rk-item-head.aprovado{background:#1E5F3A!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
     .rk-item-head.diligencia{background:#1d4ed8!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
@@ -316,7 +326,41 @@
     .rk-table tr.reprovado td{background:#FFF3F3!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
     .rk-table tr.diligencia td{background:#EFF6FF!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
     .rk-motivo-input{display:none!important}.rk-motivo-print{display:block!important}
-    .rk-item-block{page-break-inside:avoid}
+    /* Permitir quebra de página dentro dos blocos de item */
+    .rk-item-block{page-break-inside:auto}
+    /* Cabeçalho de impressão — aparece em todas as páginas, dentro da margem superior */
+    .rk-print-header{
+      display:flex!important;
+      position:fixed;top:0;left:0;right:0;
+      min-height:22mm;
+      background:#fff!important;
+      border-bottom:2px solid #102040!important;
+      align-items:center;
+      padding:3mm 12mm;
+      gap:10px;
+      z-index:9999;
+      -webkit-print-color-adjust:exact;print-color-adjust:exact;
+    }
+    .rk-print-logo{height:32px;width:auto;display:block;flex-shrink:0}
+    .rk-print-divider{width:1px;height:30px;background:#cdd5e8;flex-shrink:0}
+    .rk-print-header-info{display:flex;flex-direction:column;gap:2px}
+    .rk-print-header-title{font-size:12px;font-weight:700;color:#102040;font-family:Arial,sans-serif;line-height:1.2}
+    .rk-print-header-sub{font-size:8.5px;color:#5a6e99;font-family:Arial,sans-serif;letter-spacing:.3px;line-height:1.25}
+    /* Rodapé de impressão — aparece em todas as páginas, dentro da margem inferior */
+    .rk-print-footer{
+      display:flex!important;
+      position:fixed;bottom:0;left:0;right:0;
+      min-height:10mm;
+      background:#fff!important;
+      border-top:1px solid #ddd!important;
+      align-items:center;
+      justify-content:space-between;
+      padding:2mm 12mm;
+      -webkit-print-color-adjust:exact;print-color-adjust:exact;
+    }
+    .rk-print-footer-left{font-size:8px;color:#999;font-family:Arial,sans-serif}
+    .rk-print-footer-right{font-size:8px;color:#999;font-family:Arial,sans-serif}
+    .rk-print-footer-right::after{content:"Página " counter(page) " de " counter(pages)}
   }
 </style>
 </head>
@@ -741,6 +785,16 @@
 
 <!-- RANKING PANEL — inserido antes do script principal -->
 <div id="rankingPanel">
+  <!-- Cabeçalho de impressão (oculto na tela, aparece em todas as páginas impressas) -->
+  <div class="rk-print-header" id="rkPrintHeader">
+    <img class="rk-print-logo" id="rkPrintLogo" src="" alt="Município de Ijuí">
+    <div class="rk-print-divider"></div>
+    <div class="rk-print-header-info">
+      <div class="rk-print-header-title" id="rkPrintHeaderTitle">Análise de Ranking</div>
+      <div class="rk-print-header-sub">Município de Ijuí</div>
+      <div class="rk-print-header-sub">Coordenadoria de Compras, Patrimônio e Administração de Materiais — COPAM</div>
+    </div>
+  </div>
   <div class="rk-topbar">
     <div class="rk-topbar-title"><span>&#128202;</span><span id="rkPanelTitle">Análise de Ranking</span></div>
     <div class="rk-topbar-actions">
@@ -748,7 +802,7 @@
         &#128196; Importar JSON
         <input type="file" id="rkFileInput" accept=".json" style="display:none">
       </label>
-      <button class="rk-btn rk-btn-pdf" onclick="window.print()">&#128438; Exportar PDF</button>
+      <button class="rk-btn rk-btn-pdf" onclick="rkGerarPDF()">&#128438; Exportar PDF</button>
       <button class="rk-btn rk-btn-close" onclick="fecharRanking()">&#10005;</button>
     </div>
   </div>
@@ -782,6 +836,11 @@
       </div>
       <div id="rkRanking"></div>
     </div>
+  </div>
+  <!-- Rodapé de impressão (oculto na tela, aparece em todas as páginas impressas) -->
+  <div class="rk-print-footer" id="rkPrintFooter">
+    <span class="rk-print-footer-left" id="rkPrintFooterLeft">Município de Ijuí</span>
+    <span class="rk-print-footer-right"></span>
   </div>
 </div>
 
@@ -2437,6 +2496,9 @@ function abrirRanking(pid){
   if(!proc) return;
   rkProcessoAtual={id:pid,numero:proc.numero};
   document.getElementById('rkPanelTitle').textContent='Ranking — '+proc.numero;
+  var ph=document.getElementById('rkPrintHeaderTitle'); if(ph) ph.textContent='Ranking — '+proc.numero;
+  var pl=document.getElementById('rkPrintLogo'); if(pl) pl.src=LOGO_B64_PDF;
+  var pf=document.getElementById('rkPrintFooterLeft'); if(pf) pf.textContent='Município de Ijuí — Ranking '+proc.numero;
   rkFiltroAtivo=null; rkFiltroNum=''; rkFiltroDesc=''; rkFiltroForn='';
   var fn=document.getElementById('rkFiltroNum'); if(fn) fn.value='';
   var fd=document.getElementById('rkFiltroDesc'); if(fd) fd.value='';
@@ -2468,6 +2530,162 @@ function abrirRanking(pid){
   });
 }
 function fecharRanking(){ document.getElementById('rankingPanel').classList.remove('open'); }
+
+// ── Gerar PDF do Ranking (jsPDF) ──────────────────────────────────────────────
+function rkGerarPDF(){
+  if(!window.jspdf||!window.jspdf.jsPDF){ alert('Biblioteca PDF ainda carregando. Aguarde alguns segundos e tente novamente.'); return; }
+  if(!rkItens||!rkItens.length){ alert('Nenhum ranking carregado para exportar.'); return; }
+  var jsPDFCls=window.jspdf.jsPDF;
+  var doc=new jsPDFCls({orientation:'landscape',unit:'mm',format:'a4'});
+  var PW=297, PH=210, ML=12, MR=12, CW=PW-ML-MR;
+  var HEADER_H=24;            // altura reservada do cabeçalho
+  var BOTTOM=PH-13;          // limite inferior (acima do rodapé)
+  var LH=3.4;                // altura de linha de texto
+
+  // Colunas (somam CW = 273)
+  var cols=[
+    {key:'nome',  label:'Fornecedor',        w:55, align:'left'},
+    {key:'valor', label:'Valor Unit.',       w:28, align:'right'},
+    {key:'pct',   label:'Ref.',              w:18, align:'right'},
+    {key:'modelo',label:'Modelo',            w:40, align:'left'},
+    {key:'marca', label:'Marca/Fabricante',  w:42, align:'left'},
+    {key:'sit',   label:'Situação / Motivo', w:90, align:'left'}
+  ];
+  // posições x
+  var cx=[]; (function(){ var x=ML; for(var i=0;i<cols.length;i++){ cx.push(x); x+=cols[i].w; } })();
+
+  function rgb(r,g,b){ return [r,g,b]; }
+  function fill(c){ doc.setFillColor(c[0],c[1],c[2]); }
+  function draw(c){ doc.setDrawColor(c[0],c[1],c[2]); }
+  function txt(c){ doc.setTextColor(c[0],c[1],c[2]); }
+  var C_NAVY=rgb(16,32,64), C_MUTED=rgb(90,110,153), C_TEXT=rgb(22,32,56), C_BORDER=rgb(205,213,232);
+
+  function drawHeader(){
+    fill([255,255,255]); doc.rect(0,0,PW,HEADER_H,'F');
+    try{ doc.addImage(LOGO_B64_PDF,'JPEG',ML,4,38,15); }catch(e){}
+    draw(C_BORDER); doc.setLineWidth(0.3); doc.line(ML+43,4,ML+43,19);
+    txt(C_NAVY); doc.setFontSize(13); doc.setFont('helvetica','bold');
+    doc.text('Ranking — '+(rkProcessoAtual?rkProcessoAtual.numero:''), ML+48, 9);
+    doc.setFontSize(8); doc.setFont('helvetica','normal'); txt(C_MUTED);
+    doc.text('Município de Ijuí', ML+48, 14);
+    doc.text('Coordenadoria de Compras, Patrimônio e Administração de Materiais — COPAM', ML+48, 18);
+    draw(C_NAVY); doc.setLineWidth(0.7); doc.line(0,HEADER_H,PW,HEADER_H);
+  }
+
+  function drawColHeader(y, ic){
+    fill(ic||[60,72,92]); doc.rect(ML,y,CW,6,'F');
+    txt([255,255,255]); doc.setFontSize(7.5); doc.setFont('helvetica','bold');
+    for(var i=0;i<cols.length;i++){
+      var a=cols[i].align;
+      if(a==='right') doc.text(cols[i].label, cx[i]+cols[i].w-2, y+4, {align:'right'});
+      else doc.text(cols[i].label, cx[i]+2, y+4);
+    }
+    return y+6;
+  }
+
+  function newPage(){ doc.addPage(); drawHeader(); return HEADER_H+4; }
+
+  // status helpers
+  function itemStatusColor(it){
+    if(rkItemAp(it)) return rgb(30,95,58);
+    if(rkItemDil(it)) return rgb(29,78,216);
+    return rgb(30,58,95);
+  }
+  var STATE_BG={aprovado:rgb(243,255,245),reprovado:rgb(255,243,243),diligencia:rgb(239,246,255),neutro:rgb(255,255,255)};
+  var BADGE={
+    aprovado:{bg:rgb(212,237,218),fg:rgb(30,95,58),label:'Aprovado'},
+    reprovado:{bg:rgb(248,215,218),fg:rgb(163,45,45),label:'Reprovado'},
+    diligencia:{bg:rgb(219,234,254),fg:rgb(29,78,216),label:'Diligência'}
+  };
+
+  drawHeader();
+  var y=HEADER_H+4;
+
+  for(var it_i=0;it_i<rkItens.length;it_i++){
+    var it=rkItens[it_i];
+    // cabeçalho do item
+    var ic=itemStatusColor(it);
+    doc.setFontSize(8.5); doc.setFont('helvetica','bold');
+    var titleMax=CW-40;
+    var titleLines=doc.splitTextToSize('Item '+it.num+' — '+(it.desc||''), titleMax);
+    var ihH=Math.max(7, titleLines.length*4+3);
+    if(y+ihH+8 > BOTTOM){ y=newPage(); }
+    fill(ic); doc.rect(ML,y,CW,ihH,'F');
+    txt([255,255,255]); doc.setFontSize(8.5); doc.setFont('helvetica','bold');
+    doc.text(titleLines, ML+3, y+4.5);
+    if(it.ref){ doc.setFontSize(7.5); doc.setFont('helvetica','normal'); doc.text(String(it.ref), PW-ML-2, y+4.5, {align:'right'}); }
+    y+=ihH;
+    // cabeçalho de colunas (mesma cor do item)
+    y=drawColHeader(y, ic);
+
+    for(var f_i=0; f_i<it.fornecedores.length; f_i++){
+      var f=it.fornecedores[f_i];
+      var key=it.num+'-'+f_i;
+      var st=rkEstados[key]||'neutro';
+      var mv=rkMotivos[key]||'';
+      var pct=rkCalcPct(f.valor,it.ref), pv=rkFmtPct(pct);
+
+      doc.setFontSize(7.5); doc.setFont('helvetica','normal');
+      var nomeL=doc.splitTextToSize(f.nome||'', cols[0].w-3);
+      var modL =doc.splitTextToSize(f.modelo||'', cols[3].w-3);
+      var marL =doc.splitTextToSize(f.marca||'', cols[4].w-3);
+      // situação: badge (1 linha) + motivo (se houver)
+      var motL=[];
+      var hasBadge=(st==='aprovado'||st==='reprovado'||st==='diligencia');
+      if((st==='reprovado'||st==='diligencia') && mv){ motL=doc.splitTextToSize(mv, cols[5].w-3); }
+      var sitLines=(hasBadge?1:0)+motL.length;
+      var maxLines=Math.max(nomeL.length, modL.length, marL.length, sitLines, 1);
+      var rowH=Math.max(7, maxLines*LH+3);
+
+      if(y+rowH > BOTTOM){ y=newPage(); y=drawColHeader(y, ic); }
+
+      // fundo
+      fill(STATE_BG[st]||STATE_BG.neutro); doc.rect(ML,y,CW,rowH,'F');
+      draw([235,235,235]); doc.setLineWidth(0.1); doc.line(ML,y+rowH,ML+CW,y+rowH);
+
+      var ty=y+3.6;
+      txt(C_TEXT); doc.setFontSize(7.5); doc.setFont('helvetica','normal');
+      doc.text(nomeL, cx[0]+2, ty);
+      doc.text(String(f.valor||''), cx[1]+cols[1].w-2, ty, {align:'right'});
+      // percentual colorido
+      if(pct===null) txt(C_MUTED); else if(pct>0) txt(rgb(163,45,45)); else if(pct<0) txt(rgb(29,78,216)); else txt(C_MUTED);
+      doc.setFont('helvetica','bold');
+      doc.text(pv||'', cx[2]+cols[2].w-2, ty, {align:'right'});
+      doc.setFont('helvetica','normal'); txt(C_TEXT);
+      doc.text(modL, cx[3]+2, ty);
+      doc.text(marL, cx[4]+2, ty);
+
+      // situação/motivo
+      var sy=y+3.4;
+      if(hasBadge){
+        var b=BADGE[st];
+        doc.setFontSize(7); doc.setFont('helvetica','bold');
+        var bw=doc.getTextWidth(b.label)+4;
+        fill(b.bg); doc.roundedRect(cx[5]+2, sy-2.8, bw, 4.2, 1, 1, 'F');
+        txt(b.fg); doc.text(b.label, cx[5]+4, sy+0.1);
+        if(motL.length){
+          doc.setFontSize(6.8); doc.setFont('helvetica','italic');
+          txt(st==='reprovado'?rgb(163,45,45):rgb(29,78,216));
+          doc.text(motL, cx[5]+2, sy+4);
+        }
+      }
+      y+=rowH;
+    }
+    y+=4; // espaço entre itens
+  }
+
+  // bordas externas leves em cada página + rodapé
+  var total=doc.internal.getNumberOfPages();
+  for(var pp=1; pp<=total; pp++){
+    doc.setPage(pp);
+    draw([220,220,220]); doc.setLineWidth(0.3); doc.line(ML, PH-10.5, PW-ML, PH-10.5);
+    doc.setFontSize(10.5); doc.setFont('helvetica','bold'); txt(rgb(26,58,107));
+    doc.text('Página '+pp+' de '+total, PW/2, PH-5.5, {align:'center'});
+  }
+
+  var fname='Ranking_'+((rkProcessoAtual&&rkProcessoAtual.numero)||'').replace(/[^a-zA-Z0-9]/g,'_')+'.pdf';
+  doc.save(fname);
+}
 
 function rkItemAp(it){ return it.fornecedores.some(function(_,i){ return rkEstados[it.num+'-'+i]==='aprovado'; }); }
 function rkItemDil(it){ return !rkItemAp(it)&&it.fornecedores.some(function(_,i){ return rkEstados[it.num+'-'+i]==='diligencia'; }); }
