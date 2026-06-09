@@ -365,6 +365,132 @@
     .rk-print-footer-right{font-size:8px;color:#999;font-family:Arial,sans-serif}
     .rk-print-footer-right::after{content:"Página " counter(page) " de " counter(pages)}
   }
+  /* ── Modo Compartilhado (link ?ranking=ID) ── */
+  body.rk-shared-mode>*:not(#rkSharedPanel){display:none!important}
+  #rkSharedPanel{
+    position:fixed;inset:0;z-index:9999;display:none;flex-direction:column;
+    font-family:Arial,sans-serif;background:#f0f2f5;
+    -webkit-text-size-adjust:100%;text-size-adjust:100%;
+  }
+  /* Cabeçalho */
+  .rks-header{
+    background:#1a3a6b;color:#fff;padding:12px 16px;
+    display:flex;align-items:center;gap:12px;flex-shrink:0;
+    padding-top:max(12px,env(safe-area-inset-top));
+    padding-left:max(16px,env(safe-area-inset-left));
+    padding-right:max(16px,env(safe-area-inset-right));
+  }
+  .rks-logo{height:34px;width:auto;flex-shrink:0}
+  .rks-hdivider{width:1px;height:28px;background:rgba(255,255,255,.3);flex-shrink:0}
+  .rks-header-info{display:flex;flex-direction:column;gap:1px;min-width:0}
+  .rks-htitle{font-size:14px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .rks-hsub{font-size:10px;color:rgba(255,255,255,.65);letter-spacing:.3px;line-height:1.4}
+  .rks-hsub-copam{font-size:9.5px;color:rgba(255,255,255,.5)}
+  /* Oculta linha do COPAM em telas muito pequenas */
+  @media(max-width:380px){.rks-hsub-copam{display:none}.rks-logo{height:28px}}
+  /* Corpo */
+  .rks-body{
+    flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;
+    padding:12px;padding-bottom:max(12px,env(safe-area-inset-bottom));
+    max-width:820px;margin:0 auto;width:100%;box-sizing:border-box;
+  }
+  @media(min-width:600px){.rks-body{padding:20px}}
+  /* Barra de progresso */
+  .rks-progress-bar{
+    background:#fff;border-radius:14px;padding:15px 18px;margin-bottom:16px;
+    display:flex;align-items:center;justify-content:space-between;
+    box-shadow:0 2px 8px rgba(26,58,107,.06);font-size:14px;color:#444;font-weight:600;
+  }
+  .rks-progress-pct{font-weight:800;color:#1a3a6b;font-size:22px;letter-spacing:-.5px}
+  /* Cards */
+  .rks-card{
+    background:#fff;border-radius:16px;padding:18px 18px 16px;margin-bottom:14px;
+    box-shadow:0 2px 10px rgba(26,58,107,.06);border-left:5px solid #e2e6ec;
+    transition:border-color .2s,box-shadow .2s;
+  }
+  @media(min-width:600px){.rks-card{padding:20px 22px 18px}}
+  .rks-card.rks-aprovado{border-left-color:#1E5F3A;background:#fbfffd}
+  .rks-card.rks-reprovado{border-left-color:#A32D2D;background:#fffbfb}
+  .rks-card-title{font-size:15px;font-weight:700;color:#1a3a6b;margin-bottom:12px;line-height:1.45;overflow:hidden}
+  .rks-item-num{
+    background:#1a3a6b;color:#fff;font-size:11px;font-weight:700;
+    padding:3px 10px;border-radius:11px;margin-right:9px;white-space:nowrap;
+    display:inline-block;vertical-align:1px;
+  }
+  .rks-item-ref{float:right;font-size:14px;color:#1a3a6b;font-weight:700;margin-left:10px;white-space:nowrap}
+  /* Fornecedor info */
+  .rks-card-forn{margin-bottom:16px;padding-bottom:14px;border-bottom:1px solid #eef0f3}
+  .rks-forn-nome{display:block;font-weight:700;color:#1a1a1a;font-size:16px;margin-bottom:8px;line-height:1.3}
+  .rks-forn-tags{display:flex;flex-wrap:wrap;gap:7px;margin-top:2px}
+  .rks-forn-tag{background:#eef2f8;color:#445;font-size:13px;padding:5px 12px;border-radius:8px;white-space:nowrap;font-weight:500}
+  .rks-forn-tag b{color:#1a3a6b;font-weight:700}
+  /* Botões de status — compactos com ícone inline */
+  .rks-card-btns{display:flex;gap:10px}
+  .rks-sbtn{
+    flex:1;min-height:46px;
+    display:flex;align-items:center;justify-content:center;gap:8px;
+    border:2px solid #e2e6ec;border-radius:11px;
+    font-size:15px;font-weight:700;cursor:pointer;background:#fff;color:#9aa3b0;
+    transition:border-color .15s,background .15s,color .15s,transform .1s,opacity .1s,box-shadow .15s;
+    text-align:center;font-family:Arial,sans-serif;line-height:1;
+    touch-action:manipulation;-webkit-tap-highlight-color:transparent;user-select:none;
+  }
+  .rks-sbtn-icon{font-size:16px;line-height:1;font-weight:700}
+  .rks-sbtn:active{opacity:.85;transform:scale(.98)}
+  .rks-sbtn.rks-sbtn-rp:not(.sel-rp):active{border-color:#A32D2D;color:#A32D2D}
+  .rks-sbtn.rks-sbtn-ap:not(.sel-ap):active{border-color:#1E5F3A;color:#1E5F3A}
+  @media(hover:hover){
+    .rks-sbtn.rks-sbtn-rp:hover:not(.sel-rp){border-color:#A32D2D;color:#A32D2D;background:#fff5f5}
+    .rks-sbtn.rks-sbtn-ap:hover:not(.sel-ap){border-color:#1E5F3A;color:#1E5F3A;background:#f3fbf6}
+  }
+  .rks-sbtn.sel-rp{border-color:#A32D2D;background:#A32D2D;color:#fff;box-shadow:0 3px 10px rgba(163,45,45,.28)}
+  .rks-sbtn.sel-ap{border-color:#1E5F3A;background:#1E5F3A;color:#fff;box-shadow:0 3px 10px rgba(30,95,58,.28)}
+  /* Campo de motivo — font-size:16px impede zoom automático no iOS */
+  .rks-motivo-wrap{margin-top:12px}
+  .rks-motivo{
+    width:100%;box-sizing:border-box;
+    border:1.5px solid #fca5a5;border-radius:11px;
+    padding:12px 14px;font-size:15px;font-family:Arial,sans-serif;
+    resize:none;min-height:72px;outline:none;
+    background:#fffafa;color:#333;line-height:1.5;
+    -webkit-appearance:none;appearance:none;
+  }
+  .rks-card.rks-fracassado{border-left-color:#888;background:#f9f9f9}
+  .rks-card.rks-confirmando{border-left-color:#A32D2D;background:#fffbfb}
+  .rks-prev-badge{background:#fff0f0;color:#A32D2D;font-size:11px;font-weight:700;padding:3px 9px;border-radius:8px;border:1px solid #fca5a5}
+  .rks-forn-frac{opacity:.55}
+  .rks-fracassado-badge{background:#f3f4f6;border:1.5px solid #d1d5db;border-radius:10px;padding:12px 16px;color:#6b7280;font-size:14px;font-weight:600;text-align:center}
+  /* Confirm flow */
+  .rks-confirm-wrap{display:flex;flex-direction:column;gap:10px}
+  .rks-confirm-label{font-size:13px;font-weight:700;color:#A32D2D}
+  .rks-confirm-btns{display:flex;gap:10px}
+  .rks-cancel-btn{
+    flex:0 0 auto;padding:12px 18px;border:2px solid #e2e6ec;border-radius:10px;
+    background:#fff;color:#888;font-size:14px;font-weight:600;cursor:pointer;
+    font-family:Arial,sans-serif;touch-action:manipulation;-webkit-tap-highlight-color:transparent;
+  }
+  .rks-cancel-btn:active{opacity:.8}
+  @media(hover:hover){.rks-cancel-btn:hover{border-color:#aaa;color:#555}}
+  .rks-confirm-btn{
+    flex:1;padding:13px 18px;border:none;border-radius:10px;
+    background:#A32D2D;color:#fff;font-size:15px;font-weight:700;cursor:pointer;
+    font-family:Arial,sans-serif;touch-action:manipulation;-webkit-tap-highlight-color:transparent;
+    box-shadow:0 3px 10px rgba(163,45,45,.25);
+  }
+  .rks-confirm-btn:active{opacity:.85;transform:scale(.98)}
+  /* Rodapé */
+  .rks-footer{
+    background:#fff;border-top:1px solid #e8e8e8;
+    padding:10px 20px;
+    padding-bottom:max(10px,env(safe-area-inset-bottom));
+    display:flex;align-items:center;justify-content:center;
+    gap:8px;font-size:12px;color:#999;flex-shrink:0;
+  }
+  .rks-save-dot{width:8px;height:8px;border-radius:50%;background:#ccc;display:inline-block;flex-shrink:0}
+  .rks-save-dot.saved{background:#1E5F3A}
+  .rks-save-dot.saving{background:#f59e0b;animation:rksPulse .7s infinite alternate}
+  @keyframes rksPulse{from{opacity:.4}to{opacity:1}}
+  .rks-msg{text-align:center;padding:50px 20px;color:#888;font-size:14px;line-height:1.9}
 </style>
 </head>
 <body>
@@ -782,6 +908,24 @@
   </div>
 </div>
 
+<div id="rkSharedPanel">
+  <div class="rks-header">
+    <img class="rks-logo" id="rksLogo" src="" alt="Município de Ijuí">
+    <div class="rks-hdivider"></div>
+    <div class="rks-header-info">
+      <div class="rks-htitle" id="rksTitulo">Carregando...</div>
+      <div class="rks-hsub">Município de Ijuí</div>
+      <div class="rks-hsub rks-hsub-copam">Coordenadoria de Compras, Patrimônio e Adm. de Materiais — COPAM</div>
+    </div>
+  </div>
+  <div class="rks-body" id="rksBody">
+    <div class="rks-msg">Carregando ranking...</div>
+  </div>
+  <div class="rks-footer">
+    <span class="rks-save-dot" id="rksSaveDot"></span>
+    <span id="rksSaveStatus">Aguardando alterações</span>
+  </div>
+</div>
 <div class="toast" id="toast">&#10003; <span id="toastMsg"></span></div>
 
 
@@ -801,6 +945,7 @@
   <div class="rk-topbar">
     <div class="rk-topbar-title"><span>&#128202;</span><span id="rkPanelTitle">Análise de Ranking</span></div>
     <div class="rk-topbar-actions">
+      <button class="rk-btn rk-btn-import" onclick="rkCopiarLink()" title="Copiar link para preencher análise">&#128279; Compartilhar</button>
       <button class="rk-btn rk-btn-import" id="rkBtnToggleOculto" onclick="rkToggleModoOculto()" title="Alterna entre mostrar só os fornecedores relevantes ou todos">&#128065; Mostrar Todos</button>
       <label class="rk-btn rk-btn-import" style="cursor:pointer">
         &#128196; Importar JSON
@@ -2861,6 +3006,194 @@ function rkRenderRanking(){
   });
   if(body) body.scrollTop=savedScroll;
 }
+function rkCopiarLink(){
+  if(!rkProcessoAtual){ toast('Abra um ranking primeiro.'); return; }
+  var link=window.location.origin+window.location.pathname+'?ranking='+rkProcessoAtual.id;
+  if(navigator.clipboard){
+    navigator.clipboard.writeText(link).then(function(){ toast('Link copiado! Cole e envie para a secretaria.'); });
+  } else {
+    prompt('Copie o link abaixo:', link);
+  }
+}
 
+// ── Modo Compartilhado (?ranking=ID) ─────────────────────────────────────────
+(function(){
+  var params=new URLSearchParams(window.location.search);
+  var sharedId=params.get('ranking');
+  if(!sharedId) return;
+
+  document.body.classList.add('rk-shared-mode');
+  var panel=document.getElementById('rkSharedPanel');
+  if(panel) panel.style.display='flex';
+
+  var sharedItens=[], sharedEstados={}, sharedMotivos={}, sharedNumero='';
+  var saveTimer=null, sharedOwn=false;
+  var sharedConfirmando=null; // num do item em confirmação de reprovação
+
+  function setSaveDot(s){
+    var dot=document.getElementById('rksSaveDot'), txt=document.getElementById('rksSaveStatus');
+    if(s==='saving'){ dot.className='rks-save-dot saving'; txt.textContent='Salvando...'; }
+    else if(s==='saved'){ dot.className='rks-save-dot saved'; var n=new Date(); txt.textContent='Salvo às '+('0'+n.getHours()).slice(-2)+':'+('0'+n.getMinutes()).slice(-2); }
+    else { dot.className='rks-save-dot'; txt.textContent='Aguardando alterações'; }
+  }
+  function doSave(){
+    sharedOwn=true;
+    rkColRef.doc(sharedId).set({
+      itens:sharedItens, estados:sharedEstados, motivos:sharedMotivos,
+      numero:sharedNumero, updatedAt:firebase.firestore.FieldValue.serverTimestamp()
+    }).then(function(){ setSaveDot('saved'); setTimeout(function(){ sharedOwn=false; },3000); })
+    .catch(function(){ setSaveDot('idle'); sharedOwn=false; });
+  }
+  function triggerSave(){
+    setSaveDot('saving');
+    if(saveTimer) clearTimeout(saveTimer);
+    saveTimer=setTimeout(doSave, 800);
+  }
+
+  function sGetStatus(it){
+    var n=String(it.num);
+    if(it.fornecedores.some(function(_,i){ return sharedEstados[n+'-'+i]==='aprovado'; })) return 'aprovado';
+    if(it.fornecedores.length&&it.fornecedores.every(function(_,i){ return (sharedEstados[n+'-'+i]||'neutro')==='reprovado'; })) return 'fracassado';
+    return '';
+  }
+  function sGetFornIdx(it){
+    for(var k=0;k<it.fornecedores.length;k++){
+      if((sharedEstados[String(it.num)+'-'+k]||'neutro')!=='reprovado') return k;
+    }
+    return -1;
+  }
+  function sSetAprovado(it){
+    var idx=sGetFornIdx(it); if(idx<0) return;
+    for(var k=0;k<it.fornecedores.length;k++){
+      if((sharedEstados[String(it.num)+'-'+k]||'neutro')==='aprovado') sharedEstados[String(it.num)+'-'+k]='neutro';
+      delete sharedMotivos[String(it.num)+'-'+k];
+    }
+    sharedEstados[String(it.num)+'-'+idx]='aprovado';
+  }
+  function sReprovaCurrent(it, mv){
+    var idx=sGetFornIdx(it); if(idx<0) return;
+    var key=String(it.num)+'-'+idx;
+    sharedEstados[key]='reprovado';
+    if(mv&&mv.trim()) sharedMotivos[key]=mv.trim(); else delete sharedMotivos[key];
+  }
+  function sContaReprovados(it){
+    var c=0;
+    for(var k=0;k<it.fornecedores.length;k++){
+      if((sharedEstados[String(it.num)+'-'+k]||'neutro')==='reprovado') c++;
+    }
+    return c;
+  }
+
+  function sharedRender(){
+    var el=document.getElementById('rksTitulo'); if(el) el.textContent='Ranking — '+sharedNumero;
+    var body=document.getElementById('rksBody'); if(!body) return;
+    var scroll=body.scrollTop;
+    if(!sharedItens.length){
+      body.innerHTML='<div class="rks-msg">Nenhum ranking disponível.<br>Solicite ao responsável que importe o arquivo de ranking primeiro.</div>';
+      return;
+    }
+    var pre=sharedItens.filter(function(it){ return sGetStatus(it)!==''; }).length;
+    var pct=Math.round(pre/sharedItens.length*100);
+    var html='<div class="rks-progress-bar"><span>'+pre+' de '+sharedItens.length+' itens analisados</span><span class="rks-progress-pct">'+pct+'%</span></div>';
+
+    sharedItens.forEach(function(it){
+      var st=sGetStatus(it);
+      var idx=sGetFornIdx(it);
+      var forn=idx>=0?it.fornecedores[idx]:null;
+      var isConfirming=(sharedConfirmando===String(it.num));
+      var reprovados=sContaReprovados(it);
+      var cardCls='rks-card';
+      if(st==='aprovado') cardCls+=' rks-aprovado';
+      else if(st==='fracassado') cardCls+=' rks-fracassado';
+      else if(isConfirming) cardCls+=' rks-confirmando';
+      var titleHtml='<div class="rks-card-title"><span class="rks-item-num">Item '+escHtml(it.num)+'</span>'
+        +'<span class="rks-item-ref">'+escHtml(it.ref)+'</span>'+escHtml(it.desc)+'</div>';
+      var showForn=forn||(it.fornecedores[0]||null);
+      var fornHtml=showForn?('<div class="rks-card-forn'+(st==='fracassado'?' rks-forn-frac':'')+'">'
+        +'<span class="rks-forn-nome">'+escHtml(showForn.nome)+'</span>'
+        +'<div class="rks-forn-tags">'
+        +'<span class="rks-forn-tag"><b>Modelo</b> '+escHtml(showForn.modelo||'—')+'</span>'
+        +'<span class="rks-forn-tag"><b>Marca</b> '+escHtml(showForn.marca||'—')+'</span>'
+        +(reprovados>0&&st!=='fracassado'?'<span class="rks-prev-badge">'+reprovados+' reprovado'+(reprovados>1?'s':'')+'</span>':'')
+        +'</div></div>'):'';
+      var actionHtml='';
+      if(st==='fracassado'){
+        actionHtml='<div class="rks-fracassado-badge">🔴 Fracassado — todos os '+it.fornecedores.length+' fornecedores reprovados</div>';
+      } else if(isConfirming){
+        actionHtml='<div class="rks-confirm-wrap">'
+          +'<div class="rks-confirm-label">Motivo da reprovação <span style="color:#aaa;font-weight:400;font-size:13px">(opcional)</span></div>'
+          +'<textarea class="rks-motivo" placeholder="Descreva o motivo..." data-num="'+escHtml(it.num)+'" rows="3"></textarea>'
+          +'<div class="rks-confirm-btns">'
+            +'<button class="rks-cancel-btn" data-action="cancel" data-num="'+escHtml(it.num)+'">Cancelar</button>'
+            +'<button class="rks-confirm-btn" data-action="confirm" data-num="'+escHtml(it.num)+'">Confirmar Reprovação →</button>'
+          +'</div></div>';
+      } else if(st==='aprovado'){
+        actionHtml='<div class="rks-card-btns">'
+          +'<button class="rks-sbtn rks-sbtn-rp" data-action="rp" data-num="'+escHtml(it.num)+'"><span class="rks-sbtn-icon">✕</span>Reprovado</button>'
+          +'<button class="rks-sbtn rks-sbtn-ap sel-ap" data-action="ap" data-num="'+escHtml(it.num)+'"><span class="rks-sbtn-icon">✓</span>Aprovado</button>'
+          +'</div>';
+      } else {
+        actionHtml='<div class="rks-card-btns">'
+          +'<button class="rks-sbtn rks-sbtn-rp" data-action="rp" data-num="'+escHtml(it.num)+'"><span class="rks-sbtn-icon">✕</span>Reprovado</button>'
+          +'<button class="rks-sbtn rks-sbtn-ap" data-action="ap" data-num="'+escHtml(it.num)+'"><span class="rks-sbtn-icon">✓</span>Aprovado</button>'
+          +'</div>';
+      }
+      html+='<div class="'+cardCls+'" data-num="'+escHtml(it.num)+'">'+titleHtml+fornHtml+actionHtml+'</div>';
+    });
+
+    body.innerHTML=html;
+    body.scrollTop=scroll;
+
+    body.querySelectorAll('[data-action]').forEach(function(btn){
+      btn.addEventListener('click',function(){
+        var num=btn.dataset.num;
+        var it=sharedItens.find(function(x){ return String(x.num)===String(num); }); if(!it) return;
+        var action=btn.dataset.action;
+        var st=sGetStatus(it); // computa o status atual no momento do clique
+        if(action==='rp'){
+          if(st==='aprovado'){
+            // Desfaz a aprovação — volta para pendente
+            for(var k=0;k<it.fornecedores.length;k++){
+              if((sharedEstados[String(it.num)+'-'+k]||'neutro')==='aprovado') sharedEstados[String(it.num)+'-'+k]='neutro';
+            }
+            triggerSave(); sharedRender();
+          } else {
+            // Pendente — entra no fluxo de confirmação
+            sharedConfirmando=String(num); sharedRender();
+            setTimeout(function(){ var ta=body.querySelector('textarea[data-num="'+num+'"]'); if(ta) ta.focus(); },80);
+          }
+        } else if(action==='ap'){
+          sSetAprovado(it); sharedConfirmando=null; triggerSave(); sharedRender();
+        } else if(action==='cancel'){
+          sharedConfirmando=null; sharedRender();
+        } else if(action==='confirm'){
+          var ta=btn.closest('.rks-confirm-wrap').querySelector('textarea');
+          sReprovaCurrent(it, ta?ta.value:'');
+          sharedConfirmando=null; triggerSave(); sharedRender();
+          setTimeout(function(){ var card=body.querySelector('[data-num="'+num+'"]'); if(card) card.scrollIntoView({behavior:'smooth',block:'center'}); },100);
+        }
+      });
+    });
+  }
+
+  function setLogo(){ var el=document.getElementById('rksLogo'); if(el&&typeof LOGO_B64_PDF!=='undefined') el.src=LOGO_B64_PDF; }
+  if(typeof LOGO_B64_PDF!=='undefined') setLogo(); else window.addEventListener('load',setLogo);
+
+  rkColRef.doc(sharedId).onSnapshot(function(doc){
+    if(sharedOwn) return;
+    if(sharedConfirmando!==null) return;
+    if(doc.exists){
+      var d=doc.data();
+      sharedItens=d.itens||[]; sharedEstados=d.estados||{};
+      sharedMotivos=d.motivos||{}; sharedNumero=d.numero||'';
+    } else { sharedItens=[]; sharedNumero='Não encontrado'; }
+    sharedRender();
+  }, function(err){
+    var b=document.getElementById('rksBody');
+    if(b) b.innerHTML='<div class="rks-msg" style="color:#A32D2D">Erro ao carregar: '+err.message+'</div>';
+  });
+})();
 
 </script>
+</body>
+</html>
