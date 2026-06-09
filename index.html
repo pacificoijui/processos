@@ -291,6 +291,8 @@
   .rk-table tr.aprovado td{background:#F3FFF5;border-bottom:1px solid #c3e6cb}
   .rk-table tr.reprovado td{background:#FFF3F3;border-bottom:1px solid #f5c6c6}
   .rk-table tr.diligencia td{background:#EFF6FF;border-bottom:1px solid #bfdbfe}
+  .rk-hidden-row td{background:#f5f5f5!important;color:#999;font-size:11px;text-align:center;font-style:italic;padding:5px 10px;border-top:1px dashed #ddd;cursor:pointer;user-select:none}
+  .rk-hidden-row:hover td{background:#ebebeb!important;color:#666}
   .rk-table td{padding:5px 10px;font-size:12px;vertical-align:middle;word-wrap:break-word;overflow-wrap:break-word}
   .rk-table td:first-child{min-width:140px;max-width:220px}
   .rk-table td.r{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
@@ -799,6 +801,7 @@
   <div class="rk-topbar">
     <div class="rk-topbar-title"><span>&#128202;</span><span id="rkPanelTitle">Análise de Ranking</span></div>
     <div class="rk-topbar-actions">
+      <button class="rk-btn rk-btn-import" id="rkBtnToggleOculto" onclick="rkToggleModoOculto()" title="Alterna entre mostrar só os fornecedores relevantes ou todos">&#128065; Mostrar Todos</button>
       <label class="rk-btn rk-btn-import" style="cursor:pointer">
         &#128196; Importar JSON
         <input type="file" id="rkFileInput" accept=".json" style="display:none">
@@ -2459,6 +2462,28 @@ var rkFiltroAtivo = null;
 var rkFiltroNum = '';
 var rkFiltroDesc = '';
 var rkFiltroForn = '';
+var rkModoOculto = true; // por padrão oculta os fornecedores além do atual
+
+// Retorna os índices dos fornecedores a exibir para um item
+function rkFornVisiveis(it){
+  if(!rkModoOculto) return it.fornecedores.map(function(_,k){ return k; });
+  var vistos=[], firstAtivo=-1;
+  for(var k=0;k<it.fornecedores.length;k++){
+    var st=rkEstados[it.num+'-'+k]||'neutro';
+    if(st==='reprovado') vistos.push(k);
+    else if(firstAtivo===-1) firstAtivo=k;
+  }
+  if(firstAtivo!==-1) vistos.push(firstAtivo);
+  vistos.sort(function(a,b){ return a-b; });
+  return vistos;
+}
+
+function rkToggleModoOculto(){
+  rkModoOculto=!rkModoOculto;
+  var btn=document.getElementById('rkBtnToggleOculto');
+  if(btn) btn.innerHTML=rkModoOculto?'&#128065; Mostrar Todos':'&#128065; Ocultar Classificados';
+  rkRenderRanking();
+}
 var rkMotivoTimer = null;
 
 function rkSalvarFirestore(){
@@ -2643,7 +2668,10 @@ function rkGerarPDF(){
     // cabeçalho de colunas (mesma cor do item)
     y=drawColHeader(y, ic);
 
-    for(var f_i=0; f_i<it.fornecedores.length; f_i++){
+    var fornIdx=rkFornVisiveis(it);
+    var fornOcultos=it.fornecedores.length-fornIdx.length;
+    for(var fi=0; fi<fornIdx.length; fi++){
+      var f_i=fornIdx[fi];
       var f=it.fornecedores[f_i];
       var key=it.num+'-'+f_i;
       var st=rkEstados[key]||'neutro';
@@ -2696,7 +2724,16 @@ function rkGerarPDF(){
       }
       y+=rowH;
     }
-    y+=4; // espaço entre itens
+    if(fornOcultos>0){
+      var noteH=5;
+      if(y+noteH > BOTTOM){ y=newPage(); }
+      fill([245,245,245]); doc.rect(ML,y,CW,noteH,'F');
+      draw([220,220,220]); doc.setLineWidth(0.1); doc.line(ML,y,ML+CW,y); doc.line(ML,y+noteH,ML+CW,y+noteH);
+      doc.setFontSize(7); doc.setFont('helvetica','italic'); txt(rgb(150,150,150));
+      doc.text(String(fornOcultos)+' fornecedor'+(fornOcultos>1?'es':'')+' oculto'+(fornOcultos>1?'s':'')+' (modo de visualização reduzida)', PW/2, y+3.4, {align:'center'});
+      y+=noteH;
+    }
+    y+=4;
   }
 
   // bordas externas leves em cada página + rodapé
@@ -2796,7 +2833,10 @@ function rkRenderRanking(){
     var tbl=document.createElement('table'); tbl.className='rk-table';
     tbl.innerHTML='<thead><tr><th>Fornecedor</th><th class="r">Valor Unit.</th><th class="r">Ref.</th><th>Modelo</th><th>Marca/Fabricante</th><th class="c" style="min-width:140px">Situação / Motivo</th></tr></thead>';
     var tbody=document.createElement('tbody');
-    it.fornecedores.forEach(function(f,i){
+    var indices=rkFornVisiveis(it);
+    var ocultados=it.fornecedores.length-indices.length;
+    indices.forEach(function(i){
+      var f=it.fornecedores[i];
       var key=it.num+'-'+i, st=rkEstados[key]||'neutro', mv=rkMotivos[key]||'';
       var tr=document.createElement('tr'); tr.className='rk-forn '+st;
       var pct=rkCalcPct(f.valor,it.ref), pv=rkFmtPct(pct);
@@ -2810,6 +2850,12 @@ function rkRenderRanking(){
       var badge=tr.querySelector('.rk-badge'); if(badge) badge.addEventListener('click',function(ev){ ev.stopPropagation(); rkToggle(key); });
       tbody.appendChild(tr);
     });
+    if(ocultados>0){
+      var trOc=document.createElement('tr'); trOc.className='rk-hidden-row';
+      trOc.innerHTML='<td colspan="6">&#128274; '+ocultados+' fornecedor'+(ocultados>1?'es':'')+' oculto'+(ocultados>1?'s':'')+' — clique para mostrar todos</td>';
+      trOc.addEventListener('click',function(){ rkModoOculto=false; var btn=document.getElementById('rkBtnToggleOculto'); if(btn) btn.innerHTML='&#128065; Ocultar Classificados'; rkRenderRanking(); });
+      tbody.appendChild(trOc);
+    }
     tbl.appendChild(tbody); block.appendChild(tbl); c.appendChild(block);
     block.querySelectorAll('.rk-motivo-input').forEach(rkAutoResize);
   });
