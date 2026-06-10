@@ -2608,19 +2608,18 @@ function fecharRanking(){ document.getElementById('rankingPanel').classList.remo
 
 // ══ HABILITAÇÃO ══════════════════════════════════════════════════════════════
 var habProcessoAtual=null, habEmpresas=[], habEstados={}, habMotivos={};
-var habFiltroAtivo=null, habSaveTimer=null, habDocId=null;
+var habFiltroAtivo=null, habSaveTimer=null, habDocId=null, habUnsubscribe=null;
 
 function abrirHabilitacao(pid){
   var p=processos.find(function(x){ return x.id===pid; }); if(!p) return;
   habProcessoAtual=p;
-  // Tenta carregar doc existente com mesmo ID do processo
   habDocId=pid;
   document.getElementById('habPanelTitle').textContent='Habilitação — '+p.numero;
-  var ph=document.getElementById('habPrintTitle'); if(ph) ph.textContent='Habilitação — '+p.numero;
-  var pl=document.getElementById('habPrintLogo'); if(pl) pl.src=LOGO_B64_PDF;
   document.getElementById('habPanel').classList.add('open');
-  // Carrega do Firebase
-  habColRef.doc(pid).get().then(function(doc){
+  // Cancela listener anterior se existir
+  if(habUnsubscribe){ habUnsubscribe(); habUnsubscribe=null; }
+  // Escuta em tempo real (igual ao ranking)
+  habUnsubscribe=habColRef.doc(pid).onSnapshot(function(doc){
     if(doc.exists){
       var d=doc.data();
       habEmpresas=d.empresas||[]; habEstados=d.estados||{}; habMotivos=d.motivos||{};
@@ -2628,9 +2627,12 @@ function abrirHabilitacao(pid){
       habEmpresas=[]; habEstados={}; habMotivos={};
     }
     habRenderLista();
-  }).catch(function(){ habEmpresas=[]; habEstados={}; habMotivos={}; habRenderLista(); });
+  }, function(err){ console.error('Hab snapshot error:', err); });
 }
-function fecharHabilitacao(){ document.getElementById('habPanel').classList.remove('open'); }
+function fecharHabilitacao(){
+  document.getElementById('habPanel').classList.remove('open');
+  if(habUnsubscribe){ habUnsubscribe(); habUnsubscribe=null; }
+}
 
 function habImportarJSON(input){
   var file=input.files[0]; if(!file) return;
