@@ -308,8 +308,41 @@
   .rk-pct-acima{color:#A32D2D;font-weight:700;font-size:11px;white-space:nowrap}
   .rk-pct-zero{color:#888;font-size:11px;white-space:nowrap}
   .rk-no-results{text-align:center;padding:24px;color:#999;font-size:13px}
-  #habPanel{position:fixed;inset:0;background:#f0f2f5;z-index:500;display:none;flex-direction:column;overflow:hidden;zoom:1.75}
-  #habPanel.open{display:flex}
+  /* ── Modo Compartilhado Habilitação (?hab=ID) ── */
+  body.hab-shared-mode>*:not(#habSharedPanel){display:none!important}
+  #habSharedPanel{position:fixed;inset:0;z-index:9999;display:none;flex-direction:column;font-family:Arial,sans-serif;background:#f0f2f5;-webkit-text-size-adjust:100%}
+  .hbs-header{background:#1a3a6b;color:#fff;padding:12px 16px;padding-top:max(12px,env(safe-area-inset-top));display:flex;align-items:center;gap:12px;flex-shrink:0}
+  .hbs-logo{height:30px;width:auto;flex-shrink:0}
+  .hbs-hdiv{width:1px;height:24px;background:rgba(255,255,255,.3);flex-shrink:0}
+  .hbs-hinfo{display:flex;flex-direction:column;gap:1px;min-width:0}
+  .hbs-htitle{font-size:14px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .hbs-hsub{font-size:10px;color:rgba(255,255,255,.65)}
+  .hbs-hsub-sm{font-size:9px;color:rgba(255,255,255,.5)}
+  @media(max-width:380px){.hbs-hsub-sm{display:none}}
+  .hbs-body{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:12px;padding-bottom:max(12px,env(safe-area-inset-bottom));max-width:820px;margin:0 auto;width:100%;box-sizing:border-box}
+  @media(min-width:600px){.hbs-body{padding:20px}}
+  .hbs-progress{background:#fff;border-radius:12px;padding:13px 16px;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 1px 4px rgba(0,0,0,.07);font-size:14px;color:#555;font-weight:600}
+  .hbs-pct{font-size:20px;font-weight:800;color:#1a3a6b}
+  .hbs-card{background:#fff;border-radius:14px;padding:16px;margin-bottom:12px;box-shadow:0 1px 5px rgba(26,58,107,.07);border-left:5px solid #e2e6ec;transition:border-color .2s}
+  .hbs-card.habil{border-left-color:#1E5F3A;background:#fbfffd}
+  .hbs-card.inabil{border-left-color:#A32D2D;background:#fffbfb}
+  .hbs-nome{font-size:16px;font-weight:700;color:#1a1a1a;margin-bottom:8px;line-height:1.3}
+  .hbs-tags{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
+  .hbs-tag{background:#eef2f8;font-size:12.5px;padding:4px 10px;border-radius:7px;font-weight:500;color:#445}
+  .hbs-tag b{color:#1a3a6b;font-weight:700}
+  .hbs-btns{display:flex;gap:10px}
+  .hbs-sbtn{flex:1;min-height:50px;display:flex;align-items:center;justify-content:center;gap:7px;border:2px solid #e2e6ec;border-radius:11px;font-size:15px;font-weight:700;cursor:pointer;background:#fff;color:#9aa3b0;font-family:Arial,sans-serif;transition:all .15s;touch-action:manipulation;-webkit-tap-highlight-color:transparent;user-select:none}
+  .hbs-sbtn:active{opacity:.85;transform:scale(.98)}
+  .hbs-sbtn.sel-inab{border-color:#A32D2D;background:#A32D2D;color:#fff;box-shadow:0 3px 10px rgba(163,45,45,.25)}
+  .hbs-sbtn.sel-hab{border-color:#1E5F3A;background:#1E5F3A;color:#fff;box-shadow:0 3px 10px rgba(30,95,58,.25)}
+  .hbs-motivo{width:100%;margin-top:12px;padding:12px 14px;border:1.5px solid #fca5a5;border-radius:10px;font-size:16px;font-family:Arial,sans-serif;resize:none;min-height:72px;outline:none;background:#fffafa;color:#333;-webkit-appearance:none;box-sizing:border-box}
+  .hbs-motivo:focus{border-color:#A32D2D;background:#fff}
+  .hbs-footer{background:#fff;border-top:1px solid #e8e8e8;padding:10px 20px;padding-bottom:max(10px,env(safe-area-inset-bottom));display:flex;align-items:center;justify-content:center;gap:8px;font-size:12px;color:#999;flex-shrink:0}
+  .hbs-dot{width:8px;height:8px;border-radius:50%;background:#ccc;display:inline-block;flex-shrink:0}
+  .hbs-dot.saved{background:#1E5F3A}
+  .hbs-dot.saving{background:#f59e0b;animation:hbsPulse .7s infinite alternate}
+  @keyframes hbsPulse{from{opacity:.4}to{opacity:1}}
+  .hbs-msg{text-align:center;padding:50px 20px;color:#888;font-size:14px;line-height:2}
   .hab-card{background:#fff;border-radius:14px;padding:16px 18px;margin-bottom:12px;box-shadow:0 1px 5px rgba(26,58,107,.07);border-left:5px solid #e2e6ec;transition:border-color .2s}
   .hab-card.habil{border-left-color:#1E5F3A;background:#fbfffd}
   .hab-card.inabil{border-left-color:#A32D2D;background:#fffbfb}
@@ -929,6 +962,22 @@
   <div class="rks-footer">
     <span class="rks-save-dot" id="rksSaveDot"></span>
     <span id="rksSaveStatus">Aguardando alterações</span>
+  </div>
+</div>
+<div id="habSharedPanel">
+  <div class="hbs-header">
+    <img class="hbs-logo" id="hbsLogo" src="" alt="Município de Ijuí">
+    <div class="hbs-hdiv"></div>
+    <div class="hbs-hinfo">
+      <div class="hbs-htitle" id="hbsTitulo">Carregando...</div>
+      <div class="hbs-hsub">Município de Ijuí — COPAM</div>
+      <div class="hbs-hsub hbs-hsub-sm">Análise de Habilitação de Empresas</div>
+    </div>
+  </div>
+  <div class="hbs-body" id="hbsBody"><div class="hbs-msg">Carregando...</div></div>
+  <div class="hbs-footer">
+    <span class="hbs-dot" id="hbsDot"></span>
+    <span id="hbsStatus">Aguardando alterações</span>
   </div>
 </div>
 <div class="toast" id="toast">&#10003; <span id="toastMsg"></span></div>
@@ -2679,8 +2728,7 @@ function habRenderLista(){
 
 function habCopiarLink(){
   if(!habDocId){ habToast('Importe um JSON primeiro.'); return; }
-  var base=window.location.origin+'/processos/habilitacao.html';
-  var link=base+'?hab='+habDocId;
+  var link=window.location.origin+window.location.pathname+'?hab='+habDocId;
   if(navigator.clipboard){ navigator.clipboard.writeText(link).then(function(){ habToast('Link copiado!'); }); }
   else prompt('Copie o link:', link);
 }
@@ -3251,6 +3299,92 @@ function rkCopiarLink(){
     if(b) b.innerHTML='<div class="rks-msg" style="color:#A32D2D">Erro ao carregar: '+err.message+'</div>';
   });
 })();
+// ── Modo Compartilhado Habilitação (?hab=ID) ─────────────────────────────────
+(function(){
+  var params=new URLSearchParams(window.location.search);
+  var habId=params.get('hab');
+  if(!habId) return;
+
+  document.body.classList.add('hab-shared-mode');
+  var panel=document.getElementById('habSharedPanel');
+  if(panel) panel.style.display='flex';
+  var el=document.getElementById('hbsLogo'); if(el) el.src=LOGO_B64_PDF;
+
+  var sharedEmpresas=[], sharedEstados={}, sharedMotivos={}, sharedNumero='';
+  var saveTimer=null, sharedOwn=false;
+
+  function setDot(s){
+    var d=document.getElementById('hbsDot'), t=document.getElementById('hbsStatus');
+    if(!d||!t) return;
+    if(s==='saving'){ d.className='hbs-dot saving'; t.textContent='Salvando...'; }
+    else if(s==='saved'){ d.className='hbs-dot saved'; var n=new Date(); t.textContent='Salvo às '+('0'+n.getHours()).slice(-2)+':'+('0'+n.getMinutes()).slice(-2); }
+    else { d.className='hbs-dot'; t.textContent='Aguardando alterações'; }
+  }
+  function doSave(){
+    sharedOwn=true;
+    habColRef.doc(habId).set({empresas:sharedEmpresas,estados:sharedEstados,motivos:sharedMotivos,numero:sharedNumero,updatedAt:firebase.firestore.FieldValue.serverTimestamp()})
+      .then(function(){ setDot('saved'); setTimeout(function(){ sharedOwn=false; },3000); })
+      .catch(function(){ setDot('idle'); sharedOwn=false; });
+  }
+  function triggerSave(){ setDot('saving'); if(saveTimer) clearTimeout(saveTimer); saveTimer=setTimeout(doSave,900); }
+
+  function hbsRender(){
+    var tEl=document.getElementById('hbsTitulo'); if(tEl) tEl.textContent='Habilitação — '+sharedNumero;
+    var body=document.getElementById('hbsBody'); if(!body) return;
+    var scroll=body.scrollTop;
+    if(!sharedEmpresas.length){ body.innerHTML='<div class="hbs-msg">Sessão não encontrada ou sem empresas importadas.</div>'; return; }
+    var pre=sharedEmpresas.filter(function(_,i){ return !!(sharedEstados[String(i)]); }).length;
+    var pct=Math.round(pre/sharedEmpresas.length*100);
+    var html='<div class="hbs-progress"><span>'+pre+' de '+sharedEmpresas.length+' empresas analisadas</span><span class="hbs-pct">'+pct+'%</span></div>';
+    sharedEmpresas.forEach(function(e,i){
+      var s=sharedEstados[String(i)]||'', mv=sharedMotivos[String(i)]||'';
+      var cardCls='hbs-card'+(s?' '+s:'');
+      var inabCls='hbs-sbtn'+(s==='inabilitado'?' sel-inab':'');
+      var habCls='hbs-sbtn'+(s==='habilitado'?' sel-hab':'');
+      html+='<div class="'+cardCls+'">'
+        +'<div class="hbs-nome">'+escHtml(e.nome)+'</div>'
+        +'<div class="hbs-tags">'+(e.cnpj?'<span class="hbs-tag"><b>CNPJ</b> '+escHtml(e.cnpj)+'</span>':'')+(e.cidade?'<span class="hbs-tag"><b>Cidade</b> '+escHtml(e.cidade)+'</span>':'')+'</div>'
+        +'<div class="hbs-btns">'
+          +'<button class="'+inabCls+'" data-action="inab" data-idx="'+i+'">&#10005; Inabilitado</button>'
+          +'<button class="'+habCls+'" data-action="hab" data-idx="'+i+'">&#10003; Habilitado</button>'
+        +'</div>'
+        +(s==='inabilitado'?'<textarea class="hbs-motivo" placeholder="Justificativa de inabilitação..." data-idx="'+i+'">'+escHtml(mv)+'</textarea>':'')
+      +'</div>';
+    });
+    body.innerHTML=html; body.scrollTop=scroll;
+    body.querySelectorAll('[data-action]').forEach(function(btn){
+      btn.addEventListener('click',function(){
+        var idx=String(btn.dataset.idx), action=btn.dataset.action;
+        var cur=sharedEstados[idx]||'';
+        var next=action==='hab'?'habilitado':'inabilitado';
+        sharedEstados[idx]=(cur===next?'':next);
+        if(sharedEstados[idx]!=='inabilitado') delete sharedMotivos[idx];
+        triggerSave(); hbsRender();
+      });
+    });
+    body.querySelectorAll('.hbs-motivo').forEach(function(ta){
+      ta.addEventListener('input',function(){
+        if(ta.value.trim()) sharedMotivos[String(ta.dataset.idx)]=ta.value;
+        else delete sharedMotivos[String(ta.dataset.idx)];
+        triggerSave();
+      });
+    });
+  }
+
+  habColRef.doc(habId).onSnapshot(function(doc){
+    if(sharedOwn) return;
+    if(doc.exists){
+      var d=doc.data();
+      sharedEmpresas=d.empresas||[]; sharedEstados=d.estados||{};
+      sharedMotivos=d.motivos||{}; sharedNumero=d.numero||'';
+    } else { sharedEmpresas=[]; sharedNumero='Não encontrado'; }
+    hbsRender();
+  }, function(err){
+    var b=document.getElementById('hbsBody');
+    if(b) b.innerHTML='<div class="hbs-msg" style="color:#A32D2D">Erro ao carregar: '+err.message+'</div>';
+  });
+})();
+
 
 </script>
 </body>
