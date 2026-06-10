@@ -343,6 +343,12 @@
   .hbs-dot.saving{background:#f59e0b;animation:hbsPulse .7s infinite alternate}
   @keyframes hbsPulse{from{opacity:.4}to{opacity:1}}
   .hbs-msg{text-align:center;padding:50px 20px;color:#888;font-size:14px;line-height:2}
+  /* Print header/footer — hidden on screen */
+  .rk-print-header{display:none}
+  .rk-print-footer{display:none}
+  /* Hab panel */
+  #habPanel{position:fixed;inset:0;background:#f0f2f5;z-index:500;display:none;flex-direction:column;overflow:hidden;zoom:1.75}
+  #habPanel.open{display:flex}
   .hab-card{background:#fff;border-radius:14px;padding:16px 18px;margin-bottom:12px;box-shadow:0 1px 5px rgba(26,58,107,.07);border-left:5px solid #e2e6ec;transition:border-color .2s}
   .hab-card.habil{border-left-color:#1E5F3A;background:#fbfffd}
   .hab-card.inabil{border-left-color:#A32D2D;background:#fffbfb}
