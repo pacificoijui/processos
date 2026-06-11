@@ -397,7 +397,7 @@
   .hab-dbtn.rec.sel{border-color:#A32D2D;background:#A32D2D;color:#fff}
   .hab-dbtn.ap.sel{border-color:#1E5F3A;background:#1E5F3A;color:#fff}
   .hab-dbtn.na.sel{border-color:#666;background:#666;color:#fff}
-  .hab-doc-motivo{width:100%;margin-top:6px;padding:8px 11px;border:1.5px solid #fca5a5;border-radius:8px;font-size:12px;font-family:Arial,sans-serif;resize:none;min-height:52px;outline:none;background:#fffafa;color:#333;line-height:1.5;box-sizing:border-box}
+  .hab-doc-motivo{width:100%;margin-top:6px;padding:8px 11px;border:1.5px solid #fca5a5;border-radius:8px;font-size:12px;font-family:Arial,sans-serif;resize:none;min-height:36px;outline:none;background:#fffafa;color:#333;line-height:1.5;box-sizing:border-box;overflow:hidden}
   .hab-doc-motivo:focus{border-color:#A32D2D;background:#fff}
   .hab-doc-motivo::placeholder{color:#ccc}
   .hab-recusa-resumo{margin-top:10px;font-size:12px;color:#A32D2D;background:#fef5f5;border:1px solid #f5c6c6;border-radius:9px;padding:8px 12px;line-height:1.5}
@@ -3036,7 +3036,9 @@ function habRenderLista(){
     });
   });
   lista.querySelectorAll('.hab-doc-motivo').forEach(function(ta){
+    rkAutoResize(ta);
     ta.addEventListener('input',function(){
+      rkAutoResize(ta);
       habSetDocMotivo(ta.dataset.emp, ta.dataset.doc, ta.value);
     });
   });
@@ -3929,7 +3931,9 @@ function rkCopiarLink(){
       });
     });
     body.querySelectorAll('.hab-doc-motivo').forEach(function(ta){
+      rkAutoResize(ta);
       ta.addEventListener('input',function(){
+        rkAutoResize(ta);
         var ek=ta.dataset.emp, docId=ta.dataset.doc;
         if(ta.value.trim()){ if(!sharedDocMotivos[ek]) sharedDocMotivos[ek]={}; sharedDocMotivos[ek][docId]=ta.value; }
         else{ if(sharedDocMotivos[ek]){ delete sharedDocMotivos[ek][docId]; if(!Object.keys(sharedDocMotivos[ek]).length) delete sharedDocMotivos[ek]; } }
