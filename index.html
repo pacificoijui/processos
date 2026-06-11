@@ -556,6 +556,19 @@
   .rks-save-dot.saving{background:#f59e0b;animation:rksPulse .7s infinite alternate}
   @keyframes rksPulse{from{opacity:.4}to{opacity:1}}
   .rks-msg{text-align:center;padding:50px 20px;color:#888;font-size:14px;line-height:1.9}
+  /* Botão filtro "Só Pendentes" na barra de progresso */
+  .rks-filter-pending-btn{
+    padding:7px 14px;border-radius:9px;border:2px solid #e2e6ec;
+    background:#fff;color:#666;font-size:13px;font-weight:700;
+    cursor:pointer;font-family:Arial,sans-serif;line-height:1;
+    transition:border-color .15s,background .15s,color .15s;
+    touch-action:manipulation;-webkit-tap-highlight-color:transparent;
+    white-space:nowrap;
+  }
+  .rks-filter-pending-btn:active{opacity:.85}
+  @media(hover:hover){.rks-filter-pending-btn:hover:not(.ativo){border-color:#1a3a6b;color:#1a3a6b;background:#f0f4fb}}
+  .rks-filter-pending-btn.ativo{border-color:#1a3a6b;background:#1a3a6b;color:#fff}
+  .rks-pending-empty{text-align:center;padding:40px 20px;color:#888;font-size:14px;line-height:1.9;background:#fff;border-radius:14px;margin-bottom:14px}
 </style>
 </head>
 <body>
@@ -3143,6 +3156,7 @@ function rkCopiarLink(){
   var sharedItens=[], sharedEstados={}, sharedMotivos={}, sharedNumero='';
   var saveTimer=null, sharedOwn=false;
   var sharedConfirmando=null; // num do item em confirmação de reprovação
+  var sharedFiltroSoPendentes=false; // toggle "mostrar só pendentes"
 
   function setSaveDot(s){
     var dot=document.getElementById('rksSaveDot'), txt=document.getElementById('rksSaveStatus');
@@ -3207,10 +3221,24 @@ function rkCopiarLink(){
       return;
     }
     var pre=sharedItens.filter(function(it){ return sGetStatus(it)!==''; }).length;
+    var pe=sharedItens.filter(function(it){ return sGetStatus(it)===''; }).length;
     var pct=Math.round(pre/sharedItens.length*100);
-    var html='<div class="rks-progress-bar"><span>'+pre+' de '+sharedItens.length+' itens analisados</span><span class="rks-progress-pct">'+pct+'%</span></div>';
+    var btnLabel=sharedFiltroSoPendentes?'✕ Mostrar Todos':'🔍 Só Pendentes ('+pe+')';
+    var btnCls='rks-filter-pending-btn'+(sharedFiltroSoPendentes?' ativo':'');
+    var html='<div class="rks-progress-bar"><span>'+pre+' de '+sharedItens.length+' itens analisados</span>'
+      +'<div style="display:flex;align-items:center;gap:10px">'
+      +(pe>0||sharedFiltroSoPendentes?'<button id="rksBtnSoPend" class="'+btnCls+'">'+btnLabel+'</button>':'')
+      +'<span class="rks-progress-pct">'+pct+'%</span></div></div>';
 
-    sharedItens.forEach(function(it){
+    var listaRender=sharedFiltroSoPendentes
+      ? sharedItens.filter(function(it){ return sGetStatus(it)===''; })
+      : sharedItens;
+
+    if(sharedFiltroSoPendentes&&!listaRender.length){
+      html+='<div class="rks-pending-empty">🎉 Nenhum item pendente — todos já foram analisados!</div>';
+    }
+
+    listaRender.forEach(function(it){
       var st=sGetStatus(it);
       var idx=sGetFornIdx(it);
       var forn=idx>=0?it.fornecedores[idx]:null;
@@ -3257,6 +3285,13 @@ function rkCopiarLink(){
 
     body.innerHTML=html;
     body.scrollTop=scroll;
+
+    // Listener do botão "Só Pendentes"
+    var btnPend=body.querySelector('#rksBtnSoPend');
+    if(btnPend) btnPend.addEventListener('click',function(){
+      sharedFiltroSoPendentes=!sharedFiltroSoPendentes;
+      sharedRender();
+    });
 
     body.querySelectorAll('[data-action]').forEach(function(btn){
       btn.addEventListener('click',function(){
