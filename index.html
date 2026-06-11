@@ -144,7 +144,7 @@
   .btn-sm.danger:hover { background: var(--red); color: #fff; border-color: var(--red); }
   .btn-sm.pdf-btn:hover { background: var(--green); color: #fff; border-color: var(--green); }
 
-  .overlay { display: none; position: fixed; inset: 0; background: rgba(8,18,45,0.58); z-index: 200; align-items: center; justify-content: center; backdrop-filter: blur(3px); }
+  .overlay { display: none; position: fixed; inset: 0; background: rgba(8,18,45,0.58); z-index: 600; align-items: center; justify-content: center; backdrop-filter: blur(3px); }
   .overlay.open { display: flex; }
   .modal { background: var(--card); border-radius: 16px; box-shadow: var(--shadow-lg); width: 100%; max-width: 600px; margin: 20px; overflow: hidden; animation: slideUp 0.22s ease; max-height: 92vh; overflow-y: auto; }
   @keyframes slideUp { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
@@ -370,6 +370,49 @@
   .hab-motivo-wrap{margin-top:10px}
   .hab-motivo{width:100%;padding:9px 12px;border:1.5px solid #fca5a5;border-radius:9px;font-size:12px;font-family:Arial,sans-serif;resize:none;min-height:58px;outline:none;background:#fffafa;color:#333;line-height:1.5}
   .hab-motivo:focus{border-color:#A32D2D}
+  /* ── Checklist de documentos de habilitação ── */
+  .hab-prog{display:inline-flex;align-items:center;gap:6px;background:#eef2f8;border-radius:7px;padding:4px 10px;font-size:12px;font-weight:700;color:#1a3a6b}
+  .hab-prog.ok{background:#d4edda;color:#1E5F3A}
+  .hab-prog.bad{background:#f8d7da;color:#A32D2D}
+  .hab-chk-toggle{margin-top:4px;width:100%;display:flex;align-items:center;justify-content:center;gap:7px;border:1.5px dashed #cfd8e6;background:#f8fafd;border-radius:9px;padding:8px;font-size:12.5px;font-weight:700;color:#1a3a6b;cursor:pointer;font-family:Arial,sans-serif;transition:all .15s}
+  .hab-chk-toggle:hover{background:#eef2f8;border-color:#1a3a6b}
+  .hab-chk{margin-top:12px;border-top:1px solid #eef1f6;padding-top:4px}
+  .hab-sec{margin-top:10px}
+  .hab-sec-title{font-size:12px;font-weight:800;color:#1a3a6b;text-transform:uppercase;letter-spacing:.3px;padding:6px 8px;background:#eef2f8;border-radius:7px;display:flex;align-items:center;justify-content:space-between;gap:8px}
+  .hab-sec-hint{font-size:10.5px;font-weight:600;color:#777;text-transform:none;letter-spacing:0}
+  .hab-doc{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:8px 6px;border-bottom:1px dashed #eef1f6}
+  .hab-doc:last-child{border-bottom:none}
+  .hab-doc.st-aprovado{background:#f7fcf9}
+  .hab-doc.st-recusado{background:#fef8f8}
+  .hab-doc.st-na .hab-doc-nome{color:#b5b5b5;text-decoration:line-through}
+  .hab-doc.alt-disp{opacity:.42}
+  .hab-doc-nome{font-size:12.5px;color:#333;line-height:1.45;flex:1}
+  .hab-doc-st{font-size:10px;font-weight:700;color:#999;display:block;margin-top:2px}
+  .hab-doc-st.ap{color:#1E5F3A}.hab-doc-st.rec{color:#A32D2D}.hab-doc-st.na{color:#888}
+  .hab-doc-btns{display:flex;gap:5px;flex-shrink:0}
+  .hab-dbtn{min-width:34px;height:30px;display:flex;align-items:center;justify-content:center;border:1.5px solid #dfe5ee;border-radius:8px;background:#fff;color:#aab;font-size:13px;font-weight:800;cursor:pointer;font-family:Arial,sans-serif;transition:all .12s;user-select:none;padding:0 8px}
+  .hab-dbtn.rec:hover{border-color:#A32D2D;color:#A32D2D;background:#fff5f5}
+  .hab-dbtn.ap:hover{border-color:#1E5F3A;color:#1E5F3A;background:#f3fbf6}
+  .hab-dbtn.na:hover{border-color:#888;color:#666;background:#f4f4f4}
+  .hab-dbtn.rec.sel{border-color:#A32D2D;background:#A32D2D;color:#fff}
+  .hab-dbtn.ap.sel{border-color:#1E5F3A;background:#1E5F3A;color:#fff}
+  .hab-dbtn.na.sel{border-color:#666;background:#666;color:#fff}
+  .hab-doc-motivo{width:100%;margin-top:6px;padding:8px 11px;border:1.5px solid #fca5a5;border-radius:8px;font-size:12px;font-family:Arial,sans-serif;resize:none;min-height:52px;outline:none;background:#fffafa;color:#333;line-height:1.5;box-sizing:border-box}
+  .hab-doc-motivo:focus{border-color:#A32D2D;background:#fff}
+  .hab-doc-motivo::placeholder{color:#ccc}
+  .hab-recusa-resumo{margin-top:10px;font-size:12px;color:#A32D2D;background:#fef5f5;border:1px solid #f5c6c6;border-radius:9px;padding:8px 12px;line-height:1.5}
+  /* Modal qualificação técnica */
+  .htec-toggle{display:flex;gap:10px}
+  .htec-tbtn{flex:1;padding:11px;border:2px solid var(--border);border-radius:10px;background:#fff;font-family:Arial,sans-serif;font-size:14px;font-weight:700;color:#999;cursor:pointer;transition:all .15s}
+  .htec-tbtn.sel-sim{border-color:#1E5F3A;background:#1E5F3A;color:#fff}
+  .htec-tbtn.sel-nao{border-color:#A32D2D;background:#A32D2D;color:#fff}
+  .htec-item{display:flex;gap:8px;margin-bottom:8px;align-items:flex-start}
+  .htec-item textarea{flex:1;padding:9px 12px;border:1.5px solid var(--border);border-radius:9px;font-size:13px;font-family:Arial,sans-serif;resize:vertical;min-height:44px;outline:none;line-height:1.45}
+  .htec-item textarea:focus{border-color:#1a3a6b}
+  .htec-del{width:36px;height:36px;flex-shrink:0;border:1.5px solid #f5c6c6;border-radius:9px;background:#fff;color:#A32D2D;font-size:14px;cursor:pointer;font-weight:800}
+  .htec-del:hover{background:#A32D2D;color:#fff}
+  .htec-add{width:100%;padding:10px;border:1.5px dashed #cfd8e6;border-radius:9px;background:#f8fafd;color:#1a3a6b;font-size:13px;font-weight:700;cursor:pointer;font-family:Arial,sans-serif}
+  .htec-add:hover{background:#eef2f8}
   @media print{
     #habPanel{position:static!important;display:block!important;zoom:1!important;overflow:visible!important}
     #habPanel .rk-topbar{display:none!important}
@@ -1075,8 +1118,7 @@
       <h2 class="rk-panel-title" id="habPanelTitle">Habilitação</h2>
     </div>
     <div class="rk-topbar-actions">
-      <button class="rk-btn rk-btn-import" onclick="document.getElementById('habFileInput').click()">&#128193; Importar JSON</button>
-      <input type="file" id="habFileInput" accept=".json" style="display:none" onchange="habImportarJSON(this)">
+      <button class="rk-btn rk-btn-import" onclick="habAbrirTecModal()" style="background:#7c5e10">&#9881;&#65039; Qualif. Técnica</button>
       <button class="rk-btn rk-btn-import" onclick="habCopiarLink()" style="background:#546e7a">&#128279; Compartilhar</button>
       <button class="rk-btn rk-btn-pdf" onclick="habGerarPDF()">&#128438; Exportar PDF</button>
     </div>
@@ -1089,12 +1131,40 @@
   </div>
   <div class="rk-body" id="habBody">
     <div class="rk-empty-state" id="habEmpty">
-      <h3>Nenhuma habilitação importada para este processo</h3>
-      <p>Clique em <strong>Importar JSON</strong> para carregar a lista de empresas.</p>
+      <h3>Nenhuma empresa vencedora encontrada</h3>
+      <p>A habilitação é gerada automaticamente a partir do <strong>Ranking de Propostas</strong>.<br>Importe o JSON de propostas no painel <strong>Ranking</strong> deste processo — as empresas que estiverem com itens arrematados aparecerão aqui automaticamente.</p>
     </div>
     <div id="habLista"></div>
   </div>
 </div><!-- /#habPanel -->
+
+<!-- ══ MODAL QUALIFICAÇÃO TÉCNICA (9.19) ══ -->
+<div class="overlay" id="modalHabTec">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>&#9881;&#65039; Qualificação Técnica — 9.19</h2>
+      <button class="modal-close" onclick="habFecharTecModal()">&#10005;</button>
+    </div>
+    <div class="modal-body">
+      <div>
+        <label style="font-size:13px;font-weight:700;color:#1a3a6b;display:block;margin-bottom:8px">Este processo exige qualificação técnica?</label>
+        <div class="htec-toggle">
+          <button class="htec-tbtn" id="htecBtnSim" onclick="habTecSetExige(true)">&#10003; Sim</button>
+          <button class="htec-tbtn" id="htecBtnNao" onclick="habTecSetExige(false)">&#10005; Não</button>
+        </div>
+      </div>
+      <div id="htecExigencias" style="display:none">
+        <label style="font-size:13px;font-weight:700;color:#1a3a6b;display:block;margin-bottom:8px">Exigências de qualificação técnica deste processo</label>
+        <div id="htecLista"></div>
+        <button class="htec-add" onclick="habTecAdd()">&#10133; Adicionar exigência</button>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="rk-btn" style="background:#eee;color:#555" onclick="habFecharTecModal()">Cancelar</button>
+      <button class="rk-btn" style="background:#1a3a6b;color:#fff" onclick="habSalvarTec()">&#128190; Salvar</button>
+    </div>
+  </div>
+</div>
 
 
 
@@ -2620,75 +2690,232 @@ function abrirRanking(pid){
 function fecharRanking(){ document.getElementById('rankingPanel').classList.remove('open'); }
 
 // ══ HABILITAÇÃO ══════════════════════════════════════════════════════════════
+// Empresas derivadas automaticamente do Ranking de Propostas (rankings/{pid}).
+// Checklist de documentos por empresa; status Habilitado/Inabilitado é AUTOMÁTICO:
+//  - todos os docs exigidos aprovados → Habilitado
+//  - qualquer doc recusado → Inabilitado
+//  - faltando algo → Pendente
+// 9.16 Jurídica: documentos ALTERNATIVOS — basta 1 aprovado (um substitui o outro).
 var habProcessoAtual=null, habEmpresas=[], habEstados={}, habMotivos={};
+var habDocs={}, habDocMotivos={}, habConfig={tecnicaExige:false,tecnicaItens:[]}, habExpand={};
 var habFiltroAtivo=null, habSaveTimer=null, habDocId=null, habUnsubscribe=null;
+var habRkUnsubscribe=null, habRkItens=[], habRkEstados={};
+var habLegacyEmpresas=[], habOwn=false;
+
+// ── Catálogo de documentos padrão (presentes em todos os editais) ──
+var HAB_DOCS_JUR=[
+  {id:'j_a',nome:'Empresário individual — inscrição no Registro Público de Empresas Mercantis (Junta Comercial da sede)'},
+  {id:'j_b',nome:'MEI — Certificado da Condição de Microempreendedor Individual (CCMEI)'},
+  {id:'j_c',nome:'Sociedade empresária / EIRELI — ato constitutivo, estatuto ou contrato social registrado na Junta Comercial + doc. comprobatório dos administradores'},
+  {id:'j_d',nome:'Sociedade simples — inscrição do ato constitutivo no Registro Civil das PJ + prova da indicação dos administradores'},
+  {id:'j_e',nome:'Cooperativa — ata de fundação e estatuto social em vigor + registro do art. 107 da Lei nº 5.764/71'},
+  {id:'j_f',nome:'Empresa/sociedade estrangeira em funcionamento no País — decreto de autorização'}
+];
+var HAB_DOCS_FIS=[
+  {id:'f_a',nome:'Prova de inscrição no CNPJ (ou CPF, conforme o caso)'},
+  {id:'f_b',nome:'Inscrição no cadastro de contribuintes estadual e/ou municipal, se houver, pertinente ao ramo de atividade',opcional:true},
+  {id:'f_c',nome:'Regularidade perante a Fazenda Nacional — certidão conjunta RFB/PGFN (créditos tributários federais e DAU, incl. Seguridade Social)'},
+  {id:'f_d',nome:'Prova de regularidade com o FGTS'},
+  {id:'f_e',nome:'CNDT — certidão negativa (ou positiva c/ efeito de negativa) de débitos perante a Justiça do Trabalho'},
+  {id:'f_f',nome:'Certidão Negativa de Tributos Estaduais — Fazenda Estadual da sede'},
+  {id:'f_g',nome:'Certidão Negativa de Tributos Municipais — Fazenda Municipal da sede'}
+];
+var HAB_DOCS_ECO=[
+  {id:'e_a',nome:'Certidão Negativa de falência, concordata ou recuperação judicial/extrajudicial (Lei nº 11.101/2005), expedida pelo distribuidor da sede'}
+];
+
+function habKeyEmpresa(nome){ return String(nome||'').trim().toUpperCase().replace(/\s+/g,' '); }
+
+// Itens de qualificação técnica (9.19) configurados para o processo
+function habTecDocsFrom(config){
+  if(!config||!config.tecnicaExige) return [];
+  return (config.tecnicaItens||[]).filter(function(t){ return t&&(t.texto||'').trim(); })
+    .map(function(t){ return {id:'t_'+t.id, nome:t.texto}; });
+}
+
+// Calcula status automático e progresso de docs para um conjunto de julgamentos
+// d = { docId: 'aprovado'|'recusado'|'na' } (ausente = não enviado)
+function habCalcDocsStatus(d, tecDocs, legacyEstado){
+  d=d||{};
+  var recusados=[], pendentes=[], done=0, total=1; // jurídica conta como 1 exigência
+  var juridOk=HAB_DOCS_JUR.some(function(x){ return d[x.id]==='aprovado'; });
+  if(juridOk) done++;
+  else{
+    var jurRec=HAB_DOCS_JUR.some(function(x){ return d[x.id]==='recusado'; });
+    if(jurRec) recusados.push('Habilitação jurídica (9.16)');
+    else pendentes.push('Habilitação jurídica (9.16)');
+  }
+  function grupo(arr){
+    arr.forEach(function(x){
+      var st=d[x.id]||'';
+      if(st==='na') return; // dispensado — fora do total exigido
+      total++;
+      if(st==='aprovado') done++;
+      else if(st==='recusado') recusados.push(x.nome);
+      else pendentes.push(x.nome);
+    });
+  }
+  grupo(HAB_DOCS_FIS); grupo(HAB_DOCS_ECO); grupo(tecDocs||[]);
+  var status=recusados.length?'inabilitado':(pendentes.length?'':'habilitado');
+  // Fallback legado: empresa sem nenhum doc julgado mas com status manual antigo
+  if(!Object.keys(d).length&&legacyEstado) status=legacyEstado;
+  return {status:status, done:done, total:total, recusados:recusados, pendentes:pendentes, juridOk:juridOk};
+}
+function habCalcInfo(k){
+  return habCalcDocsStatus(habDocs[k]||{}, habTecDocsFrom(habConfig), habEstados[k]||'');
+}
+
+// Deriva a lista de empresas vencedoras a partir dos itens/estados do ranking
+function habDerivarEmpresas(itens, estados){
+  var map={}, ordem=[];
+  (itens||[]).forEach(function(it){
+    if(!it.fornecedores||!it.fornecedores.length) return;
+    var win=-1;
+    for(var k=0;k<it.fornecedores.length;k++){
+      var st=(estados||{})[it.num+'-'+k]||'neutro';
+      if(st!=='reprovado'){ win=k; break; }
+    }
+    if(win===-1) return; // item fracassado: todos reprovados
+    var f=it.fornecedores[win];
+    var key=habKeyEmpresa(f.nome);
+    if(!key) return;
+    if(!map[key]){
+      map[key]={nome:f.nome, cnpj:f.cnpj||f.CNPJ||'', cidade:f.cidade||f.municipio||'', itens:[]};
+      ordem.push(key);
+    }
+    map[key].itens.push(it.num);
+    if(!map[key].cnpj&&(f.cnpj||f.CNPJ)) map[key].cnpj=f.cnpj||f.CNPJ;
+    if(!map[key].cidade&&(f.cidade||f.municipio)) map[key].cidade=f.cidade||f.municipio;
+  });
+  var lista=ordem.map(function(k){ return map[k]; });
+  lista.sort(function(a,b){ return a.nome.localeCompare(b.nome,'pt-BR'); });
+  return lista;
+}
+
+// Migra documentos antigos (chaves por índice "0","1"...) para chaves por nome
+function habMigrarChaves(){
+  if(!habLegacyEmpresas.length) return;
+  var precisa=Object.keys(habEstados).some(function(k){ return /^\d+$/.test(k); });
+  if(!precisa) return;
+  var novosE={}, novosM={};
+  Object.keys(habEstados).forEach(function(k){
+    if(/^\d+$/.test(k)){
+      var emp=habLegacyEmpresas[parseInt(k,10)];
+      if(emp&&emp.nome){ novosE[habKeyEmpresa(emp.nome)]=habEstados[k]; }
+    } else novosE[k]=habEstados[k];
+  });
+  Object.keys(habMotivos).forEach(function(k){
+    if(/^\d+$/.test(k)){
+      var emp=habLegacyEmpresas[parseInt(k,10)];
+      if(emp&&emp.nome){ novosM[habKeyEmpresa(emp.nome)]=habMotivos[k]; }
+    } else novosM[k]=habMotivos[k];
+  });
+  habEstados=novosE; habMotivos=novosM;
+  habSalvarFirestore();
+}
+
+function habAtualizarEmpresas(){
+  var derivadas=habDerivarEmpresas(habRkItens, habRkEstados);
+  // Fallback: processo antigo sem ranking importado mas com lista legada salva
+  habEmpresas=derivadas.length?derivadas:habLegacyEmpresas.map(function(e){
+    return {nome:e.nome, cnpj:e.cnpj||'', cidade:e.cidade||'', itens:e.itens||[]};
+  });
+  habRenderLista();
+}
 
 function abrirHabilitacao(pid){
   var p=processos.find(function(x){ return x.id===pid; }); if(!p) return;
   habProcessoAtual=p;
   habDocId=pid;
+  habEmpresas=[]; habEstados={}; habMotivos={}; habDocs={}; habDocMotivos={}; habExpand={};
+  habConfig={tecnicaExige:false,tecnicaItens:[]};
+  habRkItens=[]; habRkEstados={}; habLegacyEmpresas=[];
   document.getElementById('habPanelTitle').textContent='Habilitação — '+p.numero;
   document.getElementById('habPanel').classList.add('open');
-  // Cancela listener anterior se existir
+  // Cancela listeners anteriores se existirem
   if(habUnsubscribe){ habUnsubscribe(); habUnsubscribe=null; }
-  // Escuta em tempo real (igual ao ranking)
-  habUnsubscribe=habColRef.doc(pid).onSnapshot(function(doc){
+  if(habRkUnsubscribe){ habRkUnsubscribe(); habRkUnsubscribe=null; }
+  // Escuta o RANKING em tempo real: quando uma proposta é reprovada/aprovada lá,
+  // a lista de empresas vencedoras aqui é recalculada na hora
+  habRkUnsubscribe=rkColRef.doc(pid).onSnapshot(function(doc){
     if(doc.exists){
       var d=doc.data();
-      habEmpresas=d.empresas||[]; habEstados=d.estados||{}; habMotivos=d.motivos||{};
-    } else {
-      habEmpresas=[]; habEstados={}; habMotivos={};
-    }
-    habRenderLista();
+      habRkItens=d.itens||[]; habRkEstados=d.estados||{};
+    } else { habRkItens=[]; habRkEstados={}; }
+    habAtualizarEmpresas();
+  }, function(err){ console.error('Hab/ranking snapshot error:', err); });
+  // Escuta os julgamentos de habilitação (docs/motivos por empresa + config técnica)
+  habUnsubscribe=habColRef.doc(pid).onSnapshot(function(doc){
+    if(habOwn) return; // ignora eco da própria gravação (evita perder foco/scroll)
+    if(doc.exists){
+      var d=doc.data();
+      habEstados=d.estados||{}; habMotivos=d.motivos||{};
+      habDocs=d.docs||{}; habDocMotivos=d.docMotivos||{};
+      habConfig=d.config||{tecnicaExige:false,tecnicaItens:[]};
+      habLegacyEmpresas=d.empresas||[];
+      habMigrarChaves();
+    } else { habEstados={}; habMotivos={}; habDocs={}; habConfig={tecnicaExige:false,tecnicaItens:[]}; habLegacyEmpresas=[]; }
+    habAtualizarEmpresas();
   }, function(err){ console.error('Hab snapshot error:', err); });
 }
 function fecharHabilitacao(){
   document.getElementById('habPanel').classList.remove('open');
   if(habUnsubscribe){ habUnsubscribe(); habUnsubscribe=null; }
-}
-
-function habImportarJSON(input){
-  var file=input.files[0]; if(!file) return;
-  var reader=new FileReader();
-  reader.onload=function(e){
-    try{
-      var data=JSON.parse(e.target.result);
-      if(!Array.isArray(data)) throw new Error('JSON deve ser uma lista de empresas.');
-      habEmpresas=data.map(function(item){
-        return {
-          nome: item.nome||item.empresa||item.razaoSocial||item.name||'',
-          cnpj: item.cnpj||item.CNPJ||'',
-          cidade: item.cidade||item.municipio||item.city||''
-        };
-      }).filter(function(e){ return e.nome; });
-      if(!habEmpresas.length) throw new Error('Nenhuma empresa encontrada no JSON.');
-      habEstados={}; habMotivos={};
-      habSalvarFirestore(); habRenderLista();
-      habToast('Importadas '+habEmpresas.length+' empresas!');
-    }catch(err){ alert('Erro ao importar JSON:\n'+err.message); }
-  };
-  reader.readAsText(file);
-  input.value='';
+  if(habRkUnsubscribe){ habRkUnsubscribe(); habRkUnsubscribe=null; }
 }
 
 function habSalvarFirestore(){
   if(!habDocId) return;
   clearTimeout(habSaveTimer);
+  habOwn=true;
   habSaveTimer=setTimeout(function(){
+    // 'estados' gravado já com o status AUTOMÁTICO calculado (compatibilidade)
+    var estadosDerivados={};
+    habEmpresas.forEach(function(e){
+      var k=habKeyEmpresa(e.nome);
+      var st=habCalcInfo(k).status;
+      if(st) estadosDerivados[k]=st;
+    });
     habColRef.doc(habDocId).set({
-      empresas:habEmpresas, estados:habEstados, motivos:habMotivos,
+      empresas:habEmpresas, estados:estadosDerivados, motivos:habMotivos,
+      docs:habDocs, docMotivos:habDocMotivos, config:habConfig,
       numero:habProcessoAtual?habProcessoAtual.numero:'',
       updatedAt:firebase.firestore.FieldValue.serverTimestamp()
-    });
+    }).then(function(){ setTimeout(function(){ habOwn=false; },2500); })
+      .catch(function(e){ habOwn=false; console.error('Erro ao salvar habilitação:', e); });
   },800);
 }
 
-function habToggle(idx, status){
-  var key=String(idx);
-  if(habEstados[key]===status){ habEstados[key]=''; delete habMotivos[key]; }
-  else habEstados[key]=status;
-  if(habEstados[key]!=='inabilitado') delete habMotivos[key];
+// Julga um documento: clicar no status já selecionado volta para "Não enviado"
+function habSetDoc(empKey, docId, st){
+  if(!habDocs[empKey]) habDocs[empKey]={};
+  if(habDocs[empKey][docId]===st) {
+    delete habDocs[empKey][docId];
+    // limpa motivo se voltou pra não-enviado
+    if(habDocMotivos[empKey]) { delete habDocMotivos[empKey][docId]; if(!Object.keys(habDocMotivos[empKey]).length) delete habDocMotivos[empKey]; }
+  } else {
+    habDocs[empKey][docId]=st;
+    // limpa motivo se mudou de recusado para aprovado/na
+    if(st!=='recusado' && habDocMotivos[empKey]) { delete habDocMotivos[empKey][docId]; if(!Object.keys(habDocMotivos[empKey]).length) delete habDocMotivos[empKey]; }
+  }
+  if(!Object.keys(habDocs[empKey]).length) delete habDocs[empKey];
+  delete habEstados[empKey]; // doc julgado → status manual legado deixa de valer
   habSalvarFirestore(); habRenderLista();
+}
+
+function habSetDocMotivo(empKey, docId, texto){
+  if(texto.trim()){
+    if(!habDocMotivos[empKey]) habDocMotivos[empKey]={};
+    habDocMotivos[empKey][docId]=texto;
+  } else {
+    if(habDocMotivos[empKey]){ delete habDocMotivos[empKey][docId]; if(!Object.keys(habDocMotivos[empKey]).length) delete habDocMotivos[empKey]; }
+  }
+  habSalvarFirestore();
+}
+
+function habToggleExpand(k){
+  habExpand[k]=!habExpand[k];
+  habRenderLista();
 }
 
 function habSetFiltro(f){
@@ -2699,56 +2926,197 @@ function habSetFiltro(f){
   habRenderLista();
 }
 
+function habFmtItens(arr){
+  if(!arr||!arr.length) return '';
+  var lst=arr.slice(0,12).join(', ');
+  if(arr.length>12) lst+=' ...';
+  return lst;
+}
+
+// Monta as linhas do checklist de uma seção (HTML compartilhado entre painel e link)
+// habDocsRowsHTML aceita opcional `motivos` (objeto {docId: texto}) para mostrar/salvar justificativas por doc
+function habDocsRowsHTML(empKey, docsArr, d, opts, motivos){
+  opts=opts||{}; motivos=motivos||{};
+  var html='';
+  docsArr.forEach(function(x){
+    var st=d[x.id]||'';
+    var mv=motivos[x.id]||'';
+    var stTxt=st==='aprovado'?'Aprovado':st==='recusado'?'Recusado':st==='na'?'Não exigido':'Não enviado';
+    var stCls=st==='aprovado'?'ap':st==='recusado'?'rec':st==='na'?'na':'';
+    var rowCls='hab-doc'+(st?' st-'+st:'')+((opts.altSatisfeita&&st!=='aprovado')?' alt-disp':'');
+    html+='<div class="'+rowCls+'">'
+      +'<div class="hab-doc-nome">'+escHtml(x.nome)+'<span class="hab-doc-st '+stCls+'">'+stTxt+'</span></div>'
+      +'<div class="hab-doc-btns">'
+        +'<button class="hab-dbtn rec'+(st==='recusado'?' sel':'')+'" data-emp="'+escHtml(empKey)+'" data-doc="'+x.id+'" data-st="recusado" title="Recusado">&#10005;</button>'
+        +'<button class="hab-dbtn ap'+(st==='aprovado'?' sel':'')+'" data-emp="'+escHtml(empKey)+'" data-doc="'+x.id+'" data-st="aprovado" title="Aprovado">&#10003;</button>'
+        +(x.opcional?'<button class="hab-dbtn na'+(st==='na'?' sel':'')+'" data-emp="'+escHtml(empKey)+'" data-doc="'+x.id+'" data-st="na" title="Não exigido / dispensado">N/A</button>':'')
+      +'</div>'
+      +(st==='recusado'?'<textarea class="hab-doc-motivo" placeholder="Justificativa de recusa..." data-emp="'+escHtml(empKey)+'" data-doc="'+x.id+'">'+escHtml(mv)+'</textarea>':'')
+    +'</div>';
+  });
+  return html;
+}
+
+function habChecklistHTML(empKey, info){
+  var d=habDocs[empKey]||{};
+  var m=habDocMotivos[empKey]||{};
+  var tecDocs=habTecDocsFrom(habConfig);
+  var html='<div class="hab-chk">';
+  // 9.16 Jurídica — alternativos
+  html+='<div class="hab-sec"><div class="hab-sec-title"><span>9.16 Habilitação Jurídica</span><span class="hab-sec-hint">apresentar UM — basta 1 aprovado</span></div>'
+    +habDocsRowsHTML(empKey, HAB_DOCS_JUR, d, {altSatisfeita:info.juridOk}, m)+'</div>';
+  // 9.17 Fiscal, Social e Trabalhista — todos
+  html+='<div class="hab-sec"><div class="hab-sec-title"><span>9.17 Fiscal, Social e Trabalhista</span><span class="hab-sec-hint">todos obrigatórios</span></div>'
+    +habDocsRowsHTML(empKey, HAB_DOCS_FIS, d, {}, m)+'</div>';
+  // 9.18 Econômico-financeira
+  html+='<div class="hab-sec"><div class="hab-sec-title"><span>9.18 Econômico-Financeira</span></div>'
+    +habDocsRowsHTML(empKey, HAB_DOCS_ECO, d, {}, m)+'</div>';
+  // 9.19 Técnica (se exigida no processo)
+  if(habConfig.tecnicaExige){
+    html+='<div class="hab-sec"><div class="hab-sec-title"><span>9.19 Qualificação Técnica</span><span class="hab-sec-hint">exigida neste processo</span></div>';
+    if(tecDocs.length) html+=habDocsRowsHTML(empKey, tecDocs, d, {}, m);
+    else html+='<div style="font-size:12px;color:#999;padding:8px 6px">Nenhuma exigência cadastrada — clique em <b>⚙️ Qualif. Técnica</b> no topo para cadastrar.</div>';
+    html+='</div>';
+  }
+  html+='</div>';
+  return html;
+}
+
 function habRenderLista(){
   var empty=document.getElementById('habEmpty');
   var lista=document.getElementById('habLista');
   var stats=document.getElementById('habStats');
+  var body=document.getElementById('habBody');
+  var savedScroll=body?body.scrollTop:0;
   if(!habEmpresas.length){ empty.style.display=''; lista.innerHTML=''; stats.style.display='none'; return; }
   empty.style.display='none'; stats.style.display='';
   // stats
   var totHab=0,totInab=0,totPend=0;
-  habEmpresas.forEach(function(_,i){ var s=habEstados[String(i)]||''; if(s==='habilitado') totHab++; else if(s==='inabilitado') totInab++; else totPend++; });
+  habEmpresas.forEach(function(e){ var s=habCalcInfo(habKeyEmpresa(e.nome)).status; if(s==='habilitado') totHab++; else if(s==='inabilitado') totInab++; else totPend++; });
   document.getElementById('hbs-total').textContent=habEmpresas.length;
   document.getElementById('hbs-hab').textContent=totHab;
   document.getElementById('hbs-inab').textContent=totInab;
   document.getElementById('hbs-pend').textContent=totPend;
   // filtro
-  var exibir=habEmpresas.map(function(e,i){ return {e:e,i:i,s:habEstados[String(i)]||''}; });
-  if(habFiltroAtivo==='habilitado') exibir=exibir.filter(function(x){ return x.s==='habilitado'; });
-  else if(habFiltroAtivo==='inabilitado') exibir=exibir.filter(function(x){ return x.s==='inabilitado'; });
-  else if(habFiltroAtivo==='pendente') exibir=exibir.filter(function(x){ return !x.s; });
+  var exibir=habEmpresas.map(function(e){ var k=habKeyEmpresa(e.nome); return {e:e,k:k,info:habCalcInfo(k)}; });
+  if(habFiltroAtivo==='habilitado') exibir=exibir.filter(function(x){ return x.info.status==='habilitado'; });
+  else if(habFiltroAtivo==='inabilitado') exibir=exibir.filter(function(x){ return x.info.status==='inabilitado'; });
+  else if(habFiltroAtivo==='pendente') exibir=exibir.filter(function(x){ return !x.info.status; });
   var html='';
   exibir.forEach(function(item){
-    var e=item.e, i=item.i, s=item.s;
-    var mv=habMotivos[String(i)]||'';
+    var e=item.e, k=item.k, info=item.info, s=info.status;
+    var mv=habMotivos[k]||'';
     var bdgCls=s==='habilitado'?'habil':s==='inabilitado'?'inabil':'pend';
     var bdgTxt=s==='habilitado'?'Habilitado':s==='inabilitado'?'Inabilitado':'Pendente';
-    var inabCls='hab-sbtn hab-inabil-btn'+(s==='inabilitado'?' sel':'');
-    var habCls='hab-sbtn hab-habil-btn'+(s==='habilitado'?' sel':'');
-    html+='<div class="hab-card '+(s||'')+'">'
+    var cardCls=s==='habilitado'?'habil':s==='inabilitado'?'inabil':'';
+    var nItens=(e.itens&&e.itens.length)||0;
+    var progCls=s==='habilitado'?'ok':(info.recusados.length?'bad':'');
+    var aberto=!!habExpand[k];
+    html+='<div class="hab-card '+cardCls+'">'
       +'<div class="hab-card-top"><span class="hab-nome">'+escHtml(e.nome)+'</span><span class="hab-badge '+bdgCls+'">'+bdgTxt+'</span></div>'
-      +'<div class="hab-info-row">'+(e.cnpj?'<span>CNPJ: <b>'+escHtml(e.cnpj)+'</b></span>':'')+(e.cidade?'<span>&#128205; '+escHtml(e.cidade)+'</span>':'')+'</div>'
-      +'<div class="hab-btns"><button class="'+inabCls+'" data-action="inab" data-idx="'+i+'">&#10005; Inabilitado</button><button class="'+habCls+'" data-action="hab" data-idx="'+i+'">&#10003; Habilitado</button></div>'
-      +'<div class="hab-motivo-wrap"'+(s==='inabilitado'?'':' style="display:none"')+'><textarea class="hab-motivo" placeholder="Informe a justificativa de inabilitação..." data-idx="'+i+'">'+escHtml(mv)+'</textarea></div>'
+      +'<div class="hab-info-row">'
+        +(e.cnpj?'<span>CNPJ: <b>'+escHtml(e.cnpj)+'</b></span>':'')
+        +(e.cidade?'<span>&#128205; '+escHtml(e.cidade)+'</span>':'')
+        +(nItens?'<span>&#127942; <b>'+nItens+'</b> '+(nItens>1?'itens':'item')+(habFmtItens(e.itens)?' <span style="color:#888">('+escHtml(habFmtItens(e.itens))+')</span>':'')+'</span>':'')
+        +'<span class="hab-prog '+progCls+'">&#128196; '+info.done+'/'+info.total+' docs</span>'
+      +'</div>'
+      +'<button class="hab-chk-toggle" data-expand="'+escHtml(k)+'">'+(aberto?'&#9650; Recolher checklist':'&#9660; Abrir checklist de documentos')+'</button>'
+      +(aberto?habChecklistHTML(k, info):'')
+      +(s==='inabilitado'&&info.recusados.length?'<div class="hab-recusa-resumo"><b>Documentos recusados:</b> '+info.recusados.map(escHtml).join('; ')+'</div>':'')
+      +'<div class="hab-motivo-wrap"'+(s==='inabilitado'?'':' style="display:none"')+'><textarea class="hab-motivo" placeholder="Justificativa complementar de inabilitação (opcional)..." data-key="'+escHtml(k)+'">'+escHtml(mv)+'</textarea></div>'
       +'</div>';
   });
   lista.innerHTML=html;
-  lista.querySelectorAll('[data-action]').forEach(function(btn){
+  lista.querySelectorAll('[data-expand]').forEach(function(btn){
+    btn.addEventListener('click',function(){ habToggleExpand(btn.dataset.expand); });
+  });
+  lista.querySelectorAll('.hab-dbtn').forEach(function(btn){
     btn.addEventListener('click',function(){
-      habToggle(parseInt(btn.dataset.idx), btn.dataset.action==='hab'?'habilitado':'inabilitado');
+      habSetDoc(btn.dataset.emp, btn.dataset.doc, btn.dataset.st);
+    });
+  });
+  lista.querySelectorAll('.hab-doc-motivo').forEach(function(ta){
+    ta.addEventListener('input',function(){
+      habSetDocMotivo(ta.dataset.emp, ta.dataset.doc, ta.value);
     });
   });
   lista.querySelectorAll('.hab-motivo').forEach(function(ta){
     ta.addEventListener('input',function(){
-      var key=String(ta.dataset.idx);
+      var key=ta.dataset.key;
       if(ta.value.trim()) habMotivos[key]=ta.value; else delete habMotivos[key];
       habSalvarFirestore();
     });
   });
+  if(body) body.scrollTop=savedScroll;
+}
+
+// ── Modal Qualificação Técnica (9.19) ──
+var habTecDraft=null, habTecNextId=1;
+function habAbrirTecModal(){
+  if(!habDocId){ habToast('Abra a habilitação de um processo primeiro.'); return; }
+  var itens=(habConfig.tecnicaItens||[]).map(function(t){ return {id:t.id, texto:t.texto||''}; });
+  habTecNextId=itens.reduce(function(m,t){ return Math.max(m,(parseInt(t.id,10)||0)+1); },1);
+  habTecDraft={exige:!!habConfig.tecnicaExige, itens:itens};
+  habTecRender();
+  document.getElementById('modalHabTec').classList.add('open');
+}
+function habFecharTecModal(){
+  habTecDraft=null;
+  document.getElementById('modalHabTec').classList.remove('open');
+}
+function habTecSetExige(v){
+  if(!habTecDraft) return;
+  habTecDraft.exige=v;
+  if(v&&!habTecDraft.itens.length) habTecAdd(); else habTecRender();
+}
+function habTecAdd(){
+  if(!habTecDraft) return;
+  habTecDraft.itens.push({id:habTecNextId++, texto:''});
+  habTecRender();
+  var inputs=document.querySelectorAll('#htecLista textarea');
+  if(inputs.length) inputs[inputs.length-1].focus();
+}
+function habTecRemove(idx){
+  if(!habTecDraft) return;
+  habTecDraft.itens.splice(idx,1);
+  habTecRender();
+}
+function habTecRender(){
+  var sim=document.getElementById('htecBtnSim'), nao=document.getElementById('htecBtnNao');
+  sim.className='htec-tbtn'+(habTecDraft.exige?' sel-sim':'');
+  nao.className='htec-tbtn'+(!habTecDraft.exige?' sel-nao':'');
+  document.getElementById('htecExigencias').style.display=habTecDraft.exige?'':'none';
+  var box=document.getElementById('htecLista');
+  var html='';
+  habTecDraft.itens.forEach(function(t,i){
+    html+='<div class="htec-item">'
+      +'<textarea placeholder="Ex.: Atestado de capacidade técnica compatível com o objeto..." data-i="'+i+'">'+escHtml(t.texto)+'</textarea>'
+      +'<button class="htec-del" data-i="'+i+'" title="Remover">&#10005;</button>'
+    +'</div>';
+  });
+  box.innerHTML=html;
+  box.querySelectorAll('textarea').forEach(function(ta){
+    ta.addEventListener('input',function(){ habTecDraft.itens[parseInt(ta.dataset.i,10)].texto=ta.value; });
+  });
+  box.querySelectorAll('.htec-del').forEach(function(b){
+    b.addEventListener('click',function(){ habTecRemove(parseInt(b.dataset.i,10)); });
+  });
+}
+function habSalvarTec(){
+  if(!habTecDraft) return;
+  habConfig={
+    tecnicaExige:habTecDraft.exige,
+    tecnicaItens:habTecDraft.itens.filter(function(t){ return (t.texto||'').trim(); })
+      .map(function(t){ return {id:t.id, texto:t.texto.trim()}; })
+  };
+  habFecharTecModal();
+  habSalvarFirestore();
+  habRenderLista();
+  habToast(habConfig.tecnicaExige?'Qualificação técnica salva ('+habConfig.tecnicaItens.length+' exigência'+(habConfig.tecnicaItens.length!==1?'s':'')+')':'Processo marcado sem qualificação técnica.');
 }
 
 function habCopiarLink(){
-  if(!habDocId){ habToast('Importe um JSON primeiro.'); return; }
+  if(!habDocId){ habToast('Abra a habilitação de um processo primeiro.'); return; }
   var link=window.location.origin+window.location.pathname+'?hab='+habDocId;
   if(navigator.clipboard){ navigator.clipboard.writeText(link).then(function(){ habToast('Link copiado!'); }); }
   else prompt('Copie o link:', link);
@@ -2762,67 +3130,144 @@ function habGerarPDF(){
   var jsPDFCls=window.jspdf.jsPDF;
   var doc=new jsPDFCls({orientation:'portrait',unit:'mm',format:'a4'});
   var PW=210,PH=297,ML=14,MR=14,CW=PW-ML-MR;
-  var HEADER_H=26, BOTTOM=PH-14, y=HEADER_H+6;
+  var HEADER_H=26, BOTTOM=PH-14;
+  var y=HEADER_H+6;
   function rgb(r,g,b){ return [r,g,b]; }
   function fill(c){ doc.setFillColor(c[0],c[1],c[2]); }
+  function draw(c){ doc.setDrawColor(c[0],c[1],c[2]); }
   function txt(c){ doc.setTextColor(c[0],c[1],c[2]); }
   var C_NAVY=rgb(26,58,107), C_MUTED=rgb(90,110,153), C_TEXT=rgb(22,32,56);
+  var C_GREEN=rgb(30,95,58), C_RED=rgb(163,45,45), C_AMBER=rgb(140,90,10);
   function drawHeader(){
     fill([255,255,255]); doc.rect(0,0,PW,HEADER_H,'F');
     try{ doc.addImage(LOGO_B64_PDF,'JPEG',ML,4,32,16); }catch(e){}
-    doc.setLineWidth(0.3); doc.setDrawColor(200,210,230); doc.line(ML+36,5,ML+36,21);
+    doc.setLineWidth(0.3); draw(rgb(200,210,230)); doc.line(ML+36,5,ML+36,21);
     txt(C_NAVY); doc.setFontSize(13); doc.setFont('helvetica','bold');
     doc.text('Habilitação — '+(habProcessoAtual?habProcessoAtual.numero:''), ML+41, 10);
     doc.setFontSize(8); doc.setFont('helvetica','normal'); txt(C_MUTED);
     doc.text('Município de Ijuí', ML+41, 15);
     doc.text('Coordenadoria de Compras, Patrimônio e Adm. de Materiais — COPAM', ML+41, 19.5);
-    doc.setLineWidth(0.7); doc.setDrawColor(C_NAVY[0],C_NAVY[1],C_NAVY[2]); doc.line(0,HEADER_H,PW,HEADER_H);
+    doc.setLineWidth(0.7); draw(C_NAVY); doc.line(0,HEADER_H,PW,HEADER_H);
   }
-  function newPage(){ doc.addPage(); drawHeader(); return HEADER_H+6; }
-  var lista=habEmpresas.map(function(e,i){ return {e:e,i:i,s:habEstados[String(i)]||''}; });
+  function checkPage(h){
+    if(y+h>BOTTOM){ doc.addPage(); drawHeader(); y=HEADER_H+6; }
+  }
+  // Linha de um documento
+  function drawDocRow(nome, status, motivo, indented){
+    var indL=indented?4:0;
+    var nW=CW-40-indL;
+    doc.setFontSize(7.5); doc.setFont('helvetica','normal');
+    var nomeL=doc.splitTextToSize(nome, nW-3);
+    var mvL=motivo?doc.splitTextToSize(motivo, nW-3):[];
+    var rowH=Math.max(6, nomeL.length*3.4+2+(mvL.length?mvL.length*3.2+2:0));
+    checkPage(rowH);
+    // fundo por status
+    var bg=status==='aprovado'?rgb(245,253,248):status==='recusado'?rgb(255,245,245):status==='na'?rgb(248,248,248):rgb(255,255,255);
+    fill(bg); doc.rect(ML,y,CW,rowH,'F');
+    draw(rgb(230,235,242)); doc.setLineWidth(0.05); doc.line(ML,y+rowH,ML+CW,y+rowH);
+    // indentação pra docs jurídica
+    if(indL){ draw(rgb(200,210,230)); doc.setLineWidth(0.3); doc.line(ML+2,y+1,ML+2,y+rowH-1); }
+    txt(status==='aprovado'?C_GREEN:status==='recusado'?C_RED:status==='na'?rgb(150,150,150):C_TEXT);
+    doc.text(nomeL, ML+indL+3, y+3.8);
+    if(mvL.length){
+      txt(C_RED); doc.setFontSize(6.8); doc.setFont('helvetica','italic');
+      doc.text(mvL, ML+indL+3, y+3.8+nomeL.length*3.4+1);
+    }
+    // Badge de status à direita
+    var bdgTxt=status==='aprovado'?'Aprovado':status==='recusado'?'Recusado':status==='na'?'N/A':'Não enviado';
+    var bdgC=status==='aprovado'?C_GREEN:status==='recusado'?C_RED:rgb(150,150,150);
+    doc.setFontSize(6.5); doc.setFont('helvetica','bold'); txt(bdgC);
+    doc.text(bdgTxt, PW-MR-2, y+3.8, {align:'right'});
+    y+=rowH;
+  }
+  // Cabeçalho de seção de documentos
+  function drawSecHeader(label, hint){
+    checkPage(8);
+    fill(rgb(234,238,247)); doc.rect(ML,y,CW,6,'F');
+    txt(C_NAVY); doc.setFontSize(7.5); doc.setFont('helvetica','bold');
+    doc.text(label, ML+3, y+4);
+    if(hint){ txt(C_MUTED); doc.setFontSize(6.5); doc.setFont('helvetica','normal'); doc.text(hint, PW-MR-2, y+4, {align:'right'}); }
+    y+=6;
+  }
+  var lista=habEmpresas.map(function(e){ var k=habKeyEmpresa(e.nome); var info=habCalcInfo(k); return {e:e,k:k,info:info,s:info.status}; });
   if(habFiltroAtivo==='habilitado') lista=lista.filter(function(x){ return x.s==='habilitado'; });
   else if(habFiltroAtivo==='inabilitado') lista=lista.filter(function(x){ return x.s==='inabilitado'; });
   else if(habFiltroAtivo==='pendente') lista=lista.filter(function(x){ return !x.s; });
+  var tecDocs=habTecDocsFrom(habConfig);
   drawHeader();
-  var colNome=CW*0.43, colCNPJ=CW*0.27, colCid=CW*0.2;
-  function drawTableHeader(yy){
-    fill([60,72,92]); doc.rect(ML,yy,CW,6,'F');
-    txt([255,255,255]); doc.setFontSize(7.5); doc.setFont('helvetica','bold');
-    doc.text('Empresa',ML+3,yy+4);
-    doc.text('CNPJ',ML+colNome+3,yy+4);
-    doc.text('Cidade',ML+colNome+colCNPJ+3,yy+4);
-    doc.text('Situação',PW-MR-2,yy+4,{align:'right'});
-    return yy+6;
-  }
-  y=drawTableHeader(y);
-  lista.forEach(function(item){
-    var e=item.e, s=item.s, mv=habMotivos[String(item.i)]||'';
-    doc.setFontSize(8); doc.setFont('helvetica','normal');
-    var nomeL=doc.splitTextToSize(e.nome||'', colNome-4);
-    var mvL=(s==='inabilitado'&&mv)?doc.splitTextToSize(mv, colNome+colCNPJ+colCid-4):[];
-    var rowH=Math.max(7, Math.max(nomeL.length,1)*3.8+3+(mvL.length?mvL.length*3.4+2:0));
-    if(y+rowH>BOTTOM){ y=newPage(); y=drawTableHeader(y); }
-    var bgColor=s==='habilitado'?rgb(243,255,245):s==='inabilitado'?rgb(255,243,243):rgb(255,255,255);
-    fill(bgColor); doc.rect(ML,y,CW,rowH,'F');
-    doc.setDrawColor(235,235,235); doc.setLineWidth(0.1); doc.line(ML,y+rowH,ML+CW,y+rowH);
-    txt(C_TEXT); doc.setFontSize(8); doc.setFont('helvetica','bold');
-    doc.text(nomeL,ML+3,y+4);
-    doc.setFont('helvetica','normal');
-    doc.text(e.cnpj||'',ML+colNome+3,y+4);
-    doc.text(e.cidade||'',ML+colNome+colCNPJ+3,y+4);
-    if(s==='habilitado'){
-      fill(rgb(212,237,218)); var bw=doc.getTextWidth('Habilitado')+4; doc.roundedRect(PW-MR-2-bw,y+1.5,bw,3.8,1,1,'F');
-      txt(rgb(30,95,58)); doc.setFontSize(7); doc.setFont('helvetica','bold'); doc.text('Habilitado',PW-MR-4,y+4.2,{align:'right'});
-    } else if(s==='inabilitado'){
-      fill(rgb(248,215,218)); var bw2=doc.getTextWidth('Inabilitado')+4; doc.roundedRect(PW-MR-2-bw2,y+1.5,bw2,3.8,1,1,'F');
-      txt(rgb(163,45,45)); doc.setFontSize(7); doc.setFont('helvetica','bold'); doc.text('Inabilitado',PW-MR-4,y+4.2,{align:'right'});
-      if(mvL.length){ doc.setFontSize(7); doc.setFont('helvetica','italic'); txt(rgb(163,45,45)); doc.text(mvL,ML+3,y+7+nomeL.length*3.4); }
+  lista.forEach(function(item, idx){
+    var e=item.e, k=item.k, info=item.info, s=item.s;
+    var d=habDocs[k]||{};
+    var m=habDocMotivos[k]||{};
+    var mv=habMotivos[k]||'';
+    var nItens=(e.itens&&e.itens.length)||0;
+    // Bloco cabeçalho da empresa
+    var empH=14;
+    checkPage(empH+6);
+    // Separador entre empresas (exceto primeira)
+    if(idx>0){ y+=3; }
+    // Faixa empresa
+    var empBg=s==='habilitado'?rgb(26,95,58):s==='inabilitado'?rgb(140,30,30):rgb(40,60,100);
+    fill(empBg); doc.rect(ML,y,CW,empH,'F');
+    // Nome
+    txt([255,255,255]); doc.setFontSize(10); doc.setFont('helvetica','bold');
+    var nomeEmp=doc.splitTextToSize(e.nome, CW-55);
+    doc.text(nomeEmp, ML+3, y+5);
+    // CNPJ e cidade
+    doc.setFontSize(7.5); doc.setFont('helvetica','normal'); txt(rgb(200,220,200));
+    var linha2=[];
+    if(e.cnpj) linha2.push('CNPJ: '+e.cnpj);
+    if(e.cidade) linha2.push(e.cidade);
+    if(nItens) linha2.push(nItens+' '+(nItens>1?'itens':'item')+' arrematado'+(nItens>1?'s':''));
+    if(linha2.length) doc.text(linha2.join('   '), ML+3, y+10);
+    // Badge status
+    var bdgLabel=s==='habilitado'?'HABILITADA':s==='inabilitado'?'INABILITADA':'PENDENTE';
+    doc.setFontSize(8); doc.setFont('helvetica','bold'); txt([255,255,255]);
+    var bdgW=doc.getTextWidth(bdgLabel)+6;
+    fill(s==='habilitado'?rgb(20,75,45):s==='inabilitado'?rgb(110,22,22):rgb(30,50,80));
+    doc.roundedRect(PW-MR-bdgW-2, y+3, bdgW, 6, 1, 1, 'F');
+    doc.text(bdgLabel, PW-MR-bdgW/2-2, y+7.2, {align:'center'});
+    // Progresso docs
+    doc.setFontSize(6.5); doc.setFont('helvetica','normal'); txt(rgb(180,210,185));
+    doc.text(info.done+'/'+info.total+' documentos aprovados', PW-MR-bdgW-2, y+12, {align:'right'});
+    y+=empH+1;
+    // ── 9.16 Jurídica (alternativos)
+    drawSecHeader('9.16 HABILITAÇÃO JURÍDICA', 'apresentar UM — basta 1 aprovado');
+    HAB_DOCS_JUR.forEach(function(x){
+      drawDocRow(x.nome, d[x.id]||'', m[x.id]||'', true);
+    });
+    // ── 9.17 Fiscal, Social e Trabalhista
+    drawSecHeader('9.17 FISCAL, SOCIAL E TRABALHISTA', 'todos obrigatórios');
+    HAB_DOCS_FIS.forEach(function(x){
+      drawDocRow(x.nome, d[x.id]||'', m[x.id]||'', false);
+    });
+    // ── 9.18 Econômico-financeira
+    drawSecHeader('9.18 ECONÔMICO-FINANCEIRA', '');
+    HAB_DOCS_ECO.forEach(function(x){
+      drawDocRow(x.nome, d[x.id]||'', m[x.id]||'', false);
+    });
+    // ── 9.19 Técnica (se exigida)
+    if(habConfig.tecnicaExige){
+      drawSecHeader('9.19 QUALIFICAÇÃO TÉCNICA', 'exigida neste processo');
+      if(tecDocs.length) tecDocs.forEach(function(x){ drawDocRow(x.nome, d[x.id]||'', m[x.id]||'', false); });
+      else { checkPage(6); txt(C_MUTED); doc.setFontSize(7); doc.text('Nenhuma exigência técnica cadastrada.', ML+3, y+4); y+=6; }
     }
-    y+=rowH;
+    // Justificativa complementar de inabilitação
+    if(s==='inabilitado'&&mv){
+      checkPage(8);
+      fill(rgb(255,240,240)); doc.rect(ML,y,CW,0,'F');
+      var mvL=doc.splitTextToSize('Justificativa complementar: '+mv, CW-6);
+      var jH=mvL.length*3.4+4;
+      fill(rgb(255,240,240)); doc.rect(ML,y,CW,jH,'F');
+      draw(rgb(240,180,180)); doc.setLineWidth(0.2); doc.rect(ML,y,CW,jH);
+      txt(C_RED); doc.setFontSize(7); doc.setFont('helvetica','italic');
+      doc.text(mvL, ML+3, y+3.8);
+      y+=jH+1;
+    }
   });
   var total=doc.internal.getNumberOfPages();
   for(var pp=1;pp<=total;pp++){
-    doc.setPage(pp); doc.setDrawColor(220,220,220); doc.setLineWidth(0.3); doc.line(ML,PH-10.5,PW-ML,PH-10.5);
+    doc.setPage(pp); draw(rgb(220,220,220)); doc.setLineWidth(0.3); doc.line(ML,PH-10.5,PW-ML,PH-10.5);
     doc.setFontSize(10.5); doc.setFont('helvetica','bold'); txt(C_NAVY);
     doc.text('Página '+pp+' de '+total, PW/2, PH-5.5, {align:'center'});
   }
@@ -3354,6 +3799,9 @@ function rkCopiarLink(){
   var el=document.getElementById('hbsLogo'); if(el) el.src=LOGO_B64_PDF;
 
   var sharedEmpresas=[], sharedEstados={}, sharedMotivos={}, sharedNumero='';
+  var sharedDocs={}, sharedDocMotivos={}, sharedConfig={tecnicaExige:false,tecnicaItens:[]};
+  var sharedRkItens=[], sharedRkEstados={}, sharedLegacy=[];
+  var sharedExpand={};
   var saveTimer=null, sharedOwn=false;
 
   function setDot(s){
@@ -3363,65 +3811,167 @@ function rkCopiarLink(){
     else if(s==='saved'){ d.className='hbs-dot saved'; var n=new Date(); t.textContent='Salvo às '+('0'+n.getHours()).slice(-2)+':'+('0'+n.getMinutes()).slice(-2); }
     else { d.className='hbs-dot'; t.textContent='Aguardando alterações'; }
   }
+  function sharedCalc(k){
+    return habCalcDocsStatus(sharedDocs[k]||{}, habTecDocsFrom(sharedConfig), sharedEstados[k]||'');
+  }
   function doSave(){
     sharedOwn=true;
-    habColRef.doc(habId).set({empresas:sharedEmpresas,estados:sharedEstados,motivos:sharedMotivos,numero:sharedNumero,updatedAt:firebase.firestore.FieldValue.serverTimestamp()})
-      .then(function(){ setDot('saved'); setTimeout(function(){ sharedOwn=false; },3000); })
+    var estadosDerivados={};
+    sharedEmpresas.forEach(function(e){
+      var k=habKeyEmpresa(e.nome);
+      var st=sharedCalc(k).status;
+      if(st) estadosDerivados[k]=st;
+    });
+    habColRef.doc(habId).set({
+      empresas:sharedEmpresas, estados:estadosDerivados, motivos:sharedMotivos,
+      docs:sharedDocs, docMotivos:sharedDocMotivos, config:sharedConfig, numero:sharedNumero,
+      updatedAt:firebase.firestore.FieldValue.serverTimestamp()
+    }).then(function(){ setDot('saved'); setTimeout(function(){ sharedOwn=false; },3000); })
       .catch(function(){ setDot('idle'); sharedOwn=false; });
   }
   function triggerSave(){ setDot('saving'); if(saveTimer) clearTimeout(saveTimer); saveTimer=setTimeout(doSave,900); }
+
+  function hbsMigrar(){
+    if(!sharedLegacy.length) return;
+    if(!Object.keys(sharedEstados).some(function(k){ return /^\d+$/.test(k); })) return;
+    var nE={}, nM={};
+    Object.keys(sharedEstados).forEach(function(k){
+      if(/^\d+$/.test(k)){ var emp=sharedLegacy[parseInt(k,10)]; if(emp&&emp.nome) nE[habKeyEmpresa(emp.nome)]=sharedEstados[k]; }
+      else nE[k]=sharedEstados[k];
+    });
+    Object.keys(sharedMotivos).forEach(function(k){
+      if(/^\d+$/.test(k)){ var emp=sharedLegacy[parseInt(k,10)]; if(emp&&emp.nome) nM[habKeyEmpresa(emp.nome)]=sharedMotivos[k]; }
+      else nM[k]=sharedMotivos[k];
+    });
+    sharedEstados=nE; sharedMotivos=nM;
+  }
+
+  function hbsAtualizar(){
+    var derivadas=habDerivarEmpresas(sharedRkItens, sharedRkEstados);
+    sharedEmpresas=derivadas.length?derivadas:sharedLegacy;
+    hbsRender();
+  }
+
+  function hbsChecklistHTML(k, info){
+    var d=sharedDocs[k]||{};
+    var m=sharedDocMotivos[k]||{};
+    var tecDocs=habTecDocsFrom(sharedConfig);
+    var html='<div class="hab-chk">';
+    html+='<div class="hab-sec"><div class="hab-sec-title"><span>9.16 Habilitação Jurídica</span><span class="hab-sec-hint">apresentar UM — basta 1 aprovado</span></div>'
+      +habDocsRowsHTML(k, HAB_DOCS_JUR, d, {altSatisfeita:info.juridOk}, m)+'</div>';
+    html+='<div class="hab-sec"><div class="hab-sec-title"><span>9.17 Fiscal, Social e Trabalhista</span><span class="hab-sec-hint">todos obrigatórios</span></div>'
+      +habDocsRowsHTML(k, HAB_DOCS_FIS, d, {}, m)+'</div>';
+    html+='<div class="hab-sec"><div class="hab-sec-title"><span>9.18 Econômico-Financeira</span></div>'
+      +habDocsRowsHTML(k, HAB_DOCS_ECO, d, {}, m)+'</div>';
+    if(sharedConfig.tecnicaExige){
+      html+='<div class="hab-sec"><div class="hab-sec-title"><span>9.19 Qualificação Técnica</span><span class="hab-sec-hint">exigida neste processo</span></div>';
+      if(tecDocs.length) html+=habDocsRowsHTML(k, tecDocs, d, {}, m);
+      else html+='<div style="font-size:12px;color:#999;padding:8px 6px">Nenhuma exigência técnica cadastrada pela COPAM.</div>';
+      html+='</div>';
+    }
+    html+='</div>';
+    return html;
+  }
 
   function hbsRender(){
     var tEl=document.getElementById('hbsTitulo'); if(tEl) tEl.textContent='Habilitação — '+sharedNumero;
     var body=document.getElementById('hbsBody'); if(!body) return;
     var scroll=body.scrollTop;
-    if(!sharedEmpresas.length){ body.innerHTML='<div class="hbs-msg">Sessão não encontrada ou sem empresas importadas.</div>'; return; }
-    var pre=sharedEmpresas.filter(function(_,i){ return !!(sharedEstados[String(i)]); }).length;
-    var pct=Math.round(pre/sharedEmpresas.length*100);
-    var html='<div class="hbs-progress"><span>'+pre+' de '+sharedEmpresas.length+' empresas analisadas</span><span class="hbs-pct">'+pct+'%</span></div>';
-    sharedEmpresas.forEach(function(e,i){
-      var s=sharedEstados[String(i)]||'', mv=sharedMotivos[String(i)]||'';
-      var cardCls='hbs-card'+(s?' '+s:'');
-      var inabCls='hbs-sbtn'+(s==='inabilitado'?' sel-inab':'');
-      var habCls='hbs-sbtn'+(s==='habilitado'?' sel-hab':'');
+    if(!sharedEmpresas.length){ body.innerHTML='<div class="hbs-msg">Nenhuma empresa com itens arrematados. As empresas aparecem aqui automaticamente conforme o ranking de propostas.</div>'; return; }
+    var analisadas=0;
+    var infos={};
+    sharedEmpresas.forEach(function(e){ var k=habKeyEmpresa(e.nome); infos[k]=sharedCalc(k); if(infos[k].status) analisadas++; });
+    var pct=Math.round(analisadas/sharedEmpresas.length*100);
+    var html='<div class="hbs-progress"><span>'+analisadas+' de '+sharedEmpresas.length+' empresas concluídas</span><span class="hbs-pct">'+pct+'%</span></div>';
+    sharedEmpresas.forEach(function(e){
+      var k=habKeyEmpresa(e.nome);
+      var info=infos[k], s=info.status, mv=sharedMotivos[k]||'';
+      var nItens=(e.itens&&e.itens.length)||0;
+      var cardCls='hbs-card'+(s==='habilitado'?' habil':s==='inabilitado'?' inabil':'');
+      var bdg=s==='habilitado'?'<span class="hab-badge habil">Habilitado</span>':s==='inabilitado'?'<span class="hab-badge inabil">Inabilitado</span>':'<span class="hab-badge pend">Pendente</span>';
+      var progCls=s==='habilitado'?'ok':(info.recusados.length?'bad':'');
+      var aberto=!!sharedExpand[k];
       html+='<div class="'+cardCls+'">'
-        +'<div class="hbs-nome">'+escHtml(e.nome)+'</div>'
-        +'<div class="hbs-tags">'+(e.cnpj?'<span class="hbs-tag"><b>CNPJ</b> '+escHtml(e.cnpj)+'</span>':'')+(e.cidade?'<span class="hbs-tag"><b>Cidade</b> '+escHtml(e.cidade)+'</span>':'')+'</div>'
-        +'<div class="hbs-btns">'
-          +'<button class="'+inabCls+'" data-action="inab" data-idx="'+i+'">&#10005; Inabilitado</button>'
-          +'<button class="'+habCls+'" data-action="hab" data-idx="'+i+'">&#10003; Habilitado</button>'
+        +'<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px"><div class="hbs-nome">'+escHtml(e.nome)+'</div>'+bdg+'</div>'
+        +'<div class="hbs-tags">'
+          +(e.cnpj?'<span class="hbs-tag"><b>CNPJ</b> '+escHtml(e.cnpj)+'</span>':'')
+          +(e.cidade?'<span class="hbs-tag"><b>Cidade</b> '+escHtml(e.cidade)+'</span>':'')
+          +(nItens?'<span class="hbs-tag"><b>'+nItens+'</b> '+(nItens>1?'itens':'item')+'</span>':'')
+          +'<span class="hab-prog '+progCls+'">&#128196; '+info.done+'/'+info.total+' docs</span>'
         +'</div>'
-        +(s==='inabilitado'?'<textarea class="hbs-motivo" placeholder="Justificativa de inabilitação..." data-idx="'+i+'">'+escHtml(mv)+'</textarea>':'')
+        +'<button class="hab-chk-toggle" data-expand="'+escHtml(k)+'">'+(aberto?'&#9650; Recolher checklist':'&#9660; Abrir checklist de documentos')+'</button>'
+        +(aberto?hbsChecklistHTML(k, info):'')
+        +(s==='inabilitado'&&info.recusados.length?'<div class="hab-recusa-resumo"><b>Documentos recusados:</b> '+info.recusados.map(escHtml).join('; ')+'</div>':'')
+        +(s==='inabilitado'?'<textarea class="hbs-motivo" placeholder="Justificativa complementar de inabilitação (opcional)..." data-key="'+escHtml(k)+'">'+escHtml(mv)+'</textarea>':'')
       +'</div>';
     });
     body.innerHTML=html; body.scrollTop=scroll;
-    body.querySelectorAll('[data-action]').forEach(function(btn){
+    body.querySelectorAll('[data-expand]').forEach(function(btn){
       btn.addEventListener('click',function(){
-        var idx=String(btn.dataset.idx), action=btn.dataset.action;
-        var cur=sharedEstados[idx]||'';
-        var next=action==='hab'?'habilitado':'inabilitado';
-        sharedEstados[idx]=(cur===next?'':next);
-        if(sharedEstados[idx]!=='inabilitado') delete sharedMotivos[idx];
+        sharedExpand[btn.dataset.expand]=!sharedExpand[btn.dataset.expand];
+        hbsRender();
+      });
+    });
+    body.querySelectorAll('.hab-dbtn').forEach(function(btn){
+      btn.addEventListener('click',function(){
+        var ek=btn.dataset.emp, docId=btn.dataset.doc, st=btn.dataset.st;
+        if(!sharedDocs[ek]) sharedDocs[ek]={};
+        if(sharedDocs[ek][docId]===st){
+          delete sharedDocs[ek][docId];
+          if(sharedDocMotivos[ek]){ delete sharedDocMotivos[ek][docId]; if(!Object.keys(sharedDocMotivos[ek]).length) delete sharedDocMotivos[ek]; }
+        } else {
+          sharedDocs[ek][docId]=st;
+          if(st!=='recusado'&&sharedDocMotivos[ek]){ delete sharedDocMotivos[ek][docId]; if(!Object.keys(sharedDocMotivos[ek]).length) delete sharedDocMotivos[ek]; }
+        }
+        if(!Object.keys(sharedDocs[ek]).length) delete sharedDocs[ek];
+        delete sharedEstados[ek];
         triggerSave(); hbsRender();
+      });
+    });
+    body.querySelectorAll('.hab-doc-motivo').forEach(function(ta){
+      ta.addEventListener('input',function(){
+        var ek=ta.dataset.emp, docId=ta.dataset.doc;
+        if(ta.value.trim()){ if(!sharedDocMotivos[ek]) sharedDocMotivos[ek]={}; sharedDocMotivos[ek][docId]=ta.value; }
+        else{ if(sharedDocMotivos[ek]){ delete sharedDocMotivos[ek][docId]; if(!Object.keys(sharedDocMotivos[ek]).length) delete sharedDocMotivos[ek]; } }
+        triggerSave();
       });
     });
     body.querySelectorAll('.hbs-motivo').forEach(function(ta){
       ta.addEventListener('input',function(){
-        if(ta.value.trim()) sharedMotivos[String(ta.dataset.idx)]=ta.value;
-        else delete sharedMotivos[String(ta.dataset.idx)];
+        if(ta.value.trim()) sharedMotivos[ta.dataset.key]=ta.value;
+        else delete sharedMotivos[ta.dataset.key];
         triggerSave();
       });
     });
   }
 
+  // Escuta o ranking de propostas: empresas vencedoras derivadas em tempo real
+  rkColRef.doc(habId).onSnapshot(function(doc){
+    if(doc.exists){
+      var d=doc.data();
+      sharedRkItens=d.itens||[]; sharedRkEstados=d.estados||{};
+      if(!sharedNumero&&d.numero) sharedNumero=d.numero;
+    } else { sharedRkItens=[]; sharedRkEstados={}; }
+    hbsAtualizar();
+  }, function(err){
+    var b=document.getElementById('hbsBody');
+    if(b) b.innerHTML='<div class="hbs-msg" style="color:#A32D2D">Erro ao carregar: '+err.message+'</div>';
+  });
+
+  // Escuta os julgamentos de habilitação (docs/motivos + config técnica)
   habColRef.doc(habId).onSnapshot(function(doc){
     if(sharedOwn) return;
     if(doc.exists){
       var d=doc.data();
-      sharedEmpresas=d.empresas||[]; sharedEstados=d.estados||{};
-      sharedMotivos=d.motivos||{}; sharedNumero=d.numero||'';
-    } else { sharedEmpresas=[]; sharedNumero='Não encontrado'; }
-    hbsRender();
+      sharedEstados=d.estados||{};
+      sharedMotivos=d.motivos||{};
+      sharedDocs=d.docs||{}; sharedDocMotivos=d.docMotivos||{};
+      sharedConfig=d.config||{tecnicaExige:false,tecnicaItens:[]};
+      sharedLegacy=d.empresas||[];
+      if(d.numero) sharedNumero=d.numero;
+      hbsMigrar();
+    } else { sharedEstados={}; sharedMotivos={}; sharedDocs={}; sharedConfig={tecnicaExige:false,tecnicaItens:[]}; sharedLegacy=[]; }
+    hbsAtualizar();
   }, function(err){
     var b=document.getElementById('hbsBody');
     if(b) b.innerHTML='<div class="hbs-msg" style="color:#A32D2D">Erro ao carregar: '+err.message+'</div>';
