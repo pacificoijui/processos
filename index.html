@@ -287,7 +287,7 @@
   .rk-table{width:100%;border-collapse:collapse;table-layout:auto}
   .rk-table th{background:rgba(0,0,0,.12);color:#fff;font-weight:700;font-size:11px;padding:5px 10px;text-align:left;white-space:nowrap}
   .rk-table th.r{text-align:right}.rk-table th.c{text-align:center}
-  .rk-table tr.rk-forn{cursor:pointer}.rk-table tr.rk-forn:hover{filter:brightness(.96)}
+  .rk-table tr.rk-forn:hover{filter:brightness(.98)}
   .rk-table tr.neutro td{background:#fff;border-bottom:1px solid #f0f0f0}
   .rk-table tr.aprovado td{background:#F3FFF5;border-bottom:1px solid #c3e6cb}
   .rk-table tr.reprovado td{background:#FFF3F3;border-bottom:1px solid #f5c6c6}
@@ -397,10 +397,45 @@
   .hab-dbtn.rec.sel{border-color:#A32D2D;background:#A32D2D;color:#fff}
   .hab-dbtn.ap.sel{border-color:#1E5F3A;background:#1E5F3A;color:#fff}
   .hab-dbtn.na.sel{border-color:#666;background:#666;color:#fff}
+  .hab-dbtn.dil:hover{border-color:#1d4ed8;color:#1d4ed8;background:#eff6ff}
+  .hab-dbtn.dil.sel{border-color:#1d4ed8;background:#1d4ed8;color:#fff}
+  .rk-sit-btns{display:flex;gap:5px;justify-content:center;margin-bottom:5px}
   .hab-doc-motivo{width:100%;margin-top:6px;padding:8px 11px;border:1.5px solid #fca5a5;border-radius:8px;font-size:12px;font-family:Arial,sans-serif;resize:none;min-height:36px;outline:none;background:#fffafa;color:#333;line-height:1.5;box-sizing:border-box;overflow:hidden}
   .hab-doc-motivo:focus{border-color:#A32D2D;background:#fff}
   .hab-doc-motivo::placeholder{color:#ccc}
   .hab-recusa-resumo{margin-top:10px;font-size:12px;color:#A32D2D;background:#fef5f5;border:1px solid #f5c6c6;border-radius:9px;padding:8px 12px;line-height:1.5}
+  /* ── Feed automático + progresso no card ── */
+  .proc-progress{padding:10px 14px 4px}
+  .proc-progress-label{display:flex;justify-content:space-between;font-size:11.5px;font-weight:700;color:#1a3a6b;margin-bottom:5px}
+  .proc-progress-track{height:7px;background:#e8edf5;border-radius:5px;overflow:hidden}
+  .proc-progress-fill{height:100%;background:linear-gradient(90deg,#1a3a6b,#2e6fd0);border-radius:5px;transition:width .3s}
+  .proc-progress-fill.done{background:linear-gradient(90deg,#1E5F3A,#2e9e63)}
+  .evt-item{display:flex;gap:8px;padding:5px 0;border-bottom:1px dashed #eef1f6;align-items:flex-start}
+  .evt-item:last-child{border-bottom:none}
+  .evt-dot{width:7px;height:7px;border-radius:50%;background:#2e6fd0;margin-top:5px;flex-shrink:0}
+  .evt-dot.ap{background:#1E5F3A}.evt-dot.rec{background:#A32D2D}.evt-dot.hab{background:#1E5F3A}.evt-dot.inab{background:#A32D2D}
+  .evt-text{font-size:12px;color:#333;line-height:1.45;flex:1}
+  .evt-time{font-size:10.5px;font-weight:700;color:#1a3a6b;white-space:nowrap}
+  .evt-del{background:none;border:none;color:#ccc;font-size:13px;cursor:pointer;padding:0 2px;line-height:1;flex-shrink:0}
+  .evt-del:hover{color:#A32D2D}
+  /* Confirmação inline dos botões de ranking no painel COPAM */
+  .rk-confirm-inline{margin-top:6px;background:#fffbea;border:1.5px solid #f0c040;border-radius:9px;padding:9px 12px;display:flex;flex-direction:column;gap:7px}
+  .rk-confirm-inline-label{font-size:12px;font-weight:700;color:#6b4a00}
+  .rk-confirm-inline-btns{display:flex;gap:7px}
+  .rk-confirm-inline-btns button{flex:1;padding:7px;border-radius:8px;border:none;font-size:12px;font-weight:700;cursor:pointer;font-family:Arial,sans-serif}
+  .rk-ci-cancel{background:#fff;border:1.5px solid #ccc!important;color:#666}
+  .rk-ci-cancel:hover{background:#f4f4f4}
+  .rk-ci-confirm.ap{background:#1E5F3A;color:#fff}
+  .rk-ci-confirm.ap:hover{background:#174a2d}
+  .rk-ci-confirm.rec{background:#A32D2D;color:#fff}
+  .rk-ci-confirm.rec:hover{background:#7e1e1e}
+  .rk-ci-confirm.dil{background:#1d4ed8;color:#fff}
+  .rk-ci-confirm.dil:hover{background:#1539a8}
+  /* ── Botão declarar habilitada ── */
+  .hab-declare-btn{margin-top:10px;width:100%;padding:11px;border:none;border-radius:10px;background:#1E5F3A;color:#fff;font-size:13.5px;font-weight:800;cursor:pointer;font-family:Arial,sans-serif;transition:all .15s;display:flex;align-items:center;justify-content:center;gap:8px}
+  .hab-declare-btn:hover{background:#174a2d;transform:translateY(-1px)}
+  .hab-declare-btn.undo{background:#fff;color:#666;border:1.5px solid #ccc;font-weight:700}
+  .hab-declare-btn.undo:hover{background:#f4f4f4;transform:none}
   /* Modal qualificação técnica */
   .htec-toggle{display:flex;gap:10px}
   .htec-tbtn{flex:1;padding:11px;border:2px solid var(--border);border-radius:10px;background:#fff;font-family:Arial,sans-serif;font-size:14px;font-weight:700;color:#999;cursor:pointer;transition:all .15s}
@@ -437,6 +472,7 @@
     .rk-table tr.reprovado td{background:#FFF3F3!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
     .rk-table tr.diligencia td{background:#EFF6FF!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
     .rk-motivo-input{display:none!important}.rk-motivo-print{display:block!important}
+    .rk-sit-btns{display:none!important}
     /* Permitir quebra de página dentro dos blocos de item */
     .rk-item-block{page-break-inside:auto}
     /* Cabeçalho de impressão — aparece em todas as páginas, dentro da margem superior */
@@ -1267,6 +1303,9 @@ db.collection("status").onSnapshot(function(snap){
 
 // ── Delegação de eventos nos cards ────────────────────────────────────────────
 document.addEventListener("click", function(e){
+  // Botão de excluir evento do feed (classe evt-del, não data-action)
+  var delEvt=e.target.closest(".evt-del");
+  if(delEvt){ excluirEvento(delEvt.dataset.pid, delEvt.dataset.evt); return; }
   var btn = e.target.closest("[data-action]");
   if(!btn) return;
   var pid = btn.closest("[data-pid]") ? btn.closest("[data-pid]").dataset.pid : null;
@@ -1328,7 +1367,7 @@ function atualizarStats(){
   document.getElementById("stat-pedro").textContent = agentes[0] ? processos.filter(function(p){return p.responsavel===agentes[0].nomeAbrev;}).length : "-";
   document.getElementById("stat-lucilda").textContent = agentes[1] ? processos.filter(function(p){return p.responsavel===agentes[1].nomeAbrev;}).length : "-";
   document.getElementById("stat-suspenso").textContent = processos.filter(function(p){return p.status==="suspenso";}).length;
-  document.getElementById("stat-atualizacoes").textContent = processos.reduce(function(a,p){return a+(p.atualizacoes||[]).length;},0);
+  document.getElementById("stat-atualizacoes").textContent = Object.keys(procExtras).reduce(function(a,pid){ var ex=procExtras[pid]; return a+(((ex.rk||{}).eventos||[]).length)+(((ex.hab||{}).eventos||[]).length); },0);
 }
 
 function escHtml(s){ return (s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
@@ -1451,6 +1490,105 @@ function renderSelectStatus(){
 }
 
 // ── Renderizar cards ──────────────────────────────────────────────────────────
+// ── Dados automáticos dos cards (ranking + habilitação) ──────────────────────
+// procExtras[pid] = { rk: doc rankings, hab: doc habilitacoes } — alimentado por
+// listeners em tempo real; gera o feed de movimentações e o % concluído do card.
+var procExtras={};
+
+function fmtEvtTime(iso){
+  var d=new Date(iso);
+  if(isNaN(d.getTime())) return '';
+  var dd=('0'+d.getDate()).slice(-2), mm=('0'+(d.getMonth()+1)).slice(-2);
+  var hh=('0'+d.getHours()).slice(-2), mi=('0'+d.getMinutes()).slice(-2);
+  return dd+'/'+mm+', '+hh+'h'+mi;
+}
+function evtDotCls(msg){
+  var m=msg.toLowerCase();
+  if(m.indexOf('inabilitada')>=0||m.indexOf('recusad')>=0||m.indexOf('reprovad')>=0) return 'rec';
+  if(m.indexOf('habilitada')>=0||m.indexOf('aprovad')>=0) return 'ap';
+  return '';
+}
+// Remove um evento do feed (por t ou msg como chave de fallback)
+function excluirEvento(pid, chave){
+  var ex=procExtras[pid]; if(!ex) return;
+  function filtrar(arr){ return (arr||[]).filter(function(e){ return (e.t||e.msg)!==chave; }); }
+  var rkEvts=filtrar((ex.rk||{}).eventos);
+  var habEvts=filtrar((ex.hab||{}).eventos);
+  var mudouRk=rkEvts.length!==((ex.rk||{}).eventos||[]).length;
+  var mudouHab=habEvts.length!==((ex.hab||{}).eventos||[]).length;
+  // atualização manual legada
+  var proc=processos.find(function(p){ return p.id===pid; });
+  if(proc){
+    var atAntes=(proc.atualizacoes||[]).length;
+    proc.atualizacoes=(proc.atualizacoes||[]).filter(function(u){
+      return (new Date(u.ts).toISOString()!==chave)&&(u.texto!==chave);
+    });
+    if(proc.atualizacoes.length!==atAntes){
+      colRef.doc(pid).update({atualizacoes:proc.atualizacoes,updatedAt:firebase.firestore.FieldValue.serverTimestamp()})
+        .catch(function(err){ console.error('excluir upd legado:',err); });
+    }
+  }
+  if(mudouRk&&ex.rk){
+    ex.rk.eventos=rkEvts;
+    rkColRef.doc(pid).update({eventos:rkEvts,updatedAt:firebase.firestore.FieldValue.serverTimestamp()})
+      .catch(function(err){ console.error('excluir rkEvt:',err); });
+  }
+  if(mudouHab&&ex.hab){
+    ex.hab.eventos=habEvts;
+    habColRef.doc(pid).update({eventos:habEvts,updatedAt:firebase.firestore.FieldValue.serverTimestamp()})
+      .catch(function(err){ console.error('excluir habEvt:',err); });
+  }
+  renderizar();
+}
+function procEventosTodos(p, ex){
+  var evs=[];
+  ((ex.rk||{}).eventos||[]).forEach(function(e){ if(e&&e.msg) evs.push({t:e.t||'', msg:e.msg, soData:false}); });
+  ((ex.hab||{}).eventos||[]).forEach(function(e){ if(e&&e.msg) evs.push({t:e.t||'', msg:e.msg, soData:false}); });
+  // Atualizações manuais legadas (registradas antes do feed automático)
+  ((p&&p.atualizacoes)||[]).forEach(function(u){
+    if(!u||!u.texto) return;
+    var t=u.ts?new Date(u.ts).toISOString():(u.data?u.data+'T12:00:00':'');
+    evs.push({t:t, msg:u.texto, soData:!u.ts});
+  });
+  return evs;
+}
+function cardEventos(p, ex){
+  var evs=procEventosTodos(p, ex);
+  evs.sort(function(a,b){ return String(b.t||'').localeCompare(String(a.t||'')); });
+  return evs.map(function(e){
+    return {msg:e.msg, quando:e.soData?fmtEvtTime(e.t).split(',')[0]:fmtEvtTime(e.t), cls:evtDotCls(e.msg)};
+  });
+}
+function cardItemResolvido(it, estados){
+  if(!it.fornecedores||!it.fornecedores.length) return false;
+  var win=-1;
+  for(var k=0;k<it.fornecedores.length;k++){
+    if(((estados||{})[it.num+'-'+k]||'neutro')!=='reprovado'){ win=k; break; }
+  }
+  if(win===-1) return true; // fracassado = resolvido
+  return (estados||{})[it.num+'-'+win]==='aprovado';
+}
+function cardProgresso(ex){
+  var rk=ex.rk||{}, hb=ex.hab||{};
+  var itens=rk.itens||[], estados=rk.estados||{};
+  if(!itens.length) return null;
+  var resI=itens.filter(function(it){ return cardItemResolvido(it, estados); }).length;
+  var emps=habDerivarEmpresas(itens, estados);
+  if(!emps.length&&(hb.empresas||[]).length) emps=hb.empresas;
+  var docs=hb.docs||{}, cfg=hb.config||{tecnicaExige:false,tecnicaItens:[]};
+  var decl=hb.declarados||{}, legE=hb.estados||{};
+  var tec=habTecDocsFrom(cfg);
+  var julg=0;
+  emps.forEach(function(e){
+    var k=habKeyEmpresa(e.nome);
+    var st=habCalcDocsStatus(docs[k]||{}, tec, legE[k]||'', decl[k]).status;
+    if(st) julg++;
+  });
+  var total=itens.length+emps.length;
+  var done=resI+julg;
+  return {pct: total?Math.round(done/total*100):0, done:done, total:total};
+}
+
 function renderizar(){
   var busca=document.getElementById("search").value.toLowerCase();
   renderFiltroAnos();
@@ -1476,24 +1614,26 @@ function renderizar(){
     var st=getStatusCfg(p.status);
     var agIdx=agentes.findIndex(function(a){return a.nomeAbrev===p.responsavel;});
     var respCls=badgeCls[agIdx%badgeCls.length]||"badge-pedro";
-    var upds=p.atualizacoes||[];
+    var ex=procExtras[p.id]||{};
+    var prog=cardProgresso(ex);
+    var progHtml='';
+    if(prog){
+      progHtml='<div class="proc-progress"><div class="proc-progress-label"><span>Processo '+prog.pct+'% concluído</span><span>'+prog.done+'/'+prog.total+'</span></div>'
+        +'<div class="proc-progress-track"><div class="proc-progress-fill'+(prog.pct>=100?' done':'')+'" style="width:'+prog.pct+'%"></div></div></div>';
+    }
+    var evts=cardEventos(p, ex);
     var updHtml="";
-    if(upds.length){
-      var disp=upds.slice().sort(function(a,b){return (b.data||"").localeCompare(a.data||"");}).slice(0,6);
-      for(var j=0;j<disp.length;j++){
-        var u=disp[j];
-        var uidx=disp.indexOf(u);
-        updHtml+='<div class="update-item"><div class="update-dot"></div>';
-        updHtml+='<div style="flex:1"><div class="update-text">'+escHtml(u.texto)+'</div>';
-        updHtml+='<div class="update-meta" style="display:flex;align-items:center;justify-content:space-between">';
-        updHtml+='<span>Data: '+escHtml(u.data?formatarData(u.data):"")+' </span>';
-        updHtml+='<span style="display:flex;gap:4px">';
-        updHtml+='<button data-action="editar-upd" data-pid="'+escHtml(p.id)+'" data-ts="'+u.ts+'" style="background:none;border:none;cursor:pointer;font-size:11px;color:var(--muted);padding:1px 5px;border-radius:4px;border:1px solid var(--border)" title="Editar">&#9998;</button>';
-        updHtml+='<button data-action="excluir-upd" data-pid="'+escHtml(p.id)+'" data-ts="'+u.ts+'" style="background:none;border:none;cursor:pointer;font-size:11px;color:var(--red);padding:1px 5px;border-radius:4px;border:1px solid #f0c0c0" title="Excluir">&#10005;</button>';
-        updHtml+='</span></div></div></div>';
+    if(evts.length){
+      for(var j=0;j<evts.length;j++){
+        var ev=evts[j];
+        updHtml+='<div class="evt-item"><div class="evt-dot '+ev.cls+'"></div>'
+          +'<div class="evt-text">'+escHtml(ev.msg)+'</div>'
+          +'<span class="evt-time">'+ev.quando+'</span>'
+          +'<button class="evt-del" data-pid="'+escHtml(p.id)+'" data-evt="'+escHtml(ev.t||ev.msg)+'" title="Excluir">&#10005;</button>'
+          +'</div>';
       }
     } else {
-      updHtml='<div class="no-updates">Nenhuma atualizacao registrada</div>';
+      updHtml='<div class="no-updates">Nenhuma movimentação registrada</div>';
     }
     var dataLabel=p.dataLicit
       ? '<span class="date-chip">&#128198; '+formatarData(p.dataLicit)+'</span>'
@@ -1514,9 +1654,9 @@ function renderizar(){
     html+='<div class="card-meta"><span class="status-tag" style="'+getStatusStyle(p.status)+'">'+escHtml((st.nome||st.label||p.status))+'</span>'+dataLabel+linkBtn+'</div>';
     html+=contatoHtml;
     html+='</div>';
+    html+=progHtml;
     html+='<div class="updates-area">'+updHtml+'</div>';
     html+='<div class="card-footer">';
-    html+='<button class="btn-sm" data-action="atualizar">+ Atualizar</button>';
     html+='<button class="btn-sm" data-action="editar">Editar</button>';
     html+='<button class="btn-sm pdf-btn" data-action="pdf">PDF</button>';
     html+='<button class="btn-sm" data-action="ranking" style="background:#102040;color:#fff;border-color:#102040">&#128202; Propostas</button>';
@@ -1754,22 +1894,32 @@ function gerarPDF(id){
     doc.text(lL,ML,y+4); y+=lL.length*4.5+6;
   } else { y+=4; }
 
-  // Historico
+  // Historico cronologico completo (ranking + habilitação + atualizações manuais antigas)
   y+=2;
   setFill(26,58,107); doc.roundedRect(ML,y,CW,10,2,2,"F"); doc.rect(ML,y+6,CW,4,"F");
   setTextC(255,255,255); doc.setFontSize(9.5); doc.setFont("helvetica","bold");
-  doc.text("HISTORICO DE ATUALIZACOES",ML+5,y+7.5);
+  doc.text("HISTORICO CRONOLOGICO DO PROCESSO",ML+5,y+7.5);
   y+=14;
-  var atList=p.atualizacoes||[];
+  var exPdf=procExtras[p.id]||{};
+  var atList=procEventosTodos(p, exPdf);
+  // Ordem CRESCENTE de tempo (do mais antigo ao mais recente)
+  atList.sort(function(a,b){ return String(a.t||'').localeCompare(String(b.t||'')); });
   if(!atList.length){
     doc.setFontSize(9.5); setTextC(90,110,153); doc.setFont("helvetica","italic");
-    doc.text("Nenhuma atualizacao registrada.",ML,y+5); y+=14;
+    doc.text("Nenhuma movimentacao registrada.",ML,y+5); y+=14;
   } else {
-    var sorted=atList.slice().sort(function(a,b){return (a.data||"").localeCompare(b.data||"");});
-    for(var ai=0;ai<sorted.length;ai++){
-      var u=sorted[ai];
-      var tL=doc.splitTextToSize(u.texto,CW-28);
-      var bH=Math.max(tL.length*5.2+14,20);
+    function fmtPdfQuando(ev){
+      var d=new Date(ev.t);
+      if(isNaN(d.getTime())) return '---';
+      var dd=('0'+d.getDate()).slice(-2), mm=('0'+(d.getMonth()+1)).slice(-2), aa=d.getFullYear();
+      if(ev.soData) return dd+'/'+mm+'/'+aa;
+      var hh=('0'+d.getHours()).slice(-2), mi=('0'+d.getMinutes()).slice(-2);
+      return dd+'/'+mm+'/'+aa+', '+hh+'h'+mi;
+    }
+    for(var ai=0;ai<atList.length;ai++){
+      var u=atList[ai];
+      var tL=doc.splitTextToSize(u.msg,CW-58);
+      var bH=Math.max(tL.length*5.2+10,16);
       if(y+bH>PH-52){
         doc.addPage();
         setFill(255,255,255); doc.rect(0,0,PW,15,"F");
@@ -1785,7 +1935,7 @@ function gerarPDF(id){
       setTextC(255,255,255); doc.setFontSize(8); doc.setFont("helvetica","bold");
       doc.text(String(ai+1),ML+6.5,y+bH/2+1.2,{align:"center"});
       setTextC(90,110,153); doc.setFontSize(8.5); doc.setFont("helvetica","bold");
-      doc.text("Data: "+(u.data?formatarData(u.data):"---"),PW-MR-4,y+7,{align:"right"});
+      doc.text(fmtPdfQuando(u),PW-MR-4,y+7,{align:"right"});
       setTextC(22,32,56); doc.setFontSize(9.5); doc.setFont("helvetica","normal");
       doc.text(tL,ML+14,y+bH/2-(tL.length-1)*2.6+1.5);
       y+=bH+3;
@@ -2585,10 +2735,31 @@ function excluirImpDireto(id){
 
 // ── RANKING PANEL (Firestore — sincroniza entre computadores) ─────────────────
 var rkColRef = db.collection('rankings');
+
+// Listeners em tempo real que alimentam o feed/progresso dos cards da tela inicial
+rkColRef.onSnapshot(function(snap){
+  snap.forEach(function(d){
+    procExtras[d.id]=Object.assign(procExtras[d.id]||{},{rk:d.data()});
+  });
+  renderizar();
+}, function(err){ console.error('procExtras rankings:', err); });
+habColRef.onSnapshot(function(snap){
+  snap.forEach(function(d){
+    procExtras[d.id]=Object.assign(procExtras[d.id]||{},{hab:d.data()});
+  });
+  renderizar();
+}, function(err){ console.error('procExtras habilitacoes:', err); });
 var rkProcessoAtual = null;
 var rkItens = [];
 var rkEstados = {};
 var rkMotivos = {};
+var rkEventos = [];
+var rkPendConfirm = null; // {key, st} aguardando confirmação
+// Registra um evento no histórico do ranking (alimenta o feed do card)
+function rkLogEvento(msg){
+  rkEventos.push({t:new Date().toISOString(), msg:msg});
+  if(rkEventos.length>500) rkEventos=rkEventos.slice(-500);
+}
 var rkFiltroAtivo = null;
 var rkFiltroNum = '';
 var rkFiltroDesc = '';
@@ -2623,6 +2794,7 @@ function rkSalvarFirestore(){
     itens: rkItens,
     estados: rkEstados,
     motivos: rkMotivos,
+    eventos: rkEventos,
     numero: rkProcessoAtual.numero,
     updatedAt: firebase.firestore.FieldValue.serverTimestamp()
   }).catch(function(e){ console.error('Erro ao salvar ranking:', e); toast('Erro ao salvar na nuvem'); });
@@ -2637,6 +2809,8 @@ document.getElementById('rkFileInput').addEventListener('change', function(){
       var proc=JSON.parse(e.target.result);
       if(!proc.itens) return alert('JSON inválido.');
       rkItens=proc.itens;
+      rkPendConfirm=null;
+      rkLogEvento('Propostas importadas ('+rkItens.length+' itens)');
       if(proc.motivos) rkMotivos=Object.assign({}, rkMotivos, proc.motivos);
       rkSalvarFirestore();
       document.getElementById('rkNoJson').style.display='none';
@@ -2661,7 +2835,7 @@ function abrirRanking(pid){
   var fn=document.getElementById('rkFiltroNum'); if(fn) fn.value='';
   var fd=document.getElementById('rkFiltroDesc'); if(fd) fd.value='';
   var ff=document.getElementById('rkFiltroForn'); if(ff) ff.value='';
-  rkItens=[]; rkEstados={}; rkMotivos={};
+  rkItens=[]; rkEstados={}; rkMotivos={}; rkEventos=[];
   var noJson=document.getElementById('rkNoJson');
   noJson.innerHTML='<h3>Carregando...</h3>';
   noJson.style.display='block';
@@ -2673,6 +2847,7 @@ function abrirRanking(pid){
       rkItens=d.itens||[];
       rkEstados=d.estados||{};
       rkMotivos=d.motivos||{};
+      rkEventos=d.eventos||[];
     }
     if(rkItens.length){
       noJson.style.display='none';
@@ -2698,6 +2873,12 @@ function fecharRanking(){ document.getElementById('rankingPanel').classList.remo
 // 9.16 Jurídica: documentos ALTERNATIVOS — basta 1 aprovado (um substitui o outro).
 var habProcessoAtual=null, habEmpresas=[], habEstados={}, habMotivos={};
 var habDocs={}, habDocMotivos={}, habConfig={tecnicaExige:false,tecnicaItens:[]}, habExpand={};
+var habDeclarados={}, habEventos=[];
+// Registra um evento no histórico da habilitação (alimenta o feed do card)
+function habLogEvento(msg){
+  habEventos.push({t:new Date().toISOString(), msg:msg});
+  if(habEventos.length>500) habEventos=habEventos.slice(-500);
+}
 var habFiltroAtivo=null, habSaveTimer=null, habDocId=null, habUnsubscribe=null;
 var habRkUnsubscribe=null, habRkItens=[], habRkEstados={};
 var habLegacyEmpresas=[], habOwn=false;
@@ -2735,7 +2916,9 @@ function habTecDocsFrom(config){
 
 // Calcula status automático e progresso de docs para um conjunto de julgamentos
 // d = { docId: 'aprovado'|'recusado'|'na' } (ausente = não enviado)
-function habCalcDocsStatus(d, tecDocs, legacyEstado){
+// declarado = true quando a empresa foi declarada habilitada manualmente (botão verde);
+// precedência: doc recusado > declaração manual > cálculo automático
+function habCalcDocsStatus(d, tecDocs, legacyEstado, declarado){
   d=d||{};
   var recusados=[], pendentes=[], done=0, total=1; // jurídica conta como 1 exigência
   var juridOk=HAB_DOCS_JUR.some(function(x){ return d[x.id]==='aprovado'; });
@@ -2757,12 +2940,14 @@ function habCalcDocsStatus(d, tecDocs, legacyEstado){
   }
   grupo(HAB_DOCS_FIS); grupo(HAB_DOCS_ECO); grupo(tecDocs||[]);
   var status=recusados.length?'inabilitado':(pendentes.length?'':'habilitado');
+  // Declaração manual: vale se não houver documento recusado
+  if(!recusados.length&&declarado) status='habilitado';
   // Fallback legado: empresa sem nenhum doc julgado mas com status manual antigo
-  if(!Object.keys(d).length&&legacyEstado) status=legacyEstado;
-  return {status:status, done:done, total:total, recusados:recusados, pendentes:pendentes, juridOk:juridOk};
+  if(!Object.keys(d).length&&!declarado&&legacyEstado) status=legacyEstado;
+  return {status:status, done:done, total:total, recusados:recusados, pendentes:pendentes, juridOk:juridOk, declarado:!!declarado};
 }
 function habCalcInfo(k){
-  return habCalcDocsStatus(habDocs[k]||{}, habTecDocsFrom(habConfig), habEstados[k]||'');
+  return habCalcDocsStatus(habDocs[k]||{}, habTecDocsFrom(habConfig), habEstados[k]||'', habDeclarados[k]);
 }
 
 // Deriva a lista de empresas vencedoras a partir dos itens/estados do ranking
@@ -2828,6 +3013,7 @@ function abrirHabilitacao(pid){
   habProcessoAtual=p;
   habDocId=pid;
   habEmpresas=[]; habEstados={}; habMotivos={}; habDocs={}; habDocMotivos={}; habExpand={};
+  habDeclarados={}; habEventos=[];
   habConfig={tecnicaExige:false,tecnicaItens:[]};
   habRkItens=[]; habRkEstados={}; habLegacyEmpresas=[];
   document.getElementById('habPanelTitle').textContent='Habilitação — '+p.numero;
@@ -2851,10 +3037,11 @@ function abrirHabilitacao(pid){
       var d=doc.data();
       habEstados=d.estados||{}; habMotivos=d.motivos||{};
       habDocs=d.docs||{}; habDocMotivos=d.docMotivos||{};
+      habDeclarados=d.declarados||{}; habEventos=d.eventos||[];
       habConfig=d.config||{tecnicaExige:false,tecnicaItens:[]};
       habLegacyEmpresas=d.empresas||[];
       habMigrarChaves();
-    } else { habEstados={}; habMotivos={}; habDocs={}; habConfig={tecnicaExige:false,tecnicaItens:[]}; habLegacyEmpresas=[]; }
+    } else { habEstados={}; habMotivos={}; habDocs={}; habDocMotivos={}; habDeclarados={}; habEventos=[]; habConfig={tecnicaExige:false,tecnicaItens:[]}; habLegacyEmpresas=[]; }
     habAtualizarEmpresas();
   }, function(err){ console.error('Hab snapshot error:', err); });
 }
@@ -2879,6 +3066,7 @@ function habSalvarFirestore(){
     habColRef.doc(habDocId).set({
       empresas:habEmpresas, estados:estadosDerivados, motivos:habMotivos,
       docs:habDocs, docMotivos:habDocMotivos, config:habConfig,
+      declarados:habDeclarados, eventos:habEventos,
       numero:habProcessoAtual?habProcessoAtual.numero:'',
       updatedAt:firebase.firestore.FieldValue.serverTimestamp()
     }).then(function(){ setTimeout(function(){ habOwn=false; },2500); })
@@ -2888,6 +3076,7 @@ function habSalvarFirestore(){
 
 // Julga um documento: clicar no status já selecionado volta para "Não enviado"
 function habSetDoc(empKey, docId, st){
+  var antes=habCalcInfo(empKey).status;
   if(!habDocs[empKey]) habDocs[empKey]={};
   if(habDocs[empKey][docId]===st) {
     delete habDocs[empKey][docId];
@@ -2900,6 +3089,29 @@ function habSetDoc(empKey, docId, st){
   }
   if(!Object.keys(habDocs[empKey]).length) delete habDocs[empKey];
   delete habEstados[empKey]; // doc julgado → status manual legado deixa de valer
+  // Evento de transição de status da empresa (feed do card)
+  var depois=habCalcInfo(empKey).status;
+  var nomeEmp=(habEmpresas.find(function(e){ return habKeyEmpresa(e.nome)===empKey; })||{}).nome||empKey;
+  if(depois!==antes){
+    if(depois==='habilitado') habLogEvento(nomeEmp+' declarada habilitada (documentação completa)');
+    else if(depois==='inabilitado') habLogEvento(nomeEmp+' inabilitada — documento recusado');
+    else if(antes==='habilitado'||antes==='inabilitado') habLogEvento('Julgamento de '+nomeEmp+' reaberto');
+  }
+  habSalvarFirestore(); habRenderLista();
+}
+
+// Botão verde: declara a empresa habilitada sem precisar marcar doc por doc
+function habDeclarar(empKey){
+  var nomeEmp=(habEmpresas.find(function(e){ return habKeyEmpresa(e.nome)===empKey; })||{}).nome||empKey;
+  habDeclarados[empKey]=true;
+  delete habEstados[empKey];
+  habLogEvento(nomeEmp+' declarada habilitada');
+  habSalvarFirestore(); habRenderLista();
+}
+function habDesfazerDeclaracao(empKey){
+  var nomeEmp=(habEmpresas.find(function(e){ return habKeyEmpresa(e.nome)===empKey; })||{}).nome||empKey;
+  delete habDeclarados[empKey];
+  habLogEvento('Declaração de habilitação de '+nomeEmp+' desfeita');
   habSalvarFirestore(); habRenderLista();
 }
 
@@ -3022,6 +3234,9 @@ function habRenderLista(){
       +'</div>'
       +'<button class="hab-chk-toggle" data-expand="'+escHtml(k)+'">'+(aberto?'&#9650; Recolher checklist':'&#9660; Abrir checklist de documentos')+'</button>'
       +(aberto?habChecklistHTML(k, info):'')
+      +(info.declarado
+          ?'<button class="hab-declare-btn undo" data-undeclare="'+escHtml(k)+'">&#8617; Desfazer declaração de habilitada</button>'
+          :(s!=='habilitado'?'<button class="hab-declare-btn" data-declare="'+escHtml(k)+'">&#10003; Declarar empresa HABILITADA</button>':''))
       +(s==='inabilitado'&&info.recusados.length?'<div class="hab-recusa-resumo"><b>Documentos recusados:</b> '+info.recusados.map(escHtml).join('; ')+'</div>':'')
       +'<div class="hab-motivo-wrap"'+(s==='inabilitado'?'':' style="display:none"')+'><textarea class="hab-motivo" placeholder="Justificativa complementar de inabilitação (opcional)..." data-key="'+escHtml(k)+'">'+escHtml(mv)+'</textarea></div>'
       +'</div>';
@@ -3029,6 +3244,12 @@ function habRenderLista(){
   lista.innerHTML=html;
   lista.querySelectorAll('[data-expand]').forEach(function(btn){
     btn.addEventListener('click',function(){ habToggleExpand(btn.dataset.expand); });
+  });
+  lista.querySelectorAll('[data-declare]').forEach(function(btn){
+    btn.addEventListener('click',function(){ habDeclarar(btn.dataset.declare); });
+  });
+  lista.querySelectorAll('[data-undeclare]').forEach(function(btn){
+    btn.addEventListener('click',function(){ habDesfazerDeclaracao(btn.dataset.undeclare); });
   });
   lista.querySelectorAll('.hab-dbtn').forEach(function(btn){
     btn.addEventListener('click',function(){
@@ -3499,11 +3720,40 @@ function rkLimparFiltros(){
   rkRenderRanking();
 }
 
-function rkToggle(key){
-  var c={neutro:'aprovado',aprovado:'reprovado',reprovado:'diligencia',diligencia:'neutro'};
-  rkEstados[key]=c[rkEstados[key]||'neutro']||'neutro';
-  rkSalvarFirestore();
-  rkRenderProcesso();
+// Passo 1: usuário clica em ✗/✓/🔍 → mostra confirmação inline
+// Passo 2: confirma → executa rkExecutarEstado
+function rkSetEstado(key, st){
+  var atual=rkEstados[key]||'neutro';
+  // Clicar no status já ativo = desfaz imediatamente (sem confirmar)
+  if(atual===st){
+    rkEstados[key]='neutro';
+    delete rkMotivos[key];
+    rkPendConfirm=null;
+    rkSalvarFirestore(); rkRenderProcesso(); return;
+  }
+  rkPendConfirm={key:key, st:st};
+  rkRenderRanking(); // re-render para mostrar o bloco de confirmação
+  // foca o textarea de motivo se abriu
+  setTimeout(function(){
+    var ta=document.querySelector('.rk-ci-motivo[data-key="'+key+'"]');
+    if(ta) ta.focus();
+  },60);
+}
+function rkExecutarEstado(key, st, motivo){
+  rkPendConfirm=null;
+  var sep=key.lastIndexOf('-');
+  var numIt=key.slice(0,sep), fIdx=parseInt(key.slice(sep+1),10);
+  var it=rkItens.find(function(x){ return String(x.num)===String(numIt); });
+  var fn=(it&&it.fornecedores&&it.fornecedores[fIdx])?it.fornecedores[fIdx].nome:'';
+  rkEstados[key]=st;
+  if(motivo&&motivo.trim()) rkMotivos[key]=motivo.trim(); else delete rkMotivos[key];
+  var acao=st==='aprovado'?'aprovada':st==='reprovado'?'reprovada':'em diligência';
+  rkLogEvento('Item '+numIt+' — proposta de '+fn+' '+acao);
+  rkSalvarFirestore(); rkRenderProcesso();
+}
+function rkCancelarConfirm(){
+  rkPendConfirm=null;
+  rkRenderRanking();
 }
 function rkSetMotivo(key,val){
   rkMotivos[key]=val;
@@ -3560,13 +3810,38 @@ function rkRenderRanking(){
       var tr=document.createElement('tr'); tr.className='rk-forn '+st;
       var pct=rkCalcPct(f.valor,it.ref), pv=rkFmtPct(pct);
       var pc=pct===null?'':pct>0?'rk-pct-acima':pct===0?'rk-pct-zero':'rk-pct-abaixo';
-      var sitHTML='';
-      if(st==='aprovado') sitHTML='<span class="rk-badge ap">Aprovado</span>';
-      else if(st==='reprovado') sitHTML='<span class="rk-badge rp">Reprovado</span><br><textarea class="rk-motivo-input" placeholder="Motivo da reprovação..." onclick="event.stopPropagation()" oninput="rkSetMotivo(this.dataset.key,this.value);this.nextElementSibling.textContent=this.value;rkAutoResize(this)" data-key="'+escHtml(key)+'">'+escHtml(mv)+'</textarea><div class="rk-motivo-print">'+escHtml(mv)+'</div>';
-      else if(st==='diligencia') sitHTML='<span class="rk-badge dil">Diligência</span><br><textarea class="rk-motivo-input" style="border-color:#bfdbfe;background:#eff6ff" placeholder="Motivo da diligência..." onclick="event.stopPropagation()" oninput="rkSetMotivo(this.dataset.key,this.value);this.nextElementSibling.textContent=this.value;rkAutoResize(this)" data-key="'+escHtml(key)+'">'+escHtml(mv)+'</textarea><div class="rk-motivo-print" style="color:#1d4ed8">'+escHtml(mv)+'</div>';
+      var isConfirming=(rkPendConfirm&&rkPendConfirm.key===key);
+      var confirmLabel=isConfirming?(rkPendConfirm.st==='aprovado'?'Confirmar aprovação':'Confirmar '+(rkPendConfirm.st==='reprovado'?'reprovação':'diligência')):'';
+      var confirmCls=isConfirming?rkPendConfirm.st:'';
+      var sitHTML='<div class="rk-sit-btns">'
+        +'<button class="hab-dbtn rec'+(st==='reprovado'?' sel':'')+'" data-rkst="reprovado" data-key="'+escHtml(key)+'" title="Reprovar proposta">&#10005;</button>'
+        +'<button class="hab-dbtn ap'+(st==='aprovado'?' sel':'')+'" data-rkst="aprovado" data-key="'+escHtml(key)+'" title="Aprovar proposta">&#10003;</button>'
+        +'<button class="hab-dbtn dil'+(st==='diligencia'?' sel':'')+'" data-rkst="diligencia" data-key="'+escHtml(key)+'" title="Solicitar diligência">&#128269;</button>'
+        +'</div>';
+      if(isConfirming){
+        sitHTML+='<div class="rk-confirm-inline">'
+          +'<div class="rk-confirm-inline-label">'+escHtml(confirmLabel)+'</div>'
+          +(rkPendConfirm.st!=='aprovado'?'<textarea class="rk-motivo-input rk-ci-motivo" placeholder="Motivo (opcional)..." data-key="'+escHtml(key)+'" rows="2" style="'+(rkPendConfirm.st==='diligencia'?'border-color:#bfdbfe;background:#eff6ff':'')+'"></textarea>':'')
+          +'<div class="rk-confirm-inline-btns">'
+            +'<button class="rk-ci-cancel" data-rkcancel="1">Cancelar</button>'
+            +'<button class="rk-ci-confirm '+escHtml(confirmCls)+'" data-rkconfirm="'+escHtml(key)+'" data-rkst="'+escHtml(rkPendConfirm.st)+'">'+escHtml(confirmLabel)+' →</button>'
+          +'</div></div>';
+      } else if(st==='aprovado') sitHTML+='<span class="rk-badge ap">Aprovado</span>';
+      else if(st==='reprovado') sitHTML+='<span class="rk-badge rp">Reprovado</span><br><textarea class="rk-motivo-input" placeholder="Motivo da reprovação..." oninput="rkSetMotivo(this.dataset.key,this.value);this.nextElementSibling.textContent=this.value;rkAutoResize(this)" data-key="'+escHtml(key)+'">'+escHtml(mv)+'</textarea><div class="rk-motivo-print">'+escHtml(mv)+'</div>';
+      else if(st==='diligencia') sitHTML+='<span class="rk-badge dil">Diligência</span><br><textarea class="rk-motivo-input" style="border-color:#bfdbfe;background:#eff6ff" placeholder="Motivo da diligência..." oninput="rkSetMotivo(this.dataset.key,this.value);this.nextElementSibling.textContent=this.value;rkAutoResize(this)" data-key="'+escHtml(key)+'">'+escHtml(mv)+'</textarea><div class="rk-motivo-print" style="color:#1d4ed8">'+escHtml(mv)+'</div>';
       tr.innerHTML='<td>'+escHtml(f.nome)+'</td><td class="r">'+escHtml(f.valor)+'</td><td class="r"><span class="'+pc+'">'+pv+'</span></td><td>'+escHtml(f.modelo)+'</td><td>'+escHtml(f.marca)+'</td><td class="sit">'+sitHTML+'</td>';
-      Array.from(tr.cells).slice(0,5).forEach(function(td){ td.addEventListener('click',function(){ rkToggle(key); }); });
-      var badge=tr.querySelector('.rk-badge'); if(badge) badge.addEventListener('click',function(ev){ ev.stopPropagation(); rkToggle(key); });
+      tr.querySelectorAll('[data-rkst]').forEach(function(btn){
+        btn.addEventListener('click',function(){ rkSetEstado(btn.dataset.key, btn.dataset.rkst); });
+      });
+      tr.querySelectorAll('[data-rkcancel]').forEach(function(btn){
+        btn.addEventListener('click',function(){ rkCancelarConfirm(); });
+      });
+      tr.querySelectorAll('[data-rkconfirm]').forEach(function(btn){
+        btn.addEventListener('click',function(){
+          var ta=btn.closest('.rk-confirm-inline').querySelector('textarea');
+          rkExecutarEstado(btn.dataset.rkconfirm, btn.dataset.rkst, ta?ta.value:'');
+        });
+      });
       tbody.appendChild(tr);
     });
     if(ocultados>0){
@@ -3601,9 +3876,14 @@ function rkCopiarLink(){
   if(panel) panel.style.display='flex';
 
   var sharedItens=[], sharedEstados={}, sharedMotivos={}, sharedNumero='';
+  var sharedEvts=[];
+  function sLog(msg){
+    sharedEvts.push({t:new Date().toISOString(), msg:msg});
+    if(sharedEvts.length>500) sharedEvts=sharedEvts.slice(-500);
+  }
   var saveTimer=null, sharedOwn=false;
-  var sharedConfirmando=null; // num do item em confirmação de reprovação
-  var sharedFiltroSoPendentes=false; // toggle "mostrar só pendentes"
+  var sharedConfirmando=null; // {num, acao} aguardando confirmação
+  var sharedFiltroSoPendentes=false;
 
   function setSaveDot(s){
     var dot=document.getElementById('rksSaveDot'), txt=document.getElementById('rksSaveStatus');
@@ -3615,6 +3895,7 @@ function rkCopiarLink(){
     sharedOwn=true;
     rkColRef.doc(sharedId).set({
       itens:sharedItens, estados:sharedEstados, motivos:sharedMotivos,
+      eventos:sharedEvts,
       numero:sharedNumero, updatedAt:firebase.firestore.FieldValue.serverTimestamp()
     }).then(function(){ setSaveDot('saved'); setTimeout(function(){ sharedOwn=false; },3000); })
     .catch(function(){ setSaveDot('idle'); sharedOwn=false; });
@@ -3644,12 +3925,14 @@ function rkCopiarLink(){
       delete sharedMotivos[String(it.num)+'-'+k];
     }
     sharedEstados[String(it.num)+'-'+idx]='aprovado';
+    sLog('Item '+it.num+' — proposta de '+(it.fornecedores[idx]?it.fornecedores[idx].nome:'')+' aprovada');
   }
   function sReprovaCurrent(it, mv){
     var idx=sGetFornIdx(it); if(idx<0) return;
     var key=String(it.num)+'-'+idx;
     sharedEstados[key]='reprovado';
     if(mv&&mv.trim()) sharedMotivos[key]=mv.trim(); else delete sharedMotivos[key];
+    sLog('Item '+it.num+' — proposta de '+(it.fornecedores[idx]?it.fornecedores[idx].nome:'')+' reprovada');
   }
   function sContaReprovados(it){
     var c=0;
@@ -3689,7 +3972,7 @@ function rkCopiarLink(){
       var st=sGetStatus(it);
       var idx=sGetFornIdx(it);
       var forn=idx>=0?it.fornecedores[idx]:null;
-      var isConfirming=(sharedConfirmando===String(it.num));
+      var isConfirming=(sharedConfirmando&&sharedConfirmando.num===String(it.num));
       var reprovados=sContaReprovados(it);
       var cardCls='rks-card';
       if(st==='aprovado') cardCls+=' rks-aprovado';
@@ -3705,26 +3988,34 @@ function rkCopiarLink(){
         +'<span class="rks-forn-tag"><b>Marca</b> '+escHtml(showForn.marca||'—')+'</span>'
         +(reprovados>0&&st!=='fracassado'?'<span class="rks-prev-badge">'+reprovados+' reprovado'+(reprovados>1?'s':'')+'</span>':'')
         +'</div></div>'):'';
+      var isConfirming=(sharedConfirmando&&sharedConfirmando.num===String(it.num));
       var actionHtml='';
       if(st==='fracassado'){
         actionHtml='<div class="rks-fracassado-badge">🔴 Fracassado — todos os '+it.fornecedores.length+' fornecedores reprovados</div>';
       } else if(isConfirming){
+        var cAcao=sharedConfirmando.acao;
+        var cLabel=cAcao==='rp'?'Confirmar Reprovação':cAcao==='dil'?'Confirmar Diligência':'';
+        var cCls=cAcao==='rp'?'rec':'dil';
         actionHtml='<div class="rks-confirm-wrap">'
-          +'<div class="rks-confirm-label">Motivo da reprovação <span style="color:#aaa;font-weight:400;font-size:13px">(opcional)</span></div>'
-          +'<textarea class="rks-motivo" placeholder="Descreva o motivo..." data-num="'+escHtml(it.num)+'" rows="3"></textarea>'
+          +'<div class="rks-confirm-label" style="color:'+(cAcao==='dil'?'#1d4ed8':'#A32D2D')+'">'
+            +(cAcao==='rp'?'Motivo da reprovação':'Motivo da diligência')
+            +' <span style="color:#aaa;font-weight:400;font-size:13px">(opcional)</span></div>'
+          +'<textarea class="rks-motivo" placeholder="Descreva o motivo..." data-num="'+escHtml(it.num)+'" rows="3" style="'+(cAcao==='dil'?'border-color:#bfdbfe;background:#eff6ff':'')+'"></textarea>'
           +'<div class="rks-confirm-btns">'
             +'<button class="rks-cancel-btn" data-action="cancel" data-num="'+escHtml(it.num)+'">Cancelar</button>'
-            +'<button class="rks-confirm-btn" data-action="confirm" data-num="'+escHtml(it.num)+'">Confirmar Reprovação →</button>'
+            +'<button class="rks-confirm-btn" data-action="confirm" data-num="'+escHtml(it.num)+'" style="'+(cAcao==='dil'?'background:#1d4ed8':'')+'">'+escHtml(cLabel)+' →</button>'
           +'</div></div>';
       } else if(st==='aprovado'){
         actionHtml='<div class="rks-card-btns">'
           +'<button class="rks-sbtn rks-sbtn-rp" data-action="rp" data-num="'+escHtml(it.num)+'"><span class="rks-sbtn-icon">✕</span>Reprovado</button>'
           +'<button class="rks-sbtn rks-sbtn-ap sel-ap" data-action="ap" data-num="'+escHtml(it.num)+'"><span class="rks-sbtn-icon">✓</span>Aprovado</button>'
+          +'<button class="rks-sbtn" style="background:#eff6ff;color:#1d4ed8;border-color:#bfdbfe" data-action="dil" data-num="'+escHtml(it.num)+'"><span class="rks-sbtn-icon">🔍</span>Diligência</button>'
           +'</div>';
       } else {
         actionHtml='<div class="rks-card-btns">'
           +'<button class="rks-sbtn rks-sbtn-rp" data-action="rp" data-num="'+escHtml(it.num)+'"><span class="rks-sbtn-icon">✕</span>Reprovado</button>'
           +'<button class="rks-sbtn rks-sbtn-ap" data-action="ap" data-num="'+escHtml(it.num)+'"><span class="rks-sbtn-icon">✓</span>Aprovado</button>'
+          +'<button class="rks-sbtn" style="background:#eff6ff;color:#1d4ed8;border-color:#bfdbfe" data-action="dil" data-num="'+escHtml(it.num)+'"><span class="rks-sbtn-icon">🔍</span>Diligência</button>'
           +'</div>';
       }
       html+='<div class="'+cardCls+'" data-num="'+escHtml(it.num)+'">'+titleHtml+fornHtml+actionHtml+'</div>';
@@ -3754,17 +4045,30 @@ function rkCopiarLink(){
             }
             triggerSave(); sharedRender();
           } else {
-            // Pendente — entra no fluxo de confirmação
-            sharedConfirmando=String(num); sharedRender();
+            sharedConfirmando={num:String(num),acao:'rp'}; sharedRender();
             setTimeout(function(){ var ta=body.querySelector('textarea[data-num="'+num+'"]'); if(ta) ta.focus(); },80);
           }
+        } else if(action==='dil'){
+          sharedConfirmando={num:String(num),acao:'dil'}; sharedRender();
+          setTimeout(function(){ var ta=body.querySelector('textarea[data-num="'+num+'"]'); if(ta) ta.focus(); },80);
         } else if(action==='ap'){
           sSetAprovado(it); sharedConfirmando=null; triggerSave(); sharedRender();
         } else if(action==='cancel'){
           sharedConfirmando=null; sharedRender();
         } else if(action==='confirm'){
           var ta=btn.closest('.rks-confirm-wrap').querySelector('textarea');
-          sReprovaCurrent(it, ta?ta.value:'');
+          var mv=ta?ta.value:'';
+          var cAcao=sharedConfirmando?sharedConfirmando.acao:'rp';
+          if(cAcao==='dil'){
+            var idx=sGetFornIdx(it); if(idx>=0){
+              var dkey=String(it.num)+'-'+idx;
+              sharedEstados[dkey]='diligencia';
+              if(mv&&mv.trim()) sharedMotivos[dkey]=mv.trim(); else delete sharedMotivos[dkey];
+              sLog('Item '+it.num+' — diligência solicitada para '+(it.fornecedores[idx]?it.fornecedores[idx].nome:''));
+            }
+          } else {
+            sReprovaCurrent(it, mv);
+          }
           sharedConfirmando=null; triggerSave(); sharedRender();
           setTimeout(function(){ var card=body.querySelector('[data-num="'+num+'"]'); if(card) card.scrollIntoView({behavior:'smooth',block:'center'}); },100);
         }
@@ -3782,6 +4086,7 @@ function rkCopiarLink(){
       var d=doc.data();
       sharedItens=d.itens||[]; sharedEstados=d.estados||{};
       sharedMotivos=d.motivos||{}; sharedNumero=d.numero||'';
+      sharedEvts=d.eventos||[];
     } else { sharedItens=[]; sharedNumero='Não encontrado'; }
     sharedRender();
   }, function(err){
@@ -3790,6 +4095,8 @@ function rkCopiarLink(){
   });
 })();
 // ── Modo Compartilhado Habilitação (?hab=ID) ─────────────────────────────────
+// A secretaria vê e julga SOMENTE a Qualificação Técnica (9.19).
+// Os demais documentos (jurídica/fiscal/econômica) são julgados pela COPAM no painel.
 (function(){
   var params=new URLSearchParams(window.location.search);
   var habId=params.get('hab');
@@ -3802,9 +4109,15 @@ function rkCopiarLink(){
 
   var sharedEmpresas=[], sharedEstados={}, sharedMotivos={}, sharedNumero='';
   var sharedDocs={}, sharedDocMotivos={}, sharedConfig={tecnicaExige:false,tecnicaItens:[]};
+  var sharedDeclarados={}, sharedEvtsH=[];
   var sharedRkItens=[], sharedRkEstados={}, sharedLegacy=[];
   var sharedExpand={};
   var saveTimer=null, sharedOwn=false;
+
+  function hLog(msg){
+    sharedEvtsH.push({t:new Date().toISOString(), msg:msg});
+    if(sharedEvtsH.length>500) sharedEvtsH=sharedEvtsH.slice(-500);
+  }
 
   function setDot(s){
     var d=document.getElementById('hbsDot'), t=document.getElementById('hbsStatus');
@@ -3814,7 +4127,21 @@ function rkCopiarLink(){
     else { d.className='hbs-dot'; t.textContent='Aguardando alterações'; }
   }
   function sharedCalc(k){
-    return habCalcDocsStatus(sharedDocs[k]||{}, habTecDocsFrom(sharedConfig), sharedEstados[k]||'');
+    return habCalcDocsStatus(sharedDocs[k]||{}, habTecDocsFrom(sharedConfig), sharedEstados[k]||'', sharedDeclarados[k]);
+  }
+  // Status SÓ da qualificação técnica (visão da secretaria)
+  function tecStatus(k){
+    var tec=habTecDocsFrom(sharedConfig);
+    if(!tec.length) return {status:'', done:0, total:0};
+    var d=sharedDocs[k]||{};
+    var done=0, rec=false, total=tec.length;
+    tec.forEach(function(x){
+      var st=d[x.id]||'';
+      if(st==='aprovado') done++;
+      else if(st==='recusado') rec=true;
+    });
+    var status=rec?'recusada':(done===total?'aprovada':'');
+    return {status:status, done:done, total:total};
   }
   function doSave(){
     sharedOwn=true;
@@ -3826,7 +4153,9 @@ function rkCopiarLink(){
     });
     habColRef.doc(habId).set({
       empresas:sharedEmpresas, estados:estadosDerivados, motivos:sharedMotivos,
-      docs:sharedDocs, docMotivos:sharedDocMotivos, config:sharedConfig, numero:sharedNumero,
+      docs:sharedDocs, docMotivos:sharedDocMotivos, config:sharedConfig,
+      declarados:sharedDeclarados, eventos:sharedEvtsH,
+      numero:sharedNumero,
       updatedAt:firebase.firestore.FieldValue.serverTimestamp()
     }).then(function(){ setDot('saved'); setTimeout(function(){ sharedOwn=false; },3000); })
       .catch(function(){ setDot('idle'); sharedOwn=false; });
@@ -3854,44 +4183,44 @@ function rkCopiarLink(){
     hbsRender();
   }
 
-  function hbsChecklistHTML(k, info){
+  // Checklist da secretaria: SOMENTE 9.19 Qualificação Técnica
+  function hbsChecklistHTML(k){
     var d=sharedDocs[k]||{};
     var m=sharedDocMotivos[k]||{};
     var tecDocs=habTecDocsFrom(sharedConfig);
     var html='<div class="hab-chk">';
-    html+='<div class="hab-sec"><div class="hab-sec-title"><span>9.16 Habilitação Jurídica</span><span class="hab-sec-hint">apresentar UM — basta 1 aprovado</span></div>'
-      +habDocsRowsHTML(k, HAB_DOCS_JUR, d, {altSatisfeita:info.juridOk}, m)+'</div>';
-    html+='<div class="hab-sec"><div class="hab-sec-title"><span>9.17 Fiscal, Social e Trabalhista</span><span class="hab-sec-hint">todos obrigatórios</span></div>'
-      +habDocsRowsHTML(k, HAB_DOCS_FIS, d, {}, m)+'</div>';
-    html+='<div class="hab-sec"><div class="hab-sec-title"><span>9.18 Econômico-Financeira</span></div>'
-      +habDocsRowsHTML(k, HAB_DOCS_ECO, d, {}, m)+'</div>';
-    if(sharedConfig.tecnicaExige){
-      html+='<div class="hab-sec"><div class="hab-sec-title"><span>9.19 Qualificação Técnica</span><span class="hab-sec-hint">exigida neste processo</span></div>';
-      if(tecDocs.length) html+=habDocsRowsHTML(k, tecDocs, d, {}, m);
-      else html+='<div style="font-size:12px;color:#999;padding:8px 6px">Nenhuma exigência técnica cadastrada pela COPAM.</div>';
-      html+='</div>';
-    }
-    html+='</div>';
+    html+='<div class="hab-sec"><div class="hab-sec-title"><span>9.19 Qualificação Técnica</span><span class="hab-sec-hint">análise da secretaria</span></div>';
+    if(tecDocs.length) html+=habDocsRowsHTML(k, tecDocs, d, {}, m);
+    else html+='<div style="font-size:12px;color:#999;padding:8px 6px">Nenhuma exigência técnica cadastrada pela COPAM.</div>';
+    html+='</div></div>';
     return html;
   }
 
   function hbsRender(){
-    var tEl=document.getElementById('hbsTitulo'); if(tEl) tEl.textContent='Habilitação — '+sharedNumero;
+    var tEl=document.getElementById('hbsTitulo'); if(tEl) tEl.textContent='Qualificação Técnica — '+sharedNumero;
     var body=document.getElementById('hbsBody'); if(!body) return;
     var scroll=body.scrollTop;
-    if(!sharedEmpresas.length){ body.innerHTML='<div class="hbs-msg">Nenhuma empresa com itens arrematados. As empresas aparecem aqui automaticamente conforme o ranking de propostas.</div>'; return; }
-    var analisadas=0;
-    var infos={};
-    sharedEmpresas.forEach(function(e){ var k=habKeyEmpresa(e.nome); infos[k]=sharedCalc(k); if(infos[k].status) analisadas++; });
-    var pct=Math.round(analisadas/sharedEmpresas.length*100);
-    var html='<div class="hbs-progress"><span>'+analisadas+' de '+sharedEmpresas.length+' empresas concluídas</span><span class="hbs-pct">'+pct+'%</span></div>';
+    if(!sharedConfig.tecnicaExige){
+      body.innerHTML='<div class="hbs-msg">Este processo não exige qualificação técnica.<br>Não há documentos para a secretaria analisar.</div>';
+      return;
+    }
+    if(!sharedEmpresas.length){ body.innerHTML='<div class="hbs-msg">Nenhuma empresa com itens arrematados ainda. As empresas aparecem aqui automaticamente conforme o ranking de propostas.</div>'; return; }
+    var tecDocs=habTecDocsFrom(sharedConfig);
+    var infos={}, analisadas=0;
     sharedEmpresas.forEach(function(e){
       var k=habKeyEmpresa(e.nome);
-      var info=infos[k], s=info.status, mv=sharedMotivos[k]||'';
+      infos[k]=tecStatus(k);
+      if(infos[k].status) analisadas++;
+    });
+    var pct=sharedEmpresas.length?Math.round(analisadas/sharedEmpresas.length*100):0;
+    var html='<div class="hbs-progress"><span>'+analisadas+' de '+sharedEmpresas.length+' empresas analisadas</span><span class="hbs-pct">'+pct+'%</span></div>';
+    sharedEmpresas.forEach(function(e){
+      var k=habKeyEmpresa(e.nome);
+      var info=infos[k], s=info.status;
       var nItens=(e.itens&&e.itens.length)||0;
-      var cardCls='hbs-card'+(s==='habilitado'?' habil':s==='inabilitado'?' inabil':'');
-      var bdg=s==='habilitado'?'<span class="hab-badge habil">Habilitado</span>':s==='inabilitado'?'<span class="hab-badge inabil">Inabilitado</span>':'<span class="hab-badge pend">Pendente</span>';
-      var progCls=s==='habilitado'?'ok':(info.recusados.length?'bad':'');
+      var cardCls='hbs-card'+(s==='aprovada'?' habil':s==='recusada'?' inabil':'');
+      var bdg=s==='aprovada'?'<span class="hab-badge habil">Técnica OK</span>':s==='recusada'?'<span class="hab-badge inabil">Técnica recusada</span>':'<span class="hab-badge pend">Pendente</span>';
+      var progCls=s==='aprovada'?'ok':(s==='recusada'?'bad':'');
       var aberto=!!sharedExpand[k];
       html+='<div class="'+cardCls+'">'
         +'<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px"><div class="hbs-nome">'+escHtml(e.nome)+'</div>'+bdg+'</div>'
@@ -3899,12 +4228,10 @@ function rkCopiarLink(){
           +(e.cnpj?'<span class="hbs-tag"><b>CNPJ</b> '+escHtml(e.cnpj)+'</span>':'')
           +(e.cidade?'<span class="hbs-tag"><b>Cidade</b> '+escHtml(e.cidade)+'</span>':'')
           +(nItens?'<span class="hbs-tag"><b>'+nItens+'</b> '+(nItens>1?'itens':'item')+'</span>':'')
-          +'<span class="hab-prog '+progCls+'">&#128196; '+info.done+'/'+info.total+' docs</span>'
+          +(info.total?'<span class="hab-prog '+progCls+'">&#128196; '+info.done+'/'+info.total+' docs</span>':'')
         +'</div>'
-        +'<button class="hab-chk-toggle" data-expand="'+escHtml(k)+'">'+(aberto?'&#9650; Recolher checklist':'&#9660; Abrir checklist de documentos')+'</button>'
-        +(aberto?hbsChecklistHTML(k, info):'')
-        +(s==='inabilitado'&&info.recusados.length?'<div class="hab-recusa-resumo"><b>Documentos recusados:</b> '+info.recusados.map(escHtml).join('; ')+'</div>':'')
-        +(s==='inabilitado'?'<textarea class="hbs-motivo" placeholder="Justificativa complementar de inabilitação (opcional)..." data-key="'+escHtml(k)+'">'+escHtml(mv)+'</textarea>':'')
+        +'<button class="hab-chk-toggle" data-expand="'+escHtml(k)+'">'+(aberto?'&#9650; Recolher exigências':'&#9660; Analisar qualificação técnica')+'</button>'
+        +(aberto?hbsChecklistHTML(k):'')
       +'</div>';
     });
     body.innerHTML=html; body.scrollTop=scroll;
@@ -3917,9 +4244,12 @@ function rkCopiarLink(){
     body.querySelectorAll('.hab-dbtn').forEach(function(btn){
       btn.addEventListener('click',function(){
         var ek=btn.dataset.emp, docId=btn.dataset.doc, st=btn.dataset.st;
+        // segurança: a secretaria só julga documentos técnicos (t_*)
+        if(String(docId).indexOf('t_')!==0) return;
         if(!sharedDocs[ek]) sharedDocs[ek]={};
+        var removeu=false;
         if(sharedDocs[ek][docId]===st){
-          delete sharedDocs[ek][docId];
+          delete sharedDocs[ek][docId]; removeu=true;
           if(sharedDocMotivos[ek]){ delete sharedDocMotivos[ek][docId]; if(!Object.keys(sharedDocMotivos[ek]).length) delete sharedDocMotivos[ek]; }
         } else {
           sharedDocs[ek][docId]=st;
@@ -3927,6 +4257,14 @@ function rkCopiarLink(){
         }
         if(!Object.keys(sharedDocs[ek]).length) delete sharedDocs[ek];
         delete sharedEstados[ek];
+        // Evento para o feed do card na tela inicial
+        var nomeEmp=(sharedEmpresas.find(function(e){ return habKeyEmpresa(e.nome)===ek; })||{}).nome||ek;
+        var tecDoc=habTecDocsFrom(sharedConfig).find(function(x){ return x.id===docId; });
+        var docNome=tecDoc?tecDoc.nome:'exigência técnica';
+        if(docNome.length>55) docNome=docNome.slice(0,52)+'...';
+        if(!removeu){
+          hLog('Téc. — '+nomeEmp+': "'+docNome+'" '+(st==='aprovado'?'aprovada':st==='recusado'?'recusada':'revisada')+' pela secretaria');
+        }
         triggerSave(); hbsRender();
       });
     });
@@ -3937,13 +4275,6 @@ function rkCopiarLink(){
         var ek=ta.dataset.emp, docId=ta.dataset.doc;
         if(ta.value.trim()){ if(!sharedDocMotivos[ek]) sharedDocMotivos[ek]={}; sharedDocMotivos[ek][docId]=ta.value; }
         else{ if(sharedDocMotivos[ek]){ delete sharedDocMotivos[ek][docId]; if(!Object.keys(sharedDocMotivos[ek]).length) delete sharedDocMotivos[ek]; } }
-        triggerSave();
-      });
-    });
-    body.querySelectorAll('.hbs-motivo').forEach(function(ta){
-      ta.addEventListener('input',function(){
-        if(ta.value.trim()) sharedMotivos[ta.dataset.key]=ta.value;
-        else delete sharedMotivos[ta.dataset.key];
         triggerSave();
       });
     });
@@ -3970,11 +4301,12 @@ function rkCopiarLink(){
       sharedEstados=d.estados||{};
       sharedMotivos=d.motivos||{};
       sharedDocs=d.docs||{}; sharedDocMotivos=d.docMotivos||{};
+      sharedDeclarados=d.declarados||{}; sharedEvtsH=d.eventos||[];
       sharedConfig=d.config||{tecnicaExige:false,tecnicaItens:[]};
       sharedLegacy=d.empresas||[];
       if(d.numero) sharedNumero=d.numero;
       hbsMigrar();
-    } else { sharedEstados={}; sharedMotivos={}; sharedDocs={}; sharedConfig={tecnicaExige:false,tecnicaItens:[]}; sharedLegacy=[]; }
+    } else { sharedEstados={}; sharedMotivos={}; sharedDocs={}; sharedDocMotivos={}; sharedDeclarados={}; sharedEvtsH=[]; sharedConfig={tecnicaExige:false,tecnicaItens:[]}; sharedLegacy=[]; }
     hbsAtualizar();
   }, function(err){
     var b=document.getElementById('hbsBody');
