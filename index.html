@@ -4390,26 +4390,22 @@ function rkCopiarLink(){
       var cardCls='hbs-card'+(s==='aprovada'?' habil':s==='recusada'?' inabil':'');
       var bdg=s==='aprovada'?'<span class="hab-badge habil">Técnica OK</span>':s==='recusada'?'<span class="hab-badge inabil">Técnica recusada</span>':'<span class="hab-badge pend">Pendente</span>';
       var progCls=s==='aprovada'?'ok':(s==='recusada'?'bad':'');
-      var aberto=!!sharedExpand[k];
       html+='<div class="'+cardCls+'">'
         +'<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px"><div class="hbs-nome">'+escHtml(e.nome)+'</div>'+bdg+'</div>'
         +'<div class="hbs-tags">'
           +(e.cnpj?'<span class="hbs-tag"><b>CNPJ</b> '+escHtml(e.cnpj)+'</span>':'')
           +(e.cidade?'<span class="hbs-tag"><b>Cidade</b> '+escHtml(e.cidade)+'</span>':'')
-          +(nItens?'<span class="hbs-tag"><b>'+nItens+'</b> '+(nItens>1?'itens':'item')+'</span>':'')
           +(info.total?'<span class="hab-prog '+progCls+'">&#128196; '+info.done+'/'+info.total+' docs</span>':'')
         +'</div>'
-        +'<button class="hab-chk-toggle" data-expand="'+escHtml(k)+'">'+(aberto?'&#9650; Recolher exigências':'&#9660; Analisar qualificação técnica')+'</button>'
-        +(aberto?hbsChecklistHTML(k):'')
+        +(nItens?'<div style="margin:4px 0 10px;font-size:12.5px;color:#333;background:#eef2f8;border-radius:8px;padding:8px 12px;line-height:1.6">'
+          +'<span style="font-weight:700;color:#1a3a6b">&#127942; Itens arrematados ('+nItens+'):</span> '
+          +'Itens '+escHtml((e.itens||[]).slice().sort(function(a,b){return Number(a)-Number(b);}).join(', '))
+        +'</div>':'')
+        +hbsChecklistHTML(k)
       +'</div>';
     });
     body.innerHTML=html; body.scrollTop=scroll;
-    body.querySelectorAll('[data-expand]').forEach(function(btn){
-      btn.addEventListener('click',function(){
-        sharedExpand[btn.dataset.expand]=!sharedExpand[btn.dataset.expand];
-        hbsRender();
-      });
-    });
+    /* toggle removido: checklist sempre visível */
     body.querySelectorAll('.hab-dbtn').forEach(function(btn){
       btn.addEventListener('click',function(){
         var ek=btn.dataset.emp, docId=btn.dataset.doc, st=btn.dataset.st;
