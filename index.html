@@ -29,6 +29,7 @@
   const agColRef   = db.collection("agentes");
   const impColRef  = db.collection("impugnacoes");
   const habColRef  = db.collection("habilitacoes");
+  const decColRef  = db.collection("decisoes");
 </script>
 <!-- jsPDF -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -256,6 +257,45 @@
   .imp-btn.pdf-view { background: var(--navy); color: #fff; border-color: var(--navy); }
   .imp-btn.pdf-view:hover { background: var(--navy-light); }
 
+
+  /* ── DECISÕES DO PREGOEIRO ──────────────────────────────────────────────── */
+  .dec-section { background: var(--card); border-radius: 14px; box-shadow: var(--shadow); border: 1.5px solid var(--border); margin-bottom: 24px; overflow: hidden; }
+  .dec-section-header { background: linear-gradient(135deg, var(--navy-dark), var(--navy)); padding: 13px 20px; display: flex; align-items: center; justify-content: space-between; cursor: pointer; user-select: none; }
+  .dec-section-header h3 { color: #fff; font-size: 14px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+  .dec-section-header .imp-badge { background: rgba(255,255,255,0.2); color: #fff; border-radius: 20px; padding: 2px 10px; font-size: 12px; font-weight: 700; }
+  .dec-section-body { padding: 14px 16px; }
+  .dec-filters { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; align-items: flex-end; }
+  .dec-filter-field { display: flex; flex-direction: column; gap: 4px; }
+  .dec-filter-field label { font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; }
+  .dec-filter-field input, .dec-filter-field select { padding: 8px 11px; border: 1.5px solid var(--border); border-radius: 8px; font-family: Arial, sans-serif; font-size: 13px; background: #fff; color: var(--text); outline: none; }
+  .dec-filter-field input:focus, .dec-filter-field select:focus { border-color: var(--navy-light); }
+  .dec-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 12px; }
+  .dec-card { background: #f8fafd; border: 1.5px solid var(--border); border-radius: 10px; border-left: 4px solid var(--navy); padding: 12px 14px; display: flex; flex-direction: column; gap: 7px; transition: box-shadow 0.15s; }
+  .dec-card:hover { box-shadow: var(--shadow); }
+  .dec-card-num { font-size: 14px; font-weight: 800; color: var(--navy); }
+  .dec-card-title { font-size: 13px; font-weight: 600; color: var(--text); line-height: 1.35; }
+  .dec-card-meta { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+  .dec-tag { font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 5px; }
+  .dec-tag-proc { background: var(--blue-bg); color: var(--blue-text); }
+  .dec-tag-tipo { background: #fff3e0; color: #e65100; }
+  .dec-tag-data { background: var(--navy); color: #fff; }
+  .dec-tag-res-procedente { background: #d4edda; color: #1E5F3A; }
+  .dec-tag-res-improcedente { background: #f8d7da; color: #A32D2D; }
+  .dec-tag-res-parcial { background: #fef3dc; color: #c07000; }
+  .dec-tag-res-outro { background: #eceff4; color: #546e7a; }
+  .dec-card-footer { display: flex; gap: 6px; margin-top: 2px; }
+  .dec-tpl-bar { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+  .dec-tpl-bar span { font-size: 11.5px; font-weight: 700; color: var(--muted); }
+  .dec-tpl-btn { padding: 5px 10px; border-radius: 7px; border: 1.5px dashed var(--border); background: #f8fafd; font-family: Arial, sans-serif; font-size: 11.5px; font-weight: 700; color: var(--navy); cursor: pointer; transition: all 0.15s; }
+  .dec-tpl-btn:hover { background: var(--blue-bg); border-color: var(--navy-light); }
+  .dec-preview { border: 1.5px solid var(--border); border-radius: 10px; background: #fff; padding: 18px 20px; max-height: 340px; overflow-y: auto; font-size: 13px; line-height: 1.6; color: var(--text); }
+  .dec-preview h1 { font-size: 14.5px; color: var(--navy); text-transform: uppercase; border-bottom: 2px solid var(--gold); padding-bottom: 4px; margin: 14px 0 8px; }
+  .dec-preview h2 { font-size: 13.5px; color: var(--navy); margin: 12px 0 6px; }
+  .dec-preview h3 { font-size: 13px; color: var(--text); margin: 10px 0 5px; }
+  .dec-preview p { margin: 0 0 8px; text-align: justify; }
+  .dec-preview ul { margin: 0 0 8px; padding-left: 22px; }
+  .dec-preview li { margin: 0 0 4px; }
+  .dec-preview blockquote { margin: 8px 0 8px 12px; padding: 6px 12px; border-left: 3px solid var(--border); color: #555; font-style: italic; background: #f8fafd; }
 
   /* ── RANKING PANEL ──────────────────────────────────────────────────────── */
   #rankingPanel{position:fixed;inset:0;background:#f0f2f5;z-index:500;display:none;flex-direction:column;overflow:hidden;zoom:1.75}
@@ -706,6 +746,42 @@
   </div>
 </div>
 
+<!-- SEÇÃO DECISÕES DO PREGOEIRO -->
+<div style="max-width:1440px;margin:0 auto;padding:0 32px">
+  <div class="dec-section">
+    <div class="dec-section-header" onclick="toggleDecSection()">
+      <h3>&#9878;&#65039; Decisões do Pregoeiro <span class="imp-badge" id="decBadge">0</span></h3>
+      <span id="decToggleIcon" style="color:#fff;font-size:16px">&#9660;</span>
+    </div>
+    <div class="dec-section-body" id="decSectionBody">
+      <div style="display:flex;justify-content:flex-end;margin-bottom:12px">
+        <button class="btn-primary" style="font-size:13px;padding:8px 18px" onclick="abrirModalDec()">&#43; Nova Decisão</button>
+      </div>
+      <div class="dec-filters">
+        <div class="dec-filter-field" style="flex:1;min-width:200px">
+          <label>Buscar (nº, assunto ou processo)</label>
+          <input type="text" id="decFiltroBusca" placeholder="Ex: 001, impugnação, PE 45/2026..." oninput="decRender()">
+        </div>
+        <div class="dec-filter-field">
+          <label>Ano</label>
+          <select id="decFiltroAno" onchange="decRender()"><option value="todos">Todos</option></select>
+        </div>
+        <div class="dec-filter-field">
+          <label>Tipo</label>
+          <select id="decFiltroTipo" onchange="decRender()"><option value="todos">Todos</option></select>
+        </div>
+        <div class="dec-filter-field">
+          <label>Resultado</label>
+          <select id="decFiltroResultado" onchange="decRender()"><option value="todos">Todos</option></select>
+        </div>
+      </div>
+      <div class="dec-grid" id="decGrid">
+        <div style="grid-column:1/-1;text-align:center;color:var(--muted);font-size:13px;padding:20px;font-style:italic">Nenhuma decisão cadastrada.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <main>
   <div class="toolbar">
     <div class="search-box">
@@ -1039,6 +1115,99 @@
       <div style="display:flex;gap:10px">
         <button class="btn-cancel" onclick="fecharModalImp()">Cancelar</button>
         <button class="btn-save" id="btnSalvarImp" onclick="salvarImp()">Salvar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL DECISÃO DO PREGOEIRO -->
+<div class="overlay" id="modalDec">
+  <div class="modal" style="max-width:720px">
+    <div class="modal-header">
+      <h2 id="modalDecTitulo">Nova Decisão do Pregoeiro</h2>
+      <button class="modal-close" onclick="fecharModalDec()">&#10005;</button>
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <div class="field" style="max-width:140px">
+          <label>Número</label>
+          <input type="number" id="decNumero" min="1" placeholder="1">
+        </div>
+        <div class="field" style="max-width:140px">
+          <label>Ano</label>
+          <input type="number" id="decAno" min="2020" max="2100" onchange="decSugerirNumero()">
+        </div>
+        <div class="field">
+          <label>Data da Decisão</label>
+          <input type="date" id="decData">
+        </div>
+      </div>
+      <div class="field">
+        <label>Título / Assunto</label>
+        <input type="text" id="decTitulo" placeholder="Ex: Impugnação ao Edital do PE 45/2026 — Empresa XYZ Ltda.">
+      </div>
+      <div class="row">
+        <div class="field">
+          <label>Processo Vinculado <span style="font-weight:400;text-transform:none;font-size:11px;color:var(--muted)">(opcional)</span></label>
+          <input type="text" id="decProcesso" list="decListaProcessos" placeholder="Ex: PE 45/2026">
+          <datalist id="decListaProcessos"></datalist>
+        </div>
+        <div class="field">
+          <label>Pregoeiro / Agente</label>
+          <select id="decAgente"><option value="">-- Selecione --</option></select>
+        </div>
+      </div>
+      <div class="row">
+        <div class="field">
+          <label>Tipo de Decisão</label>
+          <select id="decTipo">
+            <option value="impugnacao">Impugnação</option>
+            <option value="esclarecimento">Esclarecimento</option>
+            <option value="recurso">Recurso</option>
+            <option value="diligencia">Diligência</option>
+            <option value="habilitacao">Habilitação / Inabilitação</option>
+            <option value="adjudicacao">Adjudicação</option>
+            <option value="outro">Outro</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Resultado</label>
+          <select id="decResultado">
+            <option value="procedente">Procedente</option>
+            <option value="parcial">Parcialmente Procedente</option>
+            <option value="improcedente">Improcedente</option>
+            <option value="nao_conhecido">Não Conhecido</option>
+            <option value="prejudicado">Prejudicado</option>
+            <option value="outro">Outro</option>
+          </select>
+        </div>
+      </div>
+      <div class="field">
+        <label>Modelos Internos</label>
+        <div class="dec-tpl-bar">
+          <span>Inserir estrutura:</span>
+          <button type="button" class="dec-tpl-btn" onclick="decInserirModelo('impugnacao')">Impugnação</button>
+          <button type="button" class="dec-tpl-btn" onclick="decInserirModelo('esclarecimento')">Esclarecimento</button>
+          <button type="button" class="dec-tpl-btn" onclick="decInserirModelo('recurso')">Recurso</button>
+          <button type="button" class="dec-tpl-btn" onclick="decInserirModelo('diligencia')">Diligência</button>
+          <button type="button" class="dec-tpl-btn" onclick="decInserirModelo('habilitacao')">Habilitação</button>
+        </div>
+      </div>
+      <div class="field">
+        <label>Texto da Decisão <span style="font-weight:400;text-transform:none;font-size:11px;color:var(--muted)">(cole o texto bruto — títulos com #, ##, MAIÚSCULAS ou **negrito** são reconhecidos automaticamente)</span></label>
+        <textarea id="decTexto" style="min-height:240px;font-size:13.5px;line-height:1.6" placeholder="Cole aqui o texto da decisão (pode vir do Claude ou ChatGPT)..."></textarea>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button type="button" class="btn-cancel" style="font-size:13px" onclick="decTogglePreview()">&#128065; Pré-visualizar Estrutura</button>
+        <button type="button" class="btn-cancel" id="decBtnIA" style="font-size:13px;display:none" onclick="decEstruturarComIA()">&#10024; Estruturar com IA</button>
+      </div>
+      <div class="dec-preview" id="decPreview" style="display:none"></div>
+    </div>
+    <div class="modal-footer" style="justify-content:space-between">
+      <button class="btn-cancel" id="btnExcluirDec" onclick="excluirDec()" style="color:var(--red);border-color:var(--red);display:none">&#128465; Excluir</button>
+      <div style="display:flex;gap:10px">
+        <button class="btn-cancel" onclick="fecharModalDec()">Cancelar</button>
+        <button class="btn-save" id="btnSalvarDec" onclick="salvarDec()">Salvar Decisão</button>
       </div>
     </div>
   </div>
@@ -4314,6 +4483,631 @@ function rkCopiarLink(){
   });
 })();
 
+
+
+/* ══════════════════════════════════════════════════════════════════════════
+   DECISÕES DO PREGOEIRO
+   Registro, organização e geração de decisões formais vinculadas aos
+   processos licitatórios. Numeração sequencial por ano (ex: 001/2026).
+   ══════════════════════════════════════════════════════════════════════════ */
+
+/* Endpoint seguro de IA (deixe vazio na 1ª versão).
+   IMPORTANTE: nunca coloque chave de API aqui. Quando existir um backend
+   intermediário (Cloud Function / Cloudflare Worker) que guarde a chave,
+   informe a URL dele abaixo e o botão "Estruturar com IA" aparece sozinho.
+   O backend deve receber POST JSON {texto:"..."} e responder {texto:"..."}. */
+var DEC_IA_ENDPOINT = "";
+
+var decisoes = [];
+var editandoDecId = null;
+var decSectionOpen = true;
+var decPreviewAberto = false;
+
+var DEC_TIPOS = {
+  impugnacao:    "Impugnação",
+  esclarecimento:"Esclarecimento",
+  recurso:       "Recurso",
+  diligencia:    "Diligência",
+  habilitacao:   "Habilitação / Inabilitação",
+  adjudicacao:   "Adjudicação",
+  outro:         "Outro"
+};
+var DEC_RESULTADOS = {
+  procedente:    "Procedente",
+  parcial:       "Parcialmente Procedente",
+  improcedente:  "Improcedente",
+  nao_conhecido: "Não Conhecido",
+  prejudicado:   "Prejudicado",
+  outro:         "Outro"
+};
+function decResultadoCls(r){
+  if(r==="procedente") return "dec-tag-res-procedente";
+  if(r==="improcedente") return "dec-tag-res-improcedente";
+  if(r==="parcial") return "dec-tag-res-parcial";
+  return "dec-tag-res-outro";
+}
+function decFmtNum(d){
+  var n=parseInt(d.numero,10)||0;
+  return (n<100?("00"+n).slice(-3):String(n))+"/"+(d.ano||"");
+}
+
+/* ── Tempo real (Firestore) ─────────────────────────────────────────────── */
+decColRef.onSnapshot(function(snap){
+  decisoes = snap.docs.map(function(d){ return Object.assign({id:d.id}, d.data()); })
+    .sort(function(a,b){
+      if(String(a.ano)!==String(b.ano)) return String(b.ano).localeCompare(String(a.ano));
+      return (parseInt(b.numero,10)||0)-(parseInt(a.numero,10)||0);
+    });
+  decRenderFiltros();
+  decRender();
+}, function(err){ console.error("Decisoes err:", err); });
+
+function toggleDecSection(){
+  decSectionOpen = !decSectionOpen;
+  document.getElementById("decSectionBody").style.display = decSectionOpen ? "block" : "none";
+  document.getElementById("decToggleIcon").innerHTML = decSectionOpen ? "&#9660;" : "&#9658;";
+}
+
+/* ── Filtros ────────────────────────────────────────────────────────────── */
+function decRenderFiltros(){
+  var selAno=document.getElementById("decFiltroAno");
+  var selTipo=document.getElementById("decFiltroTipo");
+  var selRes=document.getElementById("decFiltroResultado");
+  if(!selAno||!selTipo||!selRes) return;
+  var anoAtual=selAno.value, tipoAtual=selTipo.value, resAtual=selRes.value;
+  var anos={};
+  decisoes.forEach(function(d){ if(d.ano) anos[d.ano]=true; });
+  var listaAnos=Object.keys(anos).sort().reverse();
+  var html='<option value="todos">Todos</option>';
+  listaAnos.forEach(function(a){ html+='<option value="'+escHtml(a)+'">'+escHtml(a)+'</option>'; });
+  selAno.innerHTML=html;
+  if(listaAnos.indexOf(anoAtual)>=0) selAno.value=anoAtual;
+  html='<option value="todos">Todos</option>';
+  Object.keys(DEC_TIPOS).forEach(function(k){ html+='<option value="'+k+'">'+DEC_TIPOS[k]+'</option>'; });
+  selTipo.innerHTML=html;
+  if(DEC_TIPOS[tipoAtual]) selTipo.value=tipoAtual;
+  html='<option value="todos">Todos</option>';
+  Object.keys(DEC_RESULTADOS).forEach(function(k){ html+='<option value="'+k+'">'+DEC_RESULTADOS[k]+'</option>'; });
+  selRes.innerHTML=html;
+  if(DEC_RESULTADOS[resAtual]) selRes.value=resAtual;
+}
+
+/* ── Render dos cards ───────────────────────────────────────────────────── */
+function decRender(){
+  var el=document.getElementById("decGrid"); if(!el) return;
+  var badge=document.getElementById("decBadge");
+  var busca=(document.getElementById("decFiltroBusca")||{value:""}).value.toLowerCase().trim();
+  var fAno=(document.getElementById("decFiltroAno")||{value:"todos"}).value;
+  var fTipo=(document.getElementById("decFiltroTipo")||{value:"todos"}).value;
+  var fRes=(document.getElementById("decFiltroResultado")||{value:"todos"}).value;
+  var lista=decisoes.filter(function(d){
+    if(fAno!=="todos"&&String(d.ano)!==String(fAno)) return false;
+    if(fTipo!=="todos"&&d.tipo!==fTipo) return false;
+    if(fRes!=="todos"&&d.resultado!==fRes) return false;
+    if(busca){
+      var txt=(decFmtNum(d)+" "+(d.titulo||"")+" "+(d.processoNumero||"")).toLowerCase();
+      if(!txt.includes(busca)) return false;
+    }
+    return true;
+  });
+  if(badge) badge.textContent=decisoes.length;
+  if(!lista.length){
+    el.innerHTML='<div style="grid-column:1/-1;text-align:center;color:var(--muted);font-size:13px;padding:20px;font-style:italic">'
+      +(decisoes.length?'Nenhuma decisão corresponde aos filtros.':'Nenhuma decisão cadastrada.')+'</div>';
+    return;
+  }
+  var html="";
+  for(var i=0;i<lista.length;i++){
+    var d=lista[i];
+    html+='<div class="dec-card">';
+    html+='<div class="dec-card-num">&#9878;&#65039; Decisão do Pregoeiro nº '+escHtml(decFmtNum(d))+'</div>';
+    if(d.titulo) html+='<div class="dec-card-title">'+escHtml(d.titulo)+'</div>';
+    html+='<div class="dec-card-meta">';
+    if(d.processoNumero) html+='<span class="dec-tag dec-tag-proc">'+escHtml(d.processoNumero)+'</span>';
+    html+='<span class="dec-tag dec-tag-tipo">'+escHtml(DEC_TIPOS[d.tipo]||d.tipo||"")+'</span>';
+    if(d.resultado) html+='<span class="dec-tag '+decResultadoCls(d.resultado)+'">'+escHtml(DEC_RESULTADOS[d.resultado]||d.resultado)+'</span>';
+    if(d.dataDecisao) html+='<span class="dec-tag dec-tag-data">&#128198; '+formatarData(d.dataDecisao)+'</span>';
+    html+='</div>';
+    if(d.agente) html+='<div style="font-size:11.5px;color:var(--muted)">Pregoeiro(a): <b style="color:var(--navy)">'+escHtml(d.agente)+'</b></div>';
+    html+='<div class="dec-card-footer">';
+    html+='<button class="imp-btn" onclick="editarDec(\''+escHtml(d.id)+'\')">&#9998; Editar</button>';
+    html+='<button class="imp-btn pdf-view" onclick="decGerarPDFById(\''+escHtml(d.id)+'\')">&#128438; PDF</button>';
+    html+='</div></div>';
+  }
+  el.innerHTML=html;
+}
+
+/* ── Modal ──────────────────────────────────────────────────────────────── */
+function decPopularSelects(){
+  var sel=document.getElementById("decAgente");
+  var atual=sel.value;
+  var html='<option value="">-- Selecione --</option>';
+  agentes.forEach(function(a){ html+='<option value="'+escHtml(a.nomeAbrev)+'">'+escHtml(a.nomeAbrev)+'</option>'; });
+  sel.innerHTML=html;
+  if(atual) sel.value=atual;
+  var dl=document.getElementById("decListaProcessos");
+  var dh="";
+  (processos||[]).forEach(function(p){ if(p.numero) dh+='<option value="'+escHtml(p.numero)+'">'; });
+  dl.innerHTML=dh;
+}
+function decSugerirNumero(){
+  if(editandoDecId) return;
+  var ano=String(document.getElementById("decAno").value||"").trim();
+  var max=0;
+  decisoes.forEach(function(d){
+    if(String(d.ano)===ano){ var n=parseInt(d.numero,10)||0; if(n>max) max=n; }
+  });
+  document.getElementById("decNumero").value=max+1;
+}
+function abrirModalDec(){
+  editandoDecId=null;
+  document.getElementById("modalDecTitulo").textContent="Nova Decisão do Pregoeiro";
+  document.getElementById("btnExcluirDec").style.display="none";
+  ["decTitulo","decProcesso","decTexto"].forEach(function(id){ document.getElementById(id).value=""; });
+  document.getElementById("decTipo").value="impugnacao";
+  document.getElementById("decResultado").value="procedente";
+  document.getElementById("decData").value=hoje();
+  document.getElementById("decAno").value=new Date().getFullYear();
+  decPopularSelects();
+  document.getElementById("decAgente").value="";
+  decSugerirNumero();
+  decPreviewAberto=false;
+  document.getElementById("decPreview").style.display="none";
+  document.getElementById("decBtnIA").style.display = DEC_IA_ENDPOINT ? "inline-block" : "none";
+  document.getElementById("modalDec").classList.add("open");
+}
+function editarDec(id){
+  var d=decisoes.find(function(x){ return x.id===id; });
+  if(!d) return;
+  editandoDecId=id;
+  document.getElementById("modalDecTitulo").textContent="Editar Decisão nº "+decFmtNum(d);
+  document.getElementById("btnExcluirDec").style.display="inline-block";
+  decPopularSelects();
+  document.getElementById("decNumero").value=d.numero||"";
+  document.getElementById("decAno").value=d.ano||new Date().getFullYear();
+  document.getElementById("decData").value=d.dataDecisao||"";
+  document.getElementById("decTitulo").value=d.titulo||"";
+  document.getElementById("decProcesso").value=d.processoNumero||"";
+  document.getElementById("decAgente").value=d.agente||"";
+  document.getElementById("decTipo").value=DEC_TIPOS[d.tipo]?d.tipo:"outro";
+  document.getElementById("decResultado").value=DEC_RESULTADOS[d.resultado]?d.resultado:"outro";
+  document.getElementById("decTexto").value=d.texto||"";
+  decPreviewAberto=false;
+  document.getElementById("decPreview").style.display="none";
+  document.getElementById("decBtnIA").style.display = DEC_IA_ENDPOINT ? "inline-block" : "none";
+  document.getElementById("modalDec").classList.add("open");
+}
+function fecharModalDec(){
+  document.getElementById("modalDec").classList.remove("open");
+  editandoDecId=null;
+}
+function salvarDec(){
+  var btn=document.getElementById("btnSalvarDec");
+  var numero=parseInt(document.getElementById("decNumero").value,10);
+  var ano=String(document.getElementById("decAno").value||"").trim();
+  var titulo=document.getElementById("decTitulo").value.trim();
+  var texto=document.getElementById("decTexto").value;
+  if(!numero||numero<1){ alert("Informe o número da decisão."); return; }
+  if(!/^\d{4}$/.test(ano)){ alert("Informe um ano válido (ex: 2026)."); return; }
+  if(!titulo){ alert("Informe o título / assunto da decisão."); return; }
+  if(!texto.trim()){ alert("Informe o texto da decisão."); return; }
+  var duplicada=decisoes.find(function(d){
+    return d.id!==editandoDecId && String(d.ano)===ano && (parseInt(d.numero,10)||0)===numero;
+  });
+  if(duplicada && !confirm("Já existe a Decisão nº "+decFmtNum(duplicada)+". Salvar mesmo assim com número repetido?")) return;
+  btn.disabled=true; btn.textContent="Salvando...";
+  var ts=firebase.firestore.FieldValue.serverTimestamp();
+  var data={
+    numero:numero,
+    ano:ano,
+    titulo:titulo,
+    processoNumero:document.getElementById("decProcesso").value.trim(),
+    agente:document.getElementById("decAgente").value,
+    tipo:document.getElementById("decTipo").value,
+    resultado:document.getElementById("decResultado").value,
+    dataDecisao:document.getElementById("decData").value,
+    texto:texto,
+    updatedAt:ts
+  };
+  var op=editandoDecId
+    ? decColRef.doc(editandoDecId).set(data)
+    : decColRef.add(Object.assign({createdAt:ts},data));
+  op.then(function(){ toast(editandoDecId?"Decisão atualizada!":"Decisão registrada!"); fecharModalDec(); })
+    .catch(function(e){ alert("Erro ao salvar decisão: "+e.message); })
+    .finally(function(){ btn.disabled=false; btn.textContent="Salvar Decisão"; });
+}
+function excluirDec(){
+  if(!editandoDecId) return;
+  var d=decisoes.find(function(x){ return x.id===editandoDecId; });
+  if(!confirm("Excluir definitivamente a Decisão nº "+(d?decFmtNum(d):"")+"?")) return;
+  decColRef.doc(editandoDecId).delete()
+    .then(function(){ toast("Decisão excluída."); fecharModalDec(); })
+    .catch(function(e){ alert("Erro: "+e.message); });
+}
+
+/* ── Modelos internos ───────────────────────────────────────────────────── */
+function decInserirModelo(tipo){
+  var ta=document.getElementById("decTexto");
+  if(ta.value.trim() && !confirm("O texto atual será substituído pelo modelo. Continuar?")) return;
+  var proc=document.getElementById("decProcesso").value.trim()||"[NÚMERO DO PROCESSO]";
+  var corpo={
+    impugnacao:
+      "I. RELATÓRIO\n\nTrata-se de impugnação ao edital do "+proc+", apresentada por [NOME DA EMPRESA], "
+      +"recebida em [DATA], na qual a impugnante alega, em síntese, que [RESUMO DAS ALEGAÇÕES].\n\n"
+      +"A impugnação foi recebida tempestivamente, nos termos do art. 164 da Lei nº 14.133/2021 e do item [X] do edital.\n\n"
+      +"II. ANÁLISE E FUNDAMENTAÇÃO\n\n"
+      +"DA TEMPESTIVIDADE\n\n[Analisar a tempestividade.]\n\n"
+      +"DO MÉRITO\n\n[Analisar ponto a ponto as alegações, com fundamento no edital, na Lei nº 14.133/2021 e na jurisprudência aplicável.]\n\n"
+      +"III. DECISÃO\n\nDiante do exposto, CONHEÇO da impugnação apresentada para, no mérito, julgá-la [PROCEDENTE / PARCIALMENTE PROCEDENTE / IMPROCEDENTE], pelos fundamentos acima, [mantendo / retificando] os termos do edital.\n\n"
+      +"Publique-se. Comunique-se à impugnante.",
+    esclarecimento:
+      "I. RELATÓRIO\n\nTrata-se de pedido de esclarecimento referente ao "+proc+", formulado por [NOME DA EMPRESA] em [DATA], questionando, em síntese: [RESUMO DOS QUESTIONAMENTOS].\n\n"
+      +"II. RESPOSTA\n\nQUESTIONAMENTO 1\n\n[Transcrever a pergunta.]\n\nRESPOSTA: [Responder objetivamente, indicando o item do edital aplicável.]\n\n"
+      +"III. CONCLUSÃO\n\nFicam prestados os esclarecimentos acima, que passam a integrar o processo licitatório para todos os efeitos, mantendo-se inalteradas as demais condições do edital.",
+    recurso:
+      "I. RELATÓRIO\n\nTrata-se de recurso administrativo interposto por [NOME DA EMPRESA] no âmbito do "+proc+", contra [ATO RECORRIDO], com fundamento no art. 165 da Lei nº 14.133/2021.\n\n"
+      +"Devidamente intimadas, as demais licitantes [apresentaram / não apresentaram] contrarrazões.\n\n"
+      +"II. ANÁLISE E FUNDAMENTAÇÃO\n\nDA ADMISSIBILIDADE\n\n[Analisar tempestividade e legitimidade.]\n\n"
+      +"DO MÉRITO\n\n[Analisar as razões recursais e as contrarrazões.]\n\n"
+      +"III. DECISÃO\n\nDiante do exposto, CONHEÇO do recurso para, no mérito, [NEGAR-LHE / DAR-LHE] PROVIMENTO, [mantendo / reformando] a decisão recorrida.\n\n"
+      +"Caso mantida a decisão, encaminhem-se os autos à autoridade superior, nos termos do art. 165, § 2º, da Lei nº 14.133/2021.",
+    diligencia:
+      "I. RELATÓRIO\n\nNo curso do "+proc+", verificou-se a necessidade de esclarecer [PONTO OBJETO DA DILIGÊNCIA] em relação à proposta/documentação da empresa [NOME DA EMPRESA].\n\n"
+      +"II. FUNDAMENTAÇÃO\n\nNos termos do art. 64 da Lei nº 14.133/2021 e do item [X] do edital, é facultada a realização de diligência destinada a esclarecer ou complementar a instrução do processo, vedada a inclusão posterior de documento que deveria constar originariamente da proposta.\n\n"
+      +"III. DECISÃO\n\nDETERMINO a realização de diligência junto à empresa [NOME DA EMPRESA], para que, no prazo de [PRAZO], apresente/esclareça: [LISTAR].\n\n"
+      +"O não atendimento no prazo assinalado poderá ensejar [CONSEQUÊNCIA].",
+    habilitacao:
+      "I. RELATÓRIO\n\nConcluída a fase de julgamento das propostas do "+proc+", procedeu-se à análise dos documentos de habilitação da empresa [NOME DA EMPRESA], primeira classificada para o(s) item(ns) [ITENS].\n\n"
+      +"II. ANÁLISE E FUNDAMENTAÇÃO\n\nDA HABILITAÇÃO JURÍDICA\n\n[Analisar.]\n\nDA REGULARIDADE FISCAL E TRABALHISTA\n\n[Analisar.]\n\n"
+      +"DA QUALIFICAÇÃO ECONÔMICO-FINANCEIRA\n\n[Analisar.]\n\nDA QUALIFICAÇÃO TÉCNICA\n\n[Analisar.]\n\n"
+      +"III. DECISÃO\n\nDiante do exposto, DECLARO [HABILITADA / INABILITADA] a empresa [NOME DA EMPRESA] no certame em referência, pelos fundamentos acima expostos."
+  };
+  ta.value=corpo[tipo]||"";
+  if(decPreviewAberto) decAtualizarPreview();
+  toast("Modelo inserido. Ajuste os campos entre colchetes.");
+}
+
+/* ── Parser: texto bruto → blocos estruturados ──────────────────────────────
+   Reconhece Markdown (#, ##, ###, **negrito**, listas, > citações) e também
+   convenções comuns de pareceres (linhas em MAIÚSCULAS, "I.", "1.", "1.1"). */
+function decLimparInline(s){
+  return String(s)
+    .replace(/\*\*(.+?)\*\*/g,"$1")
+    .replace(/__(.+?)__/g,"$1")
+    .replace(/`([^`]+)`/g,"$1")
+    .replace(/\*(\S[^*]*?)\*/g,"$1")
+    .replace(/\s+$/,"");
+}
+/* Igual a decLimparInline mas PRESERVA **negrito** para renderização no PDF */
+function decLimparPara(s){
+  return String(s)
+    .replace(/__(.+?)__/g,"$1")
+    .replace(/`([^`]+)`/g,"$1")
+    .replace(/\*\*/g,"\x00")
+    .replace(/\*(\S[^*\n]*?)\*/g,"$1")
+    .replace(/\x00/g,"**")
+    .replace(/\s+$/,"");
+}
+function decEhMaiuscula(s){
+  var letras=s.replace(/[^A-Za-zÀ-ÿ]/g,"");
+  if(letras.length<3) return false;
+  var up=letras.replace(/[^A-ZÀ-Þ]/g,"");
+  return (up.length/letras.length)>=0.9;
+}
+function decEhSecaoPrincipal(s){
+  return /(RELAT|FUNDAMENT|AN[ÁA]LISE|DECIS|DISPOSITIVO|CONCLUS|EMENTA|RESPOSTA|VOTO)/i.test(s);
+}
+function decParseBlocos(texto){
+  var blocos=[];
+  var linhas=String(texto||"").replace(/\r\n?/g,"\n").replace(/```[a-z]*\n?/gi,"").split("\n");
+  for(var i=0;i<linhas.length;i++){
+    var raw=linhas[i];
+    var l=raw.trim();
+    if(!l) continue;
+    var m;
+    m=l.match(/^(#{1,6})\s+(.*)$/);
+    if(m){
+      var nivel=Math.min(m[1].length,3);
+      blocos.push({t:"h"+nivel, x:decLimparInline(m[2])});
+      continue;
+    }
+    m=l.match(/^(\*\*|__)(.+?)(\*\*|__)\s*:?\s*$/);
+    if(m){ blocos.push({t:"h2", x:decLimparInline(m[2])}); continue; }
+    if(/^>\s?/.test(l)){ blocos.push({t:"q", x:decLimparPara(l.replace(/^>\s?/,""))}); continue; }
+    if(/^[-*\u2022]\s+/.test(l)){ blocos.push({t:"li", x:decLimparPara(l.replace(/^[-*\u2022]\s+/,""))}); continue; }
+    m=l.match(/^([IVXLC]+)\s*[\u2013\u2014.\-)]\s+(.+)$/);
+    if(m && decEhMaiuscula(m[2])){ blocos.push({t:"h1", x:decLimparInline(l)}); continue; }
+    m=l.match(/^(\d+(?:\.\d+)*)\s*[.)\u2013\u2014-]\s+(.+)$/);
+    if(m && decEhMaiuscula(m[2])){
+      blocos.push({t:(m[1].indexOf(".")>=0?"h2":"h1"), x:decLimparInline(l)});
+      continue;
+    }
+    if(decEhMaiuscula(l) && l.length<=90 && !/[.;,]$/.test(l)){
+      blocos.push({t:(decEhSecaoPrincipal(l)?"h1":"h2"), x:decLimparInline(l)});
+      continue;
+    }
+    blocos.push({t:"p", x:decLimparPara(l)});
+  }
+  return blocos;
+}
+
+/* ── Pré-visualização no modal ──────────────────────────────────────────── */
+function decTogglePreview(){
+  decPreviewAberto=!decPreviewAberto;
+  var el=document.getElementById("decPreview");
+  el.style.display=decPreviewAberto?"block":"none";
+  if(decPreviewAberto) decAtualizarPreview();
+}
+function decAtualizarPreview(){
+  var el=document.getElementById("decPreview");
+  var blocos=decParseBlocos(document.getElementById("decTexto").value);
+  if(!blocos.length){ el.innerHTML='<i style="color:var(--muted)">Nada para pré-visualizar.</i>'; return; }
+  var html="", emLista=false;
+  function decInlineHTML(s){ return escHtml(s).replace(/\*\*(.+?)\*\*/g,"<strong>$1</strong>"); }
+  blocos.forEach(function(b){
+    if(b.t==="li"){ if(!emLista){ html+="<ul>"; emLista=true; } html+="<li>"+decInlineHTML(b.x)+"</li>"; return; }
+    if(emLista){ html+="</ul>"; emLista=false; }
+    if(b.t==="h1") html+="<h1>"+escHtml(b.x)+"</h1>";
+    else if(b.t==="h2") html+="<h2>"+escHtml(b.x)+"</h2>";
+    else if(b.t==="h3") html+="<h3>"+escHtml(b.x)+"</h3>";
+    else if(b.t==="q") html+="<blockquote>"+decInlineHTML(b.x)+"</blockquote>";
+    else html+="<p>"+decInlineHTML(b.x)+"</p>";
+  });
+  if(emLista) html+="</ul>";
+  el.innerHTML=html;
+}
+(function(){
+  var ta=document.getElementById("decTexto");
+  if(ta) ta.addEventListener("input", function(){ if(decPreviewAberto) decAtualizarPreview(); });
+})();
+
+/* ── Geração do PDF (padrão visual do sistema) ──────────────────────────── */
+function decGerarPDFById(id){
+  var d=decisoes.find(function(x){ return x.id===id; });
+  if(d) decGerarPDF(d);
+}
+function decGerarPDF(dec){
+  if(!window.jspdf||!window.jspdf.jsPDF){ alert("Biblioteca PDF ainda carregando. Tente em segundos."); return; }
+  var jsPDFCls=window.jspdf.jsPDF;
+  var doc=new jsPDFCls({orientation:"portrait",unit:"mm",format:"a4"});
+  var PW=210,PH=297,ML=25,MR=25,CW=PW-ML-MR;
+  var FS=11.5,LH=6.8,PARA=5.5,IND=10;
+  var BOTTOM=PH-25;
+  var cNavy=[26,58,107],cGold=[232,160,32];
+  var cText=[25,25,25],cMuted=[110,120,150],cBorder=[200,210,230];
+  var numFmt=decFmtNum(dec);
+  var y=0;
+  var ag=(typeof agentes!=="undefined"?agentes:[]).find(function(a){return a.nomeAbrev===dec.agente;});
+  var nomeAssina=(ag&&ag.nomeCompleto)?ag.nomeCompleto:(dec.agente||"Pregoeiro(a)");
+
+  function fill(c){doc.setFillColor(c[0],c[1],c[2]);}
+  function draw(c){doc.setDrawColor(c[0],c[1],c[2]);}
+  function tc(c){doc.setTextColor(c[0],c[1],c[2]);}
+  function fs(n){doc.setFontSize(n);}
+  function ft(s){doc.setFont("helvetica",s);}
+
+  function mkSegs(s){
+    var r=[],re=/\*\*(.+?)\*\*/g,last=0,m;
+    while((m=re.exec(s))!==null){
+      if(m.index>last) r.push({t:s.slice(last,m.index),b:false});
+      r.push({t:m[1],b:true}); last=re.lastIndex;
+    }
+    if(last<s.length) r.push({t:s.slice(last),b:false});
+    return r;
+  }
+  function mkWords(sgArr){
+    var w=[];
+    sgArr.forEach(function(sg){
+      sg.t.split(/(\s+)/).forEach(function(tk){
+        if(/\S/.test(tk)) w.push({t:tk,b:sg.b});
+      });
+    });
+    return w;
+  }
+
+  function buildLines(wsArr,maxW,xOffset){
+    fs(FS); ft("normal");
+    var spW=doc.getTextWidth(" ");
+    var lines=[],cur=[],curW=0,fst=true;
+    wsArr.forEach(function(w){
+      ft(w.b?"bold":"normal");
+      var ww=doc.getTextWidth(w.t);
+      var lmW=maxW-(fst&&xOffset?xOffset:0);
+      if(curW+ww>lmW&&cur.length){
+        lines.push({ws:cur,fi:fst,xo:(fst&&xOffset?xOffset:0)});
+        fst=false; cur=[w]; curW=ww+spW;
+      } else {
+        cur.push(w); curW+=ww+spW;
+      }
+    });
+    if(cur.length) lines.push({ws:cur,fi:fst,xo:(fst&&xOffset?xOffset:0)});
+    return lines;
+  }
+
+  function renderLine(line,isLast,xBase,availW){
+    var x=xBase+(line.xo||0);
+    var w=availW-(line.xo||0);
+    if(isLast||line.ws.length<=1){
+      var cx=x;
+      line.ws.forEach(function(wd,wi){
+        ft(wd.b?"bold":"normal"); fs(FS); tc(cText);
+        var t2=wd.t+(wi<line.ws.length-1?" ":"");
+        doc.text(t2,cx,y); cx+=doc.getTextWidth(t2);
+      });
+    } else {
+      var totalWW=0;
+      line.ws.forEach(function(wd){ ft(wd.b?"bold":"normal"); totalWW+=doc.getTextWidth(wd.t); });
+      var gap=(w-totalWW)/(line.ws.length-1);
+      var cx=x;
+      line.ws.forEach(function(wd,wi){
+        ft(wd.b?"bold":"normal"); fs(FS); tc(cText);
+        doc.text(wd.t,cx,y);
+        cx+=doc.getTextWidth(wd.t)+(wi<line.ws.length-1?gap:0);
+      });
+    }
+  }
+
+  function renderPara(raw,indent){
+    var ws=mkWords(mkSegs(raw||""));
+    if(!ws.length){y+=PARA;return;}
+    var lines=buildLines(ws,CW,indent);
+    if(!lines.length){y+=PARA;return;}
+    var totalH=lines.length*LH+PARA;
+    if(totalH<(BOTTOM-28)&&y+totalH>BOTTOM) newPage();
+    lines.forEach(function(line,li){
+      if(y+LH>BOTTOM) newPage();
+      renderLine(line,li===lines.length-1,ML,CW);
+      y+=LH;
+    });
+    y+=PARA;
+  }
+
+  function renderLiItem(raw){
+    var ws=mkWords(mkSegs(raw||""));
+    if(!ws.length) return;
+    var LII=10;
+    var lines=buildLines(ws,CW-LII,0);
+    var totalH=lines.length*LH+2.5;
+    if(totalH<(BOTTOM-28)&&y+totalH>BOTTOM) newPage();
+    lines.forEach(function(line,li){
+      if(y+LH>BOTTOM) newPage();
+      if(li===0){tc(cText);ft("normal");fs(FS);doc.text("\u2013",ML+3,y);}
+      renderLine(line,li===lines.length-1,ML+LII,CW-LII);
+      y+=LH;
+    });
+    y+=2.5;
+  }
+
+  function newPage(){
+    doc.addPage();
+    var lw=20,lhh=10;
+    try{doc.addImage(LOGO_B64_PDF,"JPEG",(PW-lw)/2,5,lw,lhh);}catch(e){}
+    draw(cBorder); doc.setLineWidth(0.3); doc.line(ML,18,PW-MR,18);
+    y=26;
+  }
+
+  fill([255,255,255]); doc.rect(0,0,PW,PH,"F");
+  try{doc.addImage(LOGO_B64_PDF,"JPEG",(PW-42)/2,8,42,22);}catch(e){}
+  draw(cNavy); doc.setLineWidth(0.5); doc.line(ML,33,PW-MR,33);
+  y=44;
+
+  fs(14);ft("bold");tc(cNavy);
+  doc.text("DECISAO DO PREGOEIRO No "+numFmt,PW/2,y,{align:"center"}); y+=9;
+  if(dec.processoNumero){
+    fs(11);ft("normal");tc(cMuted);
+    doc.text(dec.processoNumero,PW/2,y,{align:"center"}); y+=7;
+  }
+  var infoLn="";
+  if(dec.dataDecisao) infoLn="Ijui/RS, "+formatarData(dec.dataDecisao);
+  if(nomeAssina&&nomeAssina!=="Pregoeiro(a)") infoLn+=(infoLn?"   \u00b7   ":"")+"Pregoeiro(a): "+nomeAssina;
+  if(infoLn){fs(9.5);ft("normal");tc(cMuted);doc.text(infoLn,PW/2,y,{align:"center"});y+=6;}
+  y+=6;
+
+  draw(cBorder);doc.setLineWidth(0.3);doc.line(ML,y,PW-MR,y);y+=8;
+  if(dec.titulo){
+    fs(FS);ft("bold");tc(cNavy);doc.text("ASSUNTO:",ML,y);
+    ft("normal");tc(cText);
+    var asL=doc.splitTextToSize(dec.titulo,CW-27);fs(FS);
+    doc.text(asL,ML+27,y); y+=asL.length*LH+4;
+  }
+  draw(cBorder);doc.setLineWidth(0.3);doc.line(ML,y,PW-MR,y);y+=12;
+
+  var blocos=decParseBlocos(dec.texto||"");
+  for(var bi=0;bi<blocos.length;bi++){
+    var b=blocos[bi];
+    if(b.t==="h1"){
+      if(y+22>BOTTOM) newPage(); else y+=6;
+      fs(12);ft("bold");tc(cNavy);
+      var h1l=doc.splitTextToSize(b.x.toUpperCase(),CW);
+      doc.text(h1l,ML,y); y+=h1l.length*7.5;
+      draw(cGold);doc.setLineWidth(0.9);doc.line(ML,y,ML+30,y);
+      y+=9;
+    } else if(b.t==="h2"){
+      if(y+18>BOTTOM) newPage(); else y+=4;
+      fs(FS);ft("bold");tc(cNavy);
+      var h2u=b.x.toUpperCase();
+      var h2l=doc.splitTextToSize(h2u,CW);
+      doc.text(h2l,ML,y);
+      draw(cNavy);doc.setLineWidth(0.3);
+      doc.line(ML,y+2,ML+Math.min(doc.getTextWidth(h2u)+2,CW),y+2);
+      y+=h2l.length*LH+8;
+    } else if(b.t==="h3"){
+      if(y+15>BOTTOM) newPage(); else y+=3;
+      fs(FS);ft("bold");tc(cText);
+      var h3l=doc.splitTextToSize(b.x,CW);
+      doc.text(h3l,ML,y); y+=h3l.length*LH+5;
+    } else if(b.t==="q"){
+      var qclean=b.x.replace(/\*\*(.+?)\*\*/g,"$1");
+      var ql=doc.splitTextToSize(qclean,CW-14);
+      var qH=ql.length*LH+9;
+      if(qH<(BOTTOM-28)&&y+qH>BOTTOM) newPage(); else y+=3;
+      fill([245,247,252]);draw([215,222,238]);doc.setLineWidth(0.3);
+      doc.roundedRect(ML+4,y-4,CW-4,ql.length*LH+6,1,1,"FD");
+      draw(cNavy);doc.setLineWidth(1.2);
+      doc.line(ML+4,y-4,ML+4,y-4+ql.length*LH+6);
+      doc.setLineWidth(0.3);
+      fs(FS-0.5);ft("italic");tc([75,80,105]);
+      for(var qi=0;qi<ql.length;qi++){
+        if(y+LH>BOTTOM) newPage();
+        doc.text(ql[qi],ML+11,y); y+=LH;
+      }
+      y+=5;
+    } else if(b.t==="li"){
+      renderLiItem(b.x);
+    } else {
+      renderPara(b.x,IND);
+    }
+  }
+
+  y+=10;
+  if(y+55>BOTTOM) newPage();
+  fs(FS);ft("normal");tc(cText);
+  doc.text("Ijui/RS, "+formatarData(dec.dataDecisao||hoje())+".",ML,y); y+=24;
+  var sigX=PW/2;
+  draw(cNavy);doc.setLineWidth(0.5);doc.line(sigX-44,y,sigX+44,y);y+=7;
+  fs(11);ft("bold");tc(cNavy);doc.text(nomeAssina,sigX,y,{align:"center"});y+=6;
+  fs(9);ft("normal");tc(cMuted);doc.text("Pregoeiro(a) - Municipio de Ijui",sigX,y,{align:"center"});
+
+  var total=doc.internal.getNumberOfPages();
+  for(var pg=1;pg<=total;pg++){
+    doc.setPage(pg);
+    draw(cBorder);doc.setLineWidth(0.3);doc.line(ML,PH-20,PW-MR,PH-20);
+    fs(7.5);ft("normal");tc(cMuted);
+    doc.text("Municipio de Ijui  \u00b7  Capital Mundial das Etnias  \u00b7  Gestao de Processos Licitatorios",ML,PH-14);
+    doc.text("Pagina "+pg+" de "+total,PW-MR,PH-14,{align:"right"});
+  }
+
+  var nome="Decisao_Pregoeiro_"+("00"+(parseInt(dec.numero,10)||0)).slice(-3)+"_"+dec.ano+".pdf";
+  doc.save(nome); toast("PDF gerado: "+nome);
+}
+
+
+/* ── Integração futura com IA (segura, sem chave no HTML) ───────────────── */
+function decEstruturarComIA(){
+  if(!DEC_IA_ENDPOINT){
+    alert("Integração com IA ainda não configurada.\n\nNesta versão, o sistema estrutura o texto com o formatador interno (títulos, subtítulos, listas e citações são reconhecidos automaticamente).\n\nPara ativar a IA com segurança, configure um backend intermediário e informe a URL na constante DEC_IA_ENDPOINT.");
+    return;
+  }
+  var ta=document.getElementById("decTexto");
+  if(!ta.value.trim()){ alert("Cole primeiro o texto bruto."); return; }
+  var btn=document.getElementById("decBtnIA");
+  btn.disabled=true; btn.textContent="Estruturando...";
+  fetch(DEC_IA_ENDPOINT,{
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({texto:ta.value})
+  }).then(function(r){
+    if(!r.ok) throw new Error("HTTP "+r.status);
+    return r.json();
+  }).then(function(j){
+    if(j&&j.texto){ ta.value=j.texto; if(decPreviewAberto) decAtualizarPreview(); toast("Texto estruturado pela IA."); }
+    else throw new Error("Resposta inválida do servidor.");
+  }).catch(function(e){
+    alert("Falha ao estruturar com IA: "+e.message);
+  }).finally(function(){
+    btn.disabled=false; btn.innerHTML="&#10024; Estruturar com IA";
+  });
+}
 
 </script>
 </body>
