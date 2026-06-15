@@ -33,6 +33,7 @@
 </script>
 <!-- jsPDF -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <style>
   :root {
     --navy:      #1a3a6b;
@@ -851,7 +852,8 @@
       <div class="row">
         <div class="field">
           <label>Link do Portal de Compras</label>
-          <input type="url" id="inputLink" placeholder="https://compras.gov.br/...">
+          <input type="url" id="inputLink" placeholder="https://www.portaldecompraspublicas.com.br/..." oninput="_portalAutoFill(this.value)" onpaste="_portalOnPaste(event)">
+          <span id="portalStatus" style="display:block;font-size:11.5px;margin-top:5px;color:var(--muted);line-height:1.4"></span>
         </div>
         <div class="field">
           <label>Contato da Secretaria</label>
@@ -1272,6 +1274,11 @@
         &#128196; Importar JSON
         <input type="file" id="rkFileInput" accept=".json" style="display:none">
       </label>
+      <label class="rk-btn rk-btn-import" style="cursor:pointer" title="Importar PDF de Ranking do Portal de Compras">
+        &#128196; Importar PDF
+        <input type="file" id="rkPdfInput" accept=".pdf" style="display:none" onchange="rkImportarPDF()">
+      </label>
+      <span id="rkPdfStatus" style="font-size:11px;color:var(--muted);align-self:center;max-width:200px;line-height:1.3"></span>
       <button class="rk-btn rk-btn-pdf" onclick="rkGerarPDF()">&#128438; Exportar PDF</button>
       <button class="rk-btn rk-btn-close" onclick="fecharRanking()">&#10005;</button>
     </div>
@@ -1907,6 +1914,7 @@ function abrirModalNovo(){
   document.getElementById("inputDataLicit").value="";
   document.getElementById("campoAtualizacaoInicial").style.display="";
   document.getElementById("btnExcluirNoEdit").style.display="none";
+  var _ps=document.getElementById("portalStatus"); if(_ps)_ps.textContent="";
   document.getElementById("modalProcesso").classList.add("open");
 }
 function editarProcesso(id){
@@ -1951,7 +1959,128 @@ function salvarProcesso(){
     .finally(function(){btn.disabled=false; btn.textContent="Salvar Processo";});
 }
 
-// ── Modal Atualização ─────────────────────────────────────────────────────────
+/* ── Auto-preenchimento via Portal de Compras Públicas ─────────────────────── */
+var WORKER_URL = "https://proud-breeze-5444.pedrohhpacifico.workers.dev";
+var _portalDebounceTimer = null;
+
+function _portalOnPaste(ev){
+  /* dispara imediatamente apos colar */
+  setTimeout(function(){
+    _portalAutoFill(document.getElementById("inputLink").value);
+  }, 50);
+}
+function _portalAutoFill(val){
+  clearTimeout(_portalDebounceTimer);
+  if(!val||val.indexOf("portaldecompraspublicas.com.br")===-1) return;
+  _portalDebounceTimer=setTimeout(function(){ puxarDadosPortal(val); }, 400);
+}
+function _portalNorm(s){ return (s||"").toString().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/\s+/g," ").trim(); }
+function _portalLinhas(docHtml){
+  var lines=[], root=docHtml.body||docHtml;
+  var walker=docHtml.createTreeWalker(root, NodeFilter.SHOW_TEXT, null, false);
+  var n;
+  while((n=walker.nextNode())){
+    var p=n.parentNode, tn=p?p.nodeName:"";
+    if(tn==="SCRIPT"||tn==="STYLE"||tn==="NOSCRIPT")continue;
+    var t=(n.nodeValue||"").replace(/\s+/g," ").trim();
+    if(t)lines.push(t);
+  }
+  return lines;
+}
+function _portalValor(lines,label){
+  var lab=_portalNorm(label);
+  for(var i=0;i<lines.length;i++){
+    var ln=_portalNorm(lines[i]);
+    if(ln===lab||ln===lab+":"){ if(i+1<lines.length)return lines[i+1].trim(); }
+    if(ln.indexOf(lab+":")===0){ var idx=lines[i].indexOf(":"); var a=lines[i].slice(idx+1).trim(); if(a)return a; }
+  }
+  return "";
+}
+function _portalDataISO(txt){ var m=(txt||"").match(/(\d{2})\/(\d{2})\/(\d{4})/); return m?m[3]+"-"+m[2]+"-"+m[1]:""; }
+function _portalNumeroDoLink(url){
+  try{
+    var seg=url.split("?")[0].split("#")[0].replace(/\/+$/,"").split("/").pop();
+    var parts=seg.split("-");
+    if(parts.length>=3 && /^[A-Za-z]{2,5}$/.test(parts[0]) && /^\d+$/.test(parts[1]) && /^\d{4}$/.test(parts[2])){
+      return parts[0].toUpperCase()+" "+parts[1]+"/"+parts[2];
+    }
+  }catch(e){}
+  return "";
+}
+function _portalFetch(url){
+  var workerUrl=WORKER_URL.replace(/\/+$/,"")+"?url="+encodeURIComponent(url);
+  return fetch(workerUrl).then(function(r){ if(!r.ok)throw new Error("HTTP "+r.status); return r.text(); })
+    .then(function(html){ if(!html||html.length<500)throw new Error("resposta vazia"); return html; });
+}
+function puxarDadosPortal(link){
+  if(!link)link=document.getElementById("inputLink").value.trim();
+  var stEl=document.getElementById("portalStatus");
+  if(!link||link.indexOf("portaldecompraspublicas.com.br")===-1) return;
+  stEl.style.color="var(--muted)"; stEl.textContent="⏳ Buscando dados do portal...";
+  _portalFetch(link).then(function(html){
+    var doc=new DOMParser().parseFromString(html,"text/html");
+    var lines=_portalLinhas(doc);
+    var numero=_portalNumeroDoLink(link);
+    if(!numero){
+      var nLinha=_portalValor(lines,"Nº do Processo")||_portalValor(lines,"N° do Processo");
+      if(nLinha)numero="PE "+nLinha.replace(/\s+/g,"");
+    }
+    var objeto="";
+    var hs=doc.querySelectorAll("h1,h2");
+    for(var h=0;h<hs.length;h++){ var t=(hs[h].textContent||"").replace(/\s+/g," ").trim(); if(t.length>objeto.length)objeto=t; }
+    objeto=objeto.replace(/\s*\.\.\.\s*$/,"").replace(/\s*Ver mais\s*$/i,"").trim();
+    var dataTxt=_portalValor(lines,"Abertura das Propostas")||_portalValor(lines,"Limite p/ Recebimento das Propostas")||_portalValor(lines,"Data de Publicação");
+    var dataISO=_portalDataISO(dataTxt);
+    var pregoeiro=_portalValor(lines,"Pregoeiro");
+    var respAbrev="";
+    function _aplicarAgente(abrev){
+      respAbrev=abrev;
+      var ok=[], faltou=[];
+      if(numero){ document.getElementById("inputNumero").value=numero; ok.push("nº"); } else faltou.push("nº");
+      if(objeto){ document.getElementById("inputObjeto").value=objeto; ok.push("objeto"); } else faltou.push("objeto");
+      if(dataISO){ document.getElementById("inputDataLicit").value=dataISO; ok.push("data"); } else faltou.push("data");
+      if(respAbrev){ document.getElementById("inputResponsavel").value=respAbrev; ok.push("responsável"); } else faltou.push("responsável");
+      if(ok.length){
+        stEl.style.color="#1d7a3a";
+        stEl.textContent="✔ Preenchido: "+ok.join(", ")+"."+(faltou.length?" Não reconheci: "+faltou.join(", ")+".":"");
+      } else {
+        stEl.style.color="var(--red)";
+        stEl.textContent="Acessei o portal mas não reconheci os campos. Preencha manualmente.";
+      }
+    }
+    if(pregoeiro){
+      var pN=_portalNorm(pregoeiro);
+      for(var a=0;a<agentes.length;a++){
+        var nc=_portalNorm(agentes[a].nomeCompleto), nc2=_portalNorm(agentes[a].nomeCompleto2||"");
+        if((nc&&(pN.indexOf(nc)>-1||nc.indexOf(pN)>-1))||(nc2&&(pN.indexOf(nc2)>-1||nc2.indexOf(pN)>-1))){ respAbrev=agentes[a].nomeAbrev; break; }
+      }
+      if(respAbrev){
+        _aplicarAgente(respAbrev);
+      } else {
+        /* Agente nao cadastrado — cria automaticamente */
+        var partes=pregoeiro.trim().split(/\s+/);
+        var abrevAuto=partes[0];
+        var ts=firebase.firestore.FieldValue.serverTimestamp();
+        agColRef.add({nomeAbrev:abrevAuto, nomeCompleto:pregoeiro, nomeCompleto2:"", createdAt:ts, updatedAt:ts})
+          .then(function(){
+            /* onSnapshot ja atualiza a lista; aguarda um tick pra o select ser repopulado */
+            setTimeout(function(){ _aplicarAgente(abrevAuto); }, 600);
+          })
+          .catch(function(){ _aplicarAgente(""); });
+        stEl.style.color="var(--muted)";
+        stEl.textContent="⏳ Cadastrando agente \""+abrevAuto+"\" automaticamente...";
+        return; /* sai antes de chamar _aplicarAgente abaixo */
+      }
+    } else {
+      _aplicarAgente("");
+    }
+  }).catch(function(e){
+    stEl.style.color="var(--red)";
+    stEl.textContent="Erro ao acessar o portal. Preencha manualmente.";
+  });
+}
+
+/* ── Modal Atualização ─────────────────────────────────────────────────────── */
 function abrirModalUpdate(id){
   updateId=id;
   var p=processos.find(function(x){return x.id===id;});
@@ -2991,6 +3120,128 @@ document.getElementById('rkFileInput').addEventListener('change', function(){
   r.readAsText(file);
   this.value='';
 });
+
+/* ── Importação de PDF de Ranking (Portal de Compras Públicas) ─────────────── */
+function rkImportarPDF(){
+  if(!window.pdfjsLib){ alert('Biblioteca PDF.js ainda carregando. Aguarde e tente novamente.'); return; }
+  var input=document.getElementById('rkPdfInput');
+  if(!input||!input.files||!input.files[0]) return;
+  if(!rkProcessoAtual){ alert('Selecione um processo primeiro.'); return; }
+  var stEl=document.getElementById('rkPdfStatus');
+  if(stEl){ stEl.textContent='⏳ Lendo PDF...'; stEl.style.color='var(--muted)'; }
+  var reader=new FileReader();
+  reader.onload=function(e){
+    pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+    pdfjsLib.getDocument({data:e.target.result}).promise.then(function(pdf){
+      var pages=[];
+      for(var p=1;p<=pdf.numPages;p++) pages.push(p);
+      return Promise.all(pages.map(function(p){
+        return pdf.getPage(p).then(function(page){
+          return page.getTextContent().then(function(tc){
+            var items=tc.items.slice().sort(function(a,b){
+              var dy=Math.round(b.transform[5])-Math.round(a.transform[5]);
+              return dy!==0?dy:a.transform[4]-b.transform[4];
+            });
+            return items.map(function(it){ return it.str; }).join('\n');
+          });
+        });
+      }));
+    }).then(function(pageTexts){
+      var itens=_parsePdfRankingText(pageTexts.join('\n'));
+      if(!itens.length){
+        if(stEl){ stEl.textContent='Nenhum item reconhecido. Verifique o arquivo.'; stEl.style.color='var(--red)'; }
+        return;
+      }
+      rkItens=itens; rkPendConfirm=null;
+      rkLogEvento('Propostas importadas via PDF ('+itens.length+' itens)');
+      rkSalvarFirestore();
+      document.getElementById('rkNoJson').style.display='none';
+      document.getElementById('rkConteudo').style.display='block';
+      rkRenderProcesso();
+      if(stEl){ stEl.textContent='✔ '+itens.length+' itens importados!'; stEl.style.color='#1d7a3a'; }
+      toast('Ranking importado via PDF e salvo na nuvem!');
+    }).catch(function(e){
+      if(stEl){ stEl.textContent='Erro ao ler PDF: '+e.message; stEl.style.color='var(--red)'; }
+    });
+  };
+  reader.readAsArrayBuffer(input.files[0]);
+  input.value='';
+}
+function _parsePdfRankingText(text){
+  text=text.replace(/A autenticidade do documento[^\n]*/gi,'')
+           .replace(/Documento gerado eletronicamente[^\n]*/gi,'')
+           .replace(/Código verificador:[^\n]*/gi,'')
+           .replace(/Página \d+ de \d+/gi,'')
+           .replace(/validaarquivo\.portaldecompraspublicas[^\n]*/gi,'');
+  var lines=text.split('\n').map(function(l){ return l.trim(); }).filter(function(l){ return l.length>0; });
+  var itens=[], currentItem=null, pendingNames=[];
+  var cnpjRe=/\d{2}\.\d{3}\.\d{3}\/\d{4}-\d{2}/;
+  var itemStartRe=/^(\d{4})\s*-\s*/;
+  var itemFullRe=/^(\d{4})\s*-\s*(.+?)\s*\|\s*(R\$\s*[\d.,]+)/;
+  var tabelaRe=/^Fornecedor\s+CNPJ|^CNPJ\/CPF\s+Valor|^Fornecedor$/;
+  var tipoRe=/^(EPP\/SS|ME|Ltda\/Eireli|EPP|SS|Ltda)$/i;
+  var simNaoRe=/^(Sim|Não|Nao)$/i;
+  var skipRe=/^(Regional|Local\/)$/;
+  var i=0;
+  while(i<lines.length){
+    var line=lines[i];
+    if(tabelaRe.test(line)||skipRe.test(line)){ i++; continue; }
+    /* tentativa de cabeçalho de item */
+    var hMatch=null;
+    if(itemStartRe.test(line)){
+      var combined=line;
+      hMatch=combined.match(itemFullRe);
+      if(!hMatch){
+        for(var j=i+1;j<Math.min(i+5,lines.length);j++){
+          combined+=' '+lines[j];
+          hMatch=combined.match(itemFullRe);
+          if(hMatch){ i=j; break; }
+        }
+      }
+    }
+    if(hMatch){
+      if(currentItem) itens.push(currentItem);
+      pendingNames=[];
+      currentItem={num:hMatch[1],desc:hMatch[2].trim(),ref:hMatch[3].trim(),fornecedores:[]};
+      i++; continue;
+    }
+    if(!currentItem){ i++; continue; }
+    /* linha com CNPJ = dados do fornecedor */
+    var cm=line.match(cnpjRe);
+    if(cm){
+      var cnpj=cm[0];
+      var cpos=line.indexOf(cnpj);
+      var beforeC=line.slice(0,cpos).trim();
+      var afterC=line.slice(cpos+cnpj.length).trim();
+      var nome=pendingNames.concat(beforeC?[beforeC]:[]).join(' ').trim()
+               .replace(/\s*\(Desc\/Inab\/Rejeitado\)/gi,'').trim();
+      pendingNames=[];
+      /* parse afterC: R$ valor qty modelo marca tipo Sim Não */
+      var tokens=afterC.split(/\s+/).filter(function(t){ return t.length>0; });
+      var valor='',modelo='',marca='';
+      var ti=0;
+      if(ti<tokens.length&&tokens[ti]==='R$'){ valor='R$ '+(tokens[ti+1]||''); ti+=2; }
+      else if(ti<tokens.length&&/^R\$\d/.test(tokens[ti])){ valor='R$ '+tokens[ti].slice(2); ti++; }
+      if(ti<tokens.length&&/^\d+$/.test(tokens[ti])) ti++;
+      /* encontra posição do tipo */
+      var tipoIdx=-1;
+      for(var k=ti;k<tokens.length;k++){ if(tipoRe.test(tokens[k])){ tipoIdx=k; break; } }
+      var mb=tipoIdx>ti?tokens.slice(ti,tipoIdx):tokens.slice(ti);
+      while(mb.length&&simNaoRe.test(mb[mb.length-1])) mb.pop();
+      if(mb.length>=2){ marca=mb[mb.length-1]; modelo=mb.slice(0,-1).join(' '); }
+      else if(mb.length===1){ modelo=mb[0]; marca=mb[0]; }
+      if(nome) currentItem.fornecedores.push({nome:nome,valor:valor,modelo:modelo,marca:marca});
+      i++; continue;
+    }
+    /* acumula como parte do nome do fornecedor */
+    if(!simNaoRe.test(line)&&!tipoRe.test(line)&&!/^\d+$/.test(line)){
+      pendingNames.push(line);
+    }
+    i++;
+  }
+  if(currentItem) itens.push(currentItem);
+  return itens;
+}
 
 function abrirRanking(pid){
   var proc=processos.find(function(p){ return p.id===pid; });
