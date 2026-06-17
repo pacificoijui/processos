@@ -739,6 +739,37 @@
   @media(hover:hover){.rks-filter-pending-btn:hover:not(.ativo){border-color:#1a3a6b;color:#1a3a6b;background:#f0f4fb}}
   .rks-filter-pending-btn.ativo{border-color:#1a3a6b;background:#1a3a6b;color:#fff}
   .rks-pending-empty{text-align:center;padding:40px 20px;color:#888;font-size:14px;line-height:1.9;background:#fff;border-radius:14px;margin-bottom:14px}
+  /* ── Fixar processo (pin) ───────────────────────────────────────────────── */
+  .card.pinned { border-color: var(--gold); box-shadow: 0 0 0 2px var(--gold-light), var(--shadow); }
+  .card.pinned .card-header { border-top-color: var(--gold); background: linear-gradient(135deg,#fff8ec 0%,#fff 100%); }
+  .card-pin-btn { background: none; border: 1.5px solid var(--border); border-radius: 8px; width: 34px; height: 34px; flex-shrink: 0; cursor: pointer; font-size: 15px; line-height: 1; color: var(--muted); transition: all .15s; display: flex; align-items: center; justify-content: center; }
+  .card-pin-btn:hover { border-color: var(--gold); color: var(--gold); }
+  .card-pin-btn.on { background: var(--gold); border-color: var(--gold); color: #fff; }
+
+  /* ── Observação específica do processo (aparece na agenda) ──────────────── */
+  .card-obs-wrap { padding: 10px 19px; border-top: 1px solid var(--border); background: #fbfcff; }
+  .card-obs-label { font-size: 10.5px; font-weight: 800; color: var(--navy-light); text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; gap: 6px; margin-bottom: 5px; }
+  .card-obs-label .obs-st { font-size: 10px; font-weight: 700; color: var(--muted); opacity: 0; transition: opacity .3s; }
+  .card-obs-input { width: 100%; font-family: Arial, sans-serif; font-size: 13px; color: var(--text); background: #fff; border: 1.5px solid var(--border); border-radius: 8px; resize: none; outline: none; padding: 8px 10px; line-height: 1.45; min-height: 38px; max-height: 140px; overflow-y: auto; transition: border-color .15s; }
+  .card-obs-input:focus { border-color: var(--navy-light); box-shadow: 0 0 0 3px rgba(46,93,168,0.10); }
+  .card-obs-input::placeholder { color: #aab4cc; font-style: italic; }
+
+  /* ── Seção "Aberturas de Hoje" ──────────────────────────────────────────── */
+  .hoje-section { max-width: 1440px; margin: 20px auto 0; padding: 0 32px; }
+  .hoje-card { background: linear-gradient(135deg,#12294d,#1e4a8a); border-radius: 14px; box-shadow: var(--shadow-lg); overflow: hidden; }
+  .hoje-head { display: flex; align-items: center; gap: 10px; padding: 14px 20px; color: #fff; }
+  .hoje-head h3 { font-size: 15px; font-weight: 800; letter-spacing: 0.4px; }
+  .hoje-head .hoje-count { margin-left: auto; background: var(--gold); color: #1a2233; font-size: 12px; font-weight: 800; padding: 3px 12px; border-radius: 20px; }
+  .hoje-body { padding: 4px 14px 16px; display: grid; grid-template-columns: repeat(auto-fill,minmax(260px,1fr)); gap: 12px; }
+  .hoje-item { background: #fff; border-radius: 11px; padding: 12px 14px; cursor: pointer; transition: transform .12s, box-shadow .12s; border-left: 4px solid var(--gold); }
+  .hoje-item:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0,0,0,0.22); }
+  .hoje-item-num { font-size: 15px; font-weight: 800; color: var(--navy); }
+  .hoje-item-obj { font-size: 12.5px; color: var(--text); line-height: 1.4; margin: 4px 0 8px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .hoje-item-meta { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+  .hoje-item-tag { font-size: 10.5px; font-weight: 800; padding: 3px 9px; border-radius: 6px; }
+  .hoje-item-obs { margin-top: 8px; font-size: 11.5px; font-weight: 700; color: var(--navy); background: var(--blue-bg); border-radius: 6px; padding: 5px 9px; line-height: 1.4; }
+  @media (max-width:768px){ .hoje-section { padding: 0 14px; } }
+
 </style>
 </head>
 <body>
@@ -870,6 +901,17 @@
 </div>
 
 <main>
+  <!-- Aberturas do dia (integração com a Agenda) -->
+  <section class="hoje-section" id="hojeSection" style="display:none">
+    <div class="hoje-card">
+      <div class="hoje-head">
+        <span style="font-size:18px">&#128276;</span>
+        <h3>Aberturas de Hoje</h3>
+        <span class="hoje-count" id="hojeCount">0</span>
+      </div>
+      <div class="hoje-body" id="hojeBody"></div>
+    </div>
+  </section>
   <div class="toolbar">
     <div class="search-box">
       <span class="search-icon">&#128269;</span>
@@ -1633,6 +1675,7 @@ document.addEventListener("click", function(e){
   var pid = btn.closest("[data-pid]") ? btn.closest("[data-pid]").dataset.pid : null;
   var action = btn.dataset.action;
   if(action === "atualizar" && pid) abrirModalUpdate(pid);
+  if(action === "pin" && pid){ togglePin(pid); return; }
   if(action === "editar"    && pid) editarProcesso(pid);
   if(action === "excluir"   && pid) excluirProcesso(pid);
   if(action === "editar-ag")  editarAgente(btn.dataset.agid);
@@ -1704,7 +1747,7 @@ function sortedLista(lista){
     return ordemSort === "desc" ? -cmp : cmp;
   });
 }
-function hoje(){ return new Date().toISOString().split("T")[0]; }
+function hoje(){ var d=new Date(); return d.getFullYear()+"-"+("0"+(d.getMonth()+1)).slice(-2)+"-"+("0"+d.getDate()).slice(-2); }
 function toast(msg){
   var el=document.getElementById("toast");
   document.getElementById("toastMsg").textContent=msg;
@@ -1917,10 +1960,14 @@ function renderizar(){
     if(filtroAgente!=="todos"&&p.responsavel!==filtroAgente)return false;
     if(filtroStatus!=="todos"&&p.status!==filtroStatus)return false;
     if(filtroStatus==="todos"&&!busca&&p.status==="concluido")return false;
+    /* esconde processos com abertura futura: aparecem só na agenda até o dia da abertura (a busca ainda os encontra) */
+    if(!busca&&p.dataLicit&&p.dataLicit>hoje())return false;
     if(filtroAno!=="todos"){ var ano=p.dataLicit?p.dataLicit.split("-")[0]:null; if(ano!==filtroAno)return false; }
     return true;
   });
   lista=sortedLista(lista);
+  /* processos fixados sobem para o topo (mantendo a ordem por data entre eles) */
+  lista.sort(function(a,b){ return (b.fixado?1:0)-(a.fixado?1:0); });
   var grid=document.getElementById("grid");
   if(!lista.length){
     grid.innerHTML='<div class="empty"><div class="empty-icon">&#128194;</div><h3>Nenhum processo encontrado</h3><p>Ajuste os filtros ou cadastre um novo processo.</p></div>';
@@ -1963,29 +2010,103 @@ function renderizar(){
     var contatoHtml=p.contato
       ? '<div class="card-contato">Contato: <span>'+escHtml(p.contato)+'</span></div>'
       : "";
-    html+='<div class="card" data-pid="'+escHtml(p.id)+'">';
+    html+='<div class="card'+(p.fixado?' pinned':'')+'" data-pid="'+escHtml(p.id)+'">';
     html+='<div class="card-header">';
     html+='<div class="card-header-top">';
     html+='<div><div class="card-num">'+escHtml(p.numero)+'</div>';
     html+='<div class="card-obj">'+escHtml(p.objeto)+'</div></div>';
+    html+='<div style="display:flex;align-items:center;gap:8px;flex-shrink:0">';
     html+='<span class="badge '+respCls+'">'+escHtml(p.responsavel)+'</span>';
+    html+='<button class="card-pin-btn'+(p.fixado?' on':'')+'" data-action="pin" title="'+(p.fixado?'Desafixar':'Fixar no topo')+'">&#128204;</button>';
+    html+='</div>';
     html+='</div>';
     html+='<div class="card-meta"><span class="status-tag" style="'+getStatusStyle(p.status)+'">'+escHtml((st.nome||st.label||p.status))+'</span>'+dataLabel+linkBtn+'</div>';
     html+=contatoHtml;
     html+='</div>';
     html+=progHtml;
     html+='<div class="updates-area">'+updHtml+'</div>';
+    html+='<div class="card-obs-wrap">';
+    html+='<div class="card-obs-label">&#128221; Observação <span class="obs-st" id="obsst_'+escHtml(p.id)+'"></span></div>';
+    html+='<textarea class="card-obs-input" id="obsin_'+escHtml(p.id)+'" placeholder="Anote algo sobre este processo… (aparece na Agenda)" oninput="onProcObsInput(\''+escHtml(p.id)+'\',this)">'+escHtml(p.observacao||"")+'</textarea>';
+    html+='</div>';
     html+='<div class="card-footer">';
     html+='<button class="btn-sm" data-action="editar">Editar</button>';
     html+='<button class="btn-sm" data-action="ranking" style="background:#102040;color:#fff;border-color:#102040">&#128202; Propostas</button>';
     html+='<button class="btn-sm" data-action="habilitacao" style="background:#1E5F3A;color:#fff;border-color:#1E5F3A">&#9989; Habilitação</button>';
     html+='</div></div>';
   }
+  /* preserva foco e cursor da observação que está sendo digitada antes de reconstruir */
+  var _foco=document.activeElement, _focoId=null, _selS=0, _selE=0;
+  if(_foco&&_foco.classList&&_foco.classList.contains("card-obs-input")){
+    _focoId=_foco.id; _selS=_foco.selectionStart; _selE=_foco.selectionEnd;
+  }
   grid.innerHTML=html;
+  /* ajusta altura das observações preenchidas */
+  grid.querySelectorAll(".card-obs-input").forEach(function(el){
+    el.style.height="auto"; el.style.height=Math.min(el.scrollHeight,140)+"px";
+  });
+  /* restaura foco/cursor */
+  if(_focoId){
+    var _re=document.getElementById(_focoId);
+    if(_re){ _re.focus(); try{ _re.setSelectionRange(_selS,_selE); }catch(e){} }
+  }
+  renderHoje();
   atualizarStats();
 }
 
-// ── Modal Agentes ─────────────────────────────────────────────────────────────
+// ── Aberturas de Hoje (integração com a Agenda) ──────────────────────────────
+function renderHoje(){
+  var sec=document.getElementById("hojeSection");
+  var body=document.getElementById("hojeBody");
+  var cnt=document.getElementById("hojeCount");
+  if(!sec||!body) return;
+  var h=hoje();
+  var doDia=processos.filter(function(p){ return p.dataLicit===h; })
+    .sort(function(a,b){ return (a.numero||"").localeCompare(b.numero||""); });
+  if(!doDia.length){ sec.style.display="none"; body.innerHTML=""; return; }
+  sec.style.display="block";
+  if(cnt) cnt.textContent=doDia.length;
+  var html="";
+  doDia.forEach(function(p){
+    var st=getStatusCfg(p.status);
+    html+='<div class="hoje-item" data-pid="'+escHtml(p.id)+'" data-action="editar">';
+    html+='<div class="hoje-item-num">'+escHtml(p.numero)+'</div>';
+    if(p.objeto) html+='<div class="hoje-item-obj">'+escHtml(p.objeto)+'</div>';
+    html+='<div class="hoje-item-meta">';
+    html+='<span class="hoje-item-tag" style="'+getStatusStyle(p.status)+'">'+escHtml(st.nome||st.label||p.status)+'</span>';
+    if(p.responsavel) html+='<span class="hoje-item-tag" style="background:#e8f0fb;color:#1a4a9a">'+escHtml(p.responsavel)+'</span>';
+    html+='</div>';
+    if(p.observacao&&p.observacao.trim()) html+='<div class="hoje-item-obs">&#128221; '+escHtml(p.observacao)+'</div>';
+    html+='</div>';
+  });
+  body.innerHTML=html;
+}
+
+// ── Fixar processo no topo ───────────────────────────────────────────────────
+function togglePin(pid){
+  var p=processos.find(function(x){return x.id===pid;}); if(!p) return;
+  var novo=!p.fixado;
+  p.fixado=novo; /* otimista */
+  colRef.doc(pid).update({fixado:novo, updatedAt:firebase.firestore.FieldValue.serverTimestamp()})
+    .then(function(){ toast(novo?"Processo fixado no topo.":"Processo desafixado."); })
+    .catch(function(e){ alert("Erro ao fixar: "+e.message); });
+  renderizar();
+}
+
+// ── Observação por processo (salvamento automático) ──────────────────────────
+var _procObsTimers={};
+function onProcObsInput(pid, el){
+  el.style.height="auto"; el.style.height=Math.min(el.scrollHeight,140)+"px";
+  var p=processos.find(function(x){return x.id===pid;}); if(p) p.observacao=el.value; /* mantém após re-render */
+  var st=document.getElementById("obsst_"+pid);
+  if(st){ st.textContent="salvando…"; st.style.opacity="1"; }
+  clearTimeout(_procObsTimers[pid]);
+  _procObsTimers[pid]=setTimeout(function(){
+    colRef.doc(pid).update({observacao:el.value, updatedAt:firebase.firestore.FieldValue.serverTimestamp()})
+      .then(function(){ if(st){ st.textContent="✓ salvo"; setTimeout(function(){ st.style.opacity="0"; },1400); } })
+      .catch(function(e){ if(st){ st.textContent="erro"; } console.error("obs proc:",e); });
+  }, 800);
+}
 function abrirModalAgentes(){ document.getElementById("modalAgentes").classList.add("open"); renderListaAgentes(); }
 function fecharModalAgentes(){ document.getElementById("modalAgentes").classList.remove("open"); limparFormAgente(); }
 function limparFormAgente(){
@@ -2090,7 +2211,7 @@ function salvarProcesso(){
   var op;
   if(editandoId){
     var existing=processos.find(function(x){return x.id===editandoId;});
-    op=colRef.doc(editandoId).set({numero:numero,objeto:objeto,responsavel:resp,status:status,dataLicit:dataLicit,link:link,contato:contato,atualizacoes:existing.atualizacoes||[],updatedAt:ts});
+    op=colRef.doc(editandoId).set({numero:numero,objeto:objeto,responsavel:resp,status:status,dataLicit:dataLicit,link:link,contato:contato,atualizacoes:existing.atualizacoes||[],fixado:existing.fixado||false,observacao:existing.observacao||"",updatedAt:ts});
   } else {
     var atualizacoes=atualiz?[{texto:atualiz,data:hoje(),ts:Date.now()}]:[];
     op=colRef.add({numero:numero,objeto:objeto,responsavel:resp,status:status,dataLicit:dataLicit,link:link,contato:contato,atualizacoes:atualizacoes,createdAt:ts});
@@ -2120,7 +2241,7 @@ function salvarUpdate(){
   btn.disabled=true; btn.textContent="Salvando...";
   var p=processos.find(function(x){return x.id===updateId;});
   var novas=(p.atualizacoes||[]).concat([{texto:texto,data:data,ts:Date.now()}]);
-  var pData={numero:p.numero,objeto:p.objeto,responsavel:p.responsavel,status:status,dataLicit:p.dataLicit,link:p.link,contato:p.contato,atualizacoes:novas,updatedAt:firebase.firestore.FieldValue.serverTimestamp()};
+  var pData={numero:p.numero,objeto:p.objeto,responsavel:p.responsavel,status:status,dataLicit:p.dataLicit,link:p.link,contato:p.contato,atualizacoes:novas,fixado:p.fixado||false,observacao:p.observacao||"",updatedAt:firebase.firestore.FieldValue.serverTimestamp()};
   colRef.doc(updateId).set(pData)
     .then(function(){fecharModalUpdate(); toast("Atualizacao registrada!");})
     .catch(function(e){alert("Erro: "+e.message);})
@@ -2462,7 +2583,7 @@ function salvarEditUpdate(){
   });
   var pData={numero:p.numero,objeto:p.objeto,responsavel:p.responsavel,
     status:status,dataLicit:p.dataLicit,link:p.link,contato:p.contato,
-    atualizacoes:novas,updatedAt:firebase.firestore.FieldValue.serverTimestamp()};
+    atualizacoes:novas,fixado:p.fixado||false,observacao:p.observacao||"",updatedAt:firebase.firestore.FieldValue.serverTimestamp()};
   colRef.doc(editUpdatePid).set(pData)
     .then(function(){fecharModalEditUpdate();toast("Atualização salva!");})
     .catch(function(e){alert("Erro: "+e.message);})
@@ -2477,7 +2598,7 @@ function excluirUpdate(){
   var novas=(p.atualizacoes||[]).filter(function(a){return String(a.ts)!==String(editUpdateTs);});
   var pData={numero:p.numero,objeto:p.objeto,responsavel:p.responsavel,
     status:p.status,dataLicit:p.dataLicit,link:p.link,contato:p.contato,
-    atualizacoes:novas,updatedAt:firebase.firestore.FieldValue.serverTimestamp()};
+    atualizacoes:novas,fixado:p.fixado||false,observacao:p.observacao||"",updatedAt:firebase.firestore.FieldValue.serverTimestamp()};
   colRef.doc(editUpdatePid).set(pData)
     .then(function(){fecharModalEditUpdate();toast("Atualização excluída.");})
     .catch(function(e){alert("Erro: "+e.message);});
@@ -2490,7 +2611,7 @@ function confirmarExcluirUpdate(pid, ts){
   var novas=(p.atualizacoes||[]).filter(function(a){return String(a.ts)!==String(ts);});
   var pData={numero:p.numero,objeto:p.objeto,responsavel:p.responsavel,
     status:p.status,dataLicit:p.dataLicit,link:p.link,contato:p.contato,
-    atualizacoes:novas,updatedAt:firebase.firestore.FieldValue.serverTimestamp()};
+    atualizacoes:novas,fixado:p.fixado||false,observacao:p.observacao||"",updatedAt:firebase.firestore.FieldValue.serverTimestamp()};
   colRef.doc(pid).set(pData)
     .then(function(){toast("Atualização excluída.");})
     .catch(function(e){alert("Erro: "+e.message);});

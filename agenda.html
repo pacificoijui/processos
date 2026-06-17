@@ -253,17 +253,30 @@
   .det-badge { display: inline-block; font-size: 12px; font-weight: 700; padding: 3px 10px; border-radius: 6px; }
 
   /* ── Observações por data ───────────────────────────────────────────────── */
+  .list-dayhdr { cursor:pointer; border-radius:8px; transition:background .12s; }
+  .list-dayhdr:hover { background:#f4f7fd; }
+  .list-day-chevron { margin-left:auto; color:var(--muted); font-size:12px; flex-shrink:0; transition:transform .15s; align-self:center; padding-left:8px; }
+  .list-daygroup.obs-open .list-day-chevron { transform:rotate(180deg); color:var(--navy); }
+  .obs-close { background:#eef2fa; border:none; width:26px; height:26px; border-radius:50%; color:var(--muted); font-size:13px; cursor:pointer; flex-shrink:0; display:flex; align-items:center; justify-content:center; align-self:flex-start; margin-top:1px; transition:all .12s; }
+  .obs-close:hover { background:var(--red-bg); color:var(--red); }
   .obs-wrap { display:flex; align-items:flex-start; gap:8px; margin: 0 20px 10px 20px; }
   .obs-icon { font-size:14px; color:var(--muted); flex-shrink:0; margin-top:3px; opacity:0.6; }
   .obs-input { flex:1; font-family:Arial,Helvetica,sans-serif; font-size:12.5px; color:var(--text); background:transparent; border:none; border-bottom:1.5px dashed var(--border); resize:none; outline:none; padding:2px 0 4px; line-height:1.5; min-height:22px; max-height:80px; overflow-y:auto; transition:border-color .15s; }
   .obs-input:focus { border-bottom-color:var(--navy-light); background:rgba(46,93,168,0.03); border-radius:0; }
   .obs-input::placeholder { color:#b0bacc; font-style:italic; }
   .obs-saving { font-size:10px; color:var(--muted); margin-left:4px; transition:opacity .3s; }
-  /* obs no calendário — chip azul ao lado do número do dia */
+  /* calendário — apenas um marcador quando o dia tem nota (sem editor poluindo a célula) */
   .cal-cell-top { display:flex; align-items:center; gap:6px; margin-bottom:5px; }
-  .cal-obs { flex:1; font-size:10.5px; font-weight:600; color:var(--navy); background:#fff; border:1.5px solid var(--navy-light); border-radius:7px; resize:none; outline:none; padding:3px 8px; font-family:inherit; line-height:1.45; min-height:24px; max-height:46px; overflow-y:auto; transition:border-color .14s, box-shadow .14s; }
-  .cal-obs:focus { border-color:var(--navy); box-shadow:0 0 0 2.5px rgba(26,58,107,0.13); }
-  .cal-obs::placeholder { color:#b8c4d6; font-style:italic; font-weight:400; }
+  .cal-note-dot { margin-left:auto; font-size:12px; line-height:1; opacity:0.9; cursor:default; }
+
+  /* lista — marcador "reservado" ao lado da data quando há nota */
+  .list-daygroup.has-note .list-daybox { box-shadow:0 0 0 2px var(--gold); }
+  .list-note-flag { display:inline-flex; align-items:center; gap:4px; font-size:10.5px; font-weight:800; color:var(--amber); background:var(--amber-bg); border:1px solid #f0d9a8; padding:2px 8px; border-radius:20px; margin-left:8px; vertical-align:middle; letter-spacing:0.2px; }
+
+  /* observação específica do processo (vinda do index) exibida no card da agenda */
+  .list-card-procobs { margin-top:8px; font-size:11.5px; font-weight:700; color:var(--navy); background:var(--blue-bg); border-left:3px solid var(--navy-light); border-radius:0 7px 7px 0; padding:6px 10px; line-height:1.4; }
+  .list-card-procobs .lbl { display:block; font-size:9.5px; font-weight:800; text-transform:uppercase; letter-spacing:0.5px; color:var(--navy-light); margin-bottom:1px; }
+
   @media (max-width:768px){
     .obs-wrap { margin: 0 14px 10px 14px; }
   }
@@ -579,6 +592,7 @@ function toast(msg){
 var WORKER_URL = "https://proud-breeze-5444.pedrohhpacifico.workers.dev";
 var observacoes = {};          /* date ISO -> texto */
 var _obsTimers  = {};          /* date ISO -> debounce timer */
+var _diasAbertos = {};         /* date ISO -> observação aberta na lista */
 var obsColRef;
 try { obsColRef = db.collection("observacoes"); } catch(e){ obsColRef = null; }
 var _portalDebounceTimer = null;
@@ -636,6 +650,26 @@ function onObsInput(iso, el){
     if(st){ st.textContent="✓"; setTimeout(function(){ st.style.opacity="0"; },1200); }
   }, 700);
   el.style.height="auto"; el.style.height=Math.min(el.scrollHeight,80)+"px";
+}
+
+/* abre/fecha o campo de observação ao clicar no dia da lista */
+function toggleDiaObs(iso){
+  if(_diasAbertos[iso]){ fecharDiaObs(iso); return; }
+  var isoClean=iso.replace(/-/g,"");
+  _diasAbertos[iso]=true;
+  var wrap=document.getElementById("obswrap_"+isoClean);
+  if(wrap){
+    wrap.style.display="flex";
+    var g=wrap.closest(".list-daygroup"); if(g) g.classList.add("obs-open");
+    var ta=document.getElementById("lobs_"+isoClean);
+    if(ta){ ta.style.height="auto"; ta.style.height=Math.min(ta.scrollHeight,80)+"px"; ta.focus(); }
+  }
+}
+function fecharDiaObs(iso){
+  if(typeof event!=="undefined"&&event) event.stopPropagation();
+  delete _diasAbertos[iso];
+  var wrap=document.getElementById("obswrap_"+iso.replace(/-/g,""));
+  if(wrap){ wrap.style.display="none"; var g=wrap.closest(".list-daygroup"); if(g) g.classList.remove("obs-open"); }
 }
 
 /* ── Selects do formulário ──────────────────────────────────────────────────── */
@@ -704,11 +738,11 @@ function renderCalendario(){
       var fora=dd.getMonth()!==mes;
       var ehHoje=iso===hoje;
       var cls="cal-cell"+(fora?" out":"")+(ehHoje?" today":"");
+      var temNota=!!(observacoes[iso]&&observacoes[iso].trim());
       html+='<div class="'+cls+'">';
-      var obsId2="calobs_"+iso.replace(/-/g,"");
-      var obsV=escHtml(observacoes[iso]||"");
       html+='<div class="cal-cell-top"><span class="cal-daynum">'+dd.getDate()+'</span>';
-      html+='<textarea class="cal-obs" id="'+obsId2+'" placeholder="nota…" onclick="event.stopPropagation()" oninput="event.stopPropagation();onObsInput(\''+iso+'\',this)">'+obsV+'</textarea></div>';
+      if(temNota) html+='<span class="cal-note-dot" title="'+escHtml(observacoes[iso])+'">📝</span>';
+      html+='</div>';
       var evs=(porData[iso]||[]).slice().sort(function(a,b){ return (a.horarioAbertura||"99:99").localeCompare(b.horarioAbertura||"99:99"); });
       evs.slice(0,3).forEach(function(p){
         html+='<div class="cal-ev '+statusCorClasse(p.status)+'" onclick="abrirDetalhe(\''+escHtml(p.id)+'\')" title="'+escHtml((p.numero||"")+" — "+(p.objeto||""))+'">'+escHtml(rotuloAgenda(p))+'</div>';
@@ -869,13 +903,16 @@ function renderLista(){
     var obsId="lobs_"+iso.replace(/-/g,"");
     var obsStId="obs-status-"+iso.replace(/-/g,"");
     var obsVal=escHtml(observacoes[iso]||"");
-    html+='<div class="list-daygroup'+(ehHoje?" today":"")+'">';
-    html+='<div class="list-dayhdr">';
+    var temNota=!!(observacoes[iso]&&observacoes[iso].trim());
+    var aberto=!!_diasAbertos[iso];
+    var isoClean=iso.replace(/-/g,"");
+    html+='<div class="list-daygroup'+(ehHoje?" today":"")+(temNota?" has-note":"")+(aberto?" obs-open":"")+'">';
+    html+='<div class="list-dayhdr" onclick="toggleDiaObs(\''+iso+'\')">';
     html+='<div class="list-daybox"><span class="list-daynum">'+d.getDate()+'</span><span class="list-dayweek">'+DIAS_SEMANA[d.getDay()]+'</span></div>';
-    html+='<div style="flex:1;min-width:0"><div class="list-dayrel">'+(rel||DIAS_SEMANA[d.getDay()]+", "+d.getDate()+" de "+MESES[mes])+'</div>';
+    html+='<div style="flex:1;min-width:0"><div class="list-dayrel">'+(rel||DIAS_SEMANA[d.getDay()]+", "+d.getDate()+" de "+MESES[mes])+(temNota?'<span class="list-note-flag">📝 Reservado</span>':'')+'</div>';
     if(rel) html+='<div style="font-size:11.5px;color:var(--muted);font-weight:600">'+fmtData(iso)+'</div>';
-    html+='</div></div>';
-    html+='<div class="obs-wrap"><span class="obs-icon">📝</span><textarea class="obs-input" id="'+obsId+'" rows="1" placeholder="Adicionar observação para este dia…" oninput="onObsInput(\''+iso+'\',this)">'+obsVal+'</textarea><span class="obs-saving" id="'+obsStId+'" style="opacity:0"></span></div>';
+    html+='</div><span class="list-day-chevron">&#9660;</span></div>';
+    html+='<div class="obs-wrap" id="obswrap_'+isoClean+'" style="display:'+(aberto?'flex':'none')+'"><span class="obs-icon">📝</span><textarea class="obs-input" id="'+obsId+'" rows="1" placeholder="Adicionar observação para este dia…" oninput="onObsInput(\''+iso+'\',this)">'+obsVal+'</textarea><span class="obs-saving" id="'+obsStId+'" style="opacity:0"></span><button class="obs-close" title="Fechar" onclick="fecharDiaObs(\''+iso+'\')">&#10005;</button></div>';
     html+='<div class="list-items">';
     grupos[iso].forEach(function(p){
       var tipo=tipoLicitacao(p.numero);
@@ -888,14 +925,24 @@ function renderLista(){
       html+='<div class="list-card-meta">';
       html+='<span class="list-card-tag" style="'+statusBadgeStyle(p.status)+'">'+escHtml(statusNome(p.status))+'</span>';
       if(p.responsavel) html+='<span class="list-card-tag up-resp">'+escHtml(primeiroNome(p.responsavel))+'</span>';
-      html+='</div></div>';
+      html+='</div>';
+      if(p.observacao&&p.observacao.trim()){
+        html+='<div class="list-card-procobs"><span class="lbl">Observação</span>'+escHtml(p.observacao)+'</div>';
+      }
+      html+='</div>';
     });
     html+='</div></div>';
   });
+  /* preserva foco/cursor da observação aberta antes de reconstruir a lista */
+  var _fa=document.activeElement, _faId=null, _s=0, _e=0;
+  if(_fa&&_fa.classList&&_fa.classList.contains("obs-input")){ _faId=_fa.id; _s=_fa.selectionStart; _e=_fa.selectionEnd; }
   box.innerHTML=html;
+  /* ajusta a altura das observações já preenchidas */
+  box.querySelectorAll(".obs-input").forEach(function(el){
+    el.style.height="auto"; el.style.height=Math.min(el.scrollHeight,80)+"px";
+  });
+  if(_faId){ var _re=document.getElementById(_faId); if(_re){ _re.focus(); try{ _re.setSelectionRange(_s,_e); }catch(e){} } }
 }
-
-/* ── Toggle calendário/lista ─────────────────────────────────────────────── */
 document.addEventListener("DOMContentLoaded",function(){
   /* padrão: lista no celular, calendário no desktop */
   var ehMobile = window.matchMedia("(max-width: 768px)").matches;
