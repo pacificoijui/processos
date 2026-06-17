@@ -1035,6 +1035,9 @@ function abrirDetalhe(id){
   h+='<div class="det-item"><div class="k">Data da Licitação</div><div class="v">'+(p.dataLicit?escHtml(fmtData(p.dataLicit)):"—")+'</div></div>';
   h+='<div class="det-item"><div class="k">Horário de Abertura</div><div class="v">'+escHtml(p.horarioAbertura||"—")+'</div></div>';
   h+='<div class="det-item"><div class="k">Status</div><div class="v"><span class="det-badge" style="'+statusBadgeStyle(p.status)+'">'+escHtml(statusNome(p.status))+'</span></div></div>';
+  if(p.observacao&&p.observacao.trim()){
+    h+='<div class="det-item det-full"><div class="list-card-procobs"><span class="lbl">Observação</span>'+escHtml(p.observacao)+'</div></div>';
+  }
   h+='<div class="det-item"><div class="k">Responsável</div><div class="v">'+escHtml(nomeCompletoResp(p.responsavel)||"—")+'</div></div>';
   h+='<div class="det-item"><div class="k">Contato</div><div class="v">'+escHtml(p.contato||"—")+'</div></div>';
   if(p.link){
