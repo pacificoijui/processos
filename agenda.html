@@ -518,12 +518,12 @@
 
 var STATUS_DEFAULT=[
   {id:"em-andamento",       nome:"Em Andamento",        cor:"amber", ordem:0},
-  {id:"em-recurso-suspenso",nome:"Em Recurso/Suspenso", cor:"red",   ordem:1},
+  {id:"em-recurso-suspenso",nome:"Suspenso / Em recurso",cor:"red",  ordem:1},
   {id:"finalizacao",        nome:"Finalização",         cor:"blue",  ordem:2},
   {id:"concluido",          nome:"Concluído",           cor:"green", ordem:3}
 ];
 
-var processos = [], agentes = [], statusList = STATUS_DEFAULT.slice();
+var processos = [], agentes = [], statusList = STATUS_DEFAULT.slice(), statusListAll = STATUS_DEFAULT.slice();
 var hojeRef = new Date();
 var calRef  = new Date(hojeRef.getFullYear(), hojeRef.getMonth(), 1);
 
@@ -566,20 +566,43 @@ function rotuloAgenda(p){
 }
 
 function statusCorClasse(stId){
-  var s=statusList.find(function(x){return x.id===stId;});
+  var s=resolveStatus(stId);
   var cor=s?s.cor:"gray";
   return "ev-"+(["amber","red","blue","green"].indexOf(cor)>=0?cor:"gray");
 }
 function statusNome(stId){
-  var s=statusList.find(function(x){return x.id===stId;});
-  return s?(s.nome||s.id):(stId||"—");
+  var s=resolveStatus(stId);
+  if(s) return s.nome||s.id;
+  var nice=(stId||"").toString().replace(/[-_]+/g," ").trim().replace(/\b\w/g,function(c){return c.toUpperCase();});
+  return nice||"—";
 }
 function statusBadgeStyle(stId){
-  var s=statusList.find(function(x){return x.id===stId;});
+  var s=resolveStatus(stId);
   var cor=s?s.cor:"gray";
   var map={amber:["var(--amber-bg)","var(--amber)"],red:["var(--red-bg)","var(--red)"],blue:["var(--blue-bg)","var(--blue-text)"],green:["var(--green-bg)","var(--green)"],gray:["#eef1f6","#5b6577"]};
   var c=map[cor]||map.gray;
   return "background:"+c[0]+";color:"+c[1];
+}
+/* Resolução robusta de status (igual ao index): casa por id, id normalizado ou nome */
+function _normSt(str){
+  return (str||"").toString().toLowerCase().trim()
+    .normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9]/g,"");
+}
+function _slugSt(nome){
+  return (nome||"").toString().toLowerCase()
+    .normalize("NFD").replace(/[\u0300-\u036f]/g,"")
+    .replace(/\s+/g,"-").replace(/[^a-z0-9-]/g,"");
+}
+function resolveStatus(val){
+  if(!val) return null;
+  var fonte=(statusListAll&&statusListAll.length)?statusListAll:statusList;
+  var st=fonte.find(function(s){return s.id===val;});
+  if(st) return st;
+  var k=_normSt(val);
+  st=fonte.find(function(s){return _normSt(s.id)===k;});
+  if(st) return st;
+  st=fonte.find(function(s){return _normSt(s.nome||s.label)===k;});
+  return st||null;
 }
 function nomeCompletoResp(abrev){
   var a=agentes.find(function(x){return x.nomeAbrev===abrev;});
@@ -604,17 +627,24 @@ var _viewAtual = "list";  /* view ativa: "list" ou "month" */
 /* ── Firestore em tempo real ────────────────────────────────────────────── */
 try{ db.collection("status").onSnapshot(function(snap){
   if(!snap.empty){
-    statusList = snap.docs.map(function(d){ return Object.assign({id:d.id},d.data()); })
+    statusListAll = snap.docs.map(function(d){ return Object.assign({id:d.id},d.data()); })
       .sort(function(a,b){
-        var aC=a.id==="concluido"?1:0, bC=b.id==="concluido"?1:0;
-        if(aC!==bC) return aC-bC;
-        return ((a.ordem||999)-(b.ordem||999))||(a.nome||"").localeCompare(b.nome||"");
+        var oa=(typeof a.ordem==="number")?a.ordem:999;
+        var ob=(typeof b.ordem==="number")?b.ordem:999;
+        return (oa-ob)||(a.nome||"").localeCompare(b.nome||"");
       });
-  } else { statusList = STATUS_DEFAULT.slice(); }
+    statusList = statusListAll.filter(function(s,i,arr){
+      var key=_normSt(s.nome||s.id);
+      var grupo=arr.filter(function(x){ return _normSt(x.nome||x.id)===key; });
+      if(grupo.length<2) return true;
+      var canon=grupo.find(function(x){ return x.id===_slugSt(x.nome||x.id); });
+      return s===(canon||grupo[0]);
+    });
+  } else { statusList = STATUS_DEFAULT.slice(); statusListAll = STATUS_DEFAULT.slice(); }
   popularStatusSelect();
   render();
-}, function(){ statusList=STATUS_DEFAULT.slice(); popularStatusSelect(); render(); });
-}catch(e){ statusList=STATUS_DEFAULT.slice(); console.warn("status onSnapshot:", e); }
+}, function(){ statusList=STATUS_DEFAULT.slice(); statusListAll=STATUS_DEFAULT.slice(); popularStatusSelect(); render(); });
+}catch(e){ statusList=STATUS_DEFAULT.slice(); statusListAll=STATUS_DEFAULT.slice(); console.warn("status onSnapshot:", e); }
 
 try{ agColRef.onSnapshot(function(snap){
   agentes = snap.docs.map(function(d){ return Object.assign({id:d.id},d.data()); })
@@ -857,7 +887,7 @@ function renderBusca(termo){
   box.innerHTML=html;
 }
 function _buscaBorda(stId){
-  var s=statusList.find(function(x){return x.id===stId;});
+  var s=resolveStatus(stId);
   var cor=s?s.cor:"gray";
   var map={amber:"#c07000",red:"#c0282a",blue:"#2e5da8",green:"#2a8a3a",gray:"#9aa6bd"};
   return map[cor]||map.gray;
