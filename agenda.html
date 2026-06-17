@@ -167,6 +167,10 @@
     .list-items { padding-right: 16px; padding-left: 16px; }
     .list-card { padding: 13px 15px; }
     .list-card-num { font-size: 16px; }
+    /* ordem mobile: busca > próximos processos > lista/calendário */
+    #buscaSection { order: 1; }
+    #proximosSection { order: 2; }
+    #calPanel, #listPanel { order: 3; }
   }
 
   /* cores por status */
@@ -402,7 +406,7 @@
   </section>
 
   <!-- Próximos processos (hoje + próximos 5) -->
-  <section class="section">
+  <section class="section" id="proximosSection">
     <div class="section-head">
       <span class="ico">&#9203;</span>
       <h3>Próximos Processos</h3>
@@ -416,7 +420,7 @@
   </section>
 
   <!-- Busca de processos -->
-  <section class="section">
+  <section class="section" id="buscaSection">
     <div class="section-head">
       <span class="ico">&#128269;</span>
       <h3>Buscar Processo</h3>
