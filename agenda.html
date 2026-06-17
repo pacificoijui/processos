@@ -248,8 +248,11 @@
   .det-full { grid-column: 1/-1; }
   .det-link { color: var(--navy-light); font-weight: 700; word-break: break-all; text-decoration: none; }
   .det-link:hover { text-decoration: underline; }
-  .det-portal-btn { display: inline-flex; align-items: center; gap: 7px; margin-top: 4px; background: var(--navy); color: #fff; padding: 9px 16px; border-radius: 9px; font-size: 13px; font-weight: 700; text-decoration: none; }
+  .det-portal-btn { display: inline-flex; align-items: center; gap: 7px; margin-top: 4px; background: var(--navy); color: #fff; padding: 9px 16px; border-radius: 9px; font-size: 13px; font-weight: 700; text-decoration: none; border: none; cursor: pointer; font-family: inherit; }
   .det-portal-btn:hover { background: var(--navy-mid); }
+  .det-whats-btn { background: #25D366; }
+  .det-whats-btn:hover { background: #1ebc59; }
+  .det-share-row { display: flex; flex-wrap: wrap; gap: 10px; }
   .det-badge { display: inline-block; font-size: 12px; font-weight: 700; padding: 3px 10px; border-radius: 6px; }
 
   /* ── Observações por data ───────────────────────────────────────────────── */
@@ -1031,13 +1034,56 @@ function abrirDetalhe(id){
   h+='<div class="det-item"><div class="k">Responsável</div><div class="v">'+escHtml(nomeCompletoResp(p.responsavel)||"—")+'</div></div>';
   h+='<div class="det-item"><div class="k">Contato</div><div class="v">'+escHtml(p.contato||"—")+'</div></div>';
   if(p.link){
-    h+='<div class="det-item det-full"><div class="k">Portal de Compras</div><div class="v"><a class="det-portal-btn" href="'+escHtml(p.link)+'" target="_blank" rel="noopener">&#128279; Abrir no portal</a></div></div>';
+    h+='<div class="det-item det-full"><div class="k">Portal de Compras / Compartilhar</div><div class="v det-share-row"><a class="det-portal-btn" href="'+escHtml(p.link)+'" target="_blank" rel="noopener">&#128279; Abrir no portal</a><button class="det-portal-btn det-whats-btn" onclick="copiarTextoWhatsapp(\''+p.id+'\')">&#128203; Copiar texto p/ WhatsApp</button></div></div>';
+  } else {
+    h+='<div class="det-item det-full"><div class="k">Compartilhar</div><div class="v det-share-row"><button class="det-portal-btn det-whats-btn" onclick="copiarTextoWhatsapp(\''+p.id+'\')">&#128203; Copiar texto p/ WhatsApp</button></div></div>';
   }
   h+='</div>';
   b.innerHTML=h;
   document.getElementById("modalDetalhe").classList.add("open");
 }
 function fecharDetalhe(){ document.getElementById("modalDetalhe").classList.remove("open"); detalheAtualId=null; }
+
+/* ── Compartilhar no WhatsApp ──────────────────────────────────────────── */
+function montarTextoWhatsapp(p){
+  var tipo=tipoLicitacao(p.numero);
+  var titulo=tipo?(tipo+" "+numeroSeq(p.numero)):(p.numero||"Processo");
+  var txt="*"+titulo+"*\n\n";
+  if(p.objeto) txt+=p.objeto+"\n\n";
+  var dataHora="";
+  if(p.dataLicit) dataHora+=fmtData(p.dataLicit);
+  if(p.horarioAbertura) dataHora+=(dataHora?" às ":"")+p.horarioAbertura;
+  if(dataHora) txt+="*Abertura: "+dataHora+"*\n\n";
+  if(p.link) txt+=p.link;
+  return txt.replace(/\n{3,}/g,"\n\n").trim();
+}
+function compartilharWhatsapp(id){
+  var p=processos.find(function(x){return x.id===id;}); if(!p)return;
+  var txt=montarTextoWhatsapp(p);
+  copiarParaClipboard(txt);
+}
+function copiarTextoWhatsapp(id){ compartilharWhatsapp(id); }
+function copiarParaClipboard(txt){
+  function ok(){ toast("Texto copiado! Cole no grupo do WhatsApp."); }
+  function falhou(){ toast("Não foi possível copiar automaticamente."); }
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(txt).then(ok).catch(function(){ copiarFallback(txt,ok,falhou); });
+  } else {
+    copiarFallback(txt,ok,falhou);
+  }
+}
+function copiarFallback(txt,ok,falhou){
+  try{
+    var ta=document.createElement("textarea");
+    ta.value=txt;
+    ta.style.position="fixed"; ta.style.top="-9999px"; ta.style.left="-9999px";
+    document.body.appendChild(ta);
+    ta.focus(); ta.select();
+    var sucesso=document.execCommand("copy");
+    document.body.removeChild(ta);
+    if(sucesso) ok(); else falhou();
+  }catch(e){ falhou(); }
+}
 
 /* ── Cadastro (grava na mesma coleção do index — somente criação) ───────── */
 function abrirCadastro(){
