@@ -265,9 +265,12 @@
   .obs-input:focus { border-bottom-color:var(--navy-light); background:rgba(46,93,168,0.03); border-radius:0; }
   .obs-input::placeholder { color:#b0bacc; font-style:italic; }
   .obs-saving { font-size:10px; color:var(--muted); margin-left:4px; transition:opacity .3s; }
-  /* calendário — apenas um marcador quando o dia tem nota (sem editor poluindo a célula) */
-  .cal-cell-top { display:flex; align-items:center; gap:6px; margin-bottom:5px; }
-  .cal-note-dot { margin-left:auto; font-size:12px; line-height:1; opacity:0.9; cursor:default; }
+  /* calendário — texto da nota ao lado do dia; editor compacto ao clicar */
+  .cal-cell-top { display:flex; align-items:center; gap:6px; margin-bottom:5px; cursor:pointer; }
+  .cal-note-text { flex:1; min-width:0; font-size:10.5px; font-weight:700; color:var(--navy); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .cal-obs-edit { width:100%; font-size:10.5px; font-weight:600; color:var(--navy); background:#fff; border:1.5px solid var(--navy-light); border-radius:6px; resize:none; outline:none; padding:3px 6px; font-family:inherit; line-height:1.4; min-height:22px; max-height:70px; overflow-y:auto; margin-bottom:5px; transition:border-color .14s, box-shadow .14s; }
+  .cal-obs-edit:focus { border-color:var(--navy); box-shadow:0 0 0 2px rgba(26,58,107,0.13); }
+  .cal-obs-edit::placeholder { color:#b8c4d6; font-style:italic; font-weight:400; }
 
   /* lista — marcador "reservado" ao lado da data quando há nota */
   .list-daygroup.has-note .list-daybox { box-shadow:0 0 0 2px var(--gold); }
@@ -671,6 +674,15 @@ function fecharDiaObs(iso){
   var wrap=document.getElementById("obswrap_"+iso.replace(/-/g,""));
   if(wrap){ wrap.style.display="none"; var g=wrap.closest(".list-daygroup"); if(g) g.classList.remove("obs-open"); }
 }
+/* abre/fecha a observação ao clicar no dia do calendário mensal */
+function toggleCalObs(iso){
+  if(_diasAbertos[iso]) delete _diasAbertos[iso]; else _diasAbertos[iso]=true;
+  renderCalendario();
+  if(_diasAbertos[iso]){
+    var ta=document.getElementById("calobs_"+iso.replace(/-/g,""));
+    if(ta){ ta.focus(); ta.setSelectionRange(ta.value.length,ta.value.length); ta.style.height="auto"; ta.style.height=Math.min(ta.scrollHeight,70)+"px"; }
+  }
+}
 
 /* ── Selects do formulário ──────────────────────────────────────────────────── */
 function popularAgentesSelect(){
@@ -739,10 +751,13 @@ function renderCalendario(){
       var ehHoje=iso===hoje;
       var cls="cal-cell"+(fora?" out":"")+(ehHoje?" today":"");
       var temNota=!!(observacoes[iso]&&observacoes[iso].trim());
+      var aberto=!!_diasAbertos[iso];
+      var isoC=iso.replace(/-/g,"");
       html+='<div class="'+cls+'">';
-      html+='<div class="cal-cell-top"><span class="cal-daynum">'+dd.getDate()+'</span>';
-      if(temNota) html+='<span class="cal-note-dot" title="'+escHtml(observacoes[iso])+'">📝</span>';
+      html+='<div class="cal-cell-top" onclick="toggleCalObs(\''+iso+'\')"><span class="cal-daynum">'+dd.getDate()+'</span>';
+      if(!aberto&&temNota) html+='<span class="cal-note-text" title="'+escHtml(observacoes[iso])+'">'+escHtml(observacoes[iso])+'</span>';
       html+='</div>';
+      if(aberto) html+='<textarea class="cal-obs-edit" id="calobs_'+isoC+'" placeholder="observação…" onclick="event.stopPropagation()" oninput="onObsInput(\''+iso+'\',this)">'+escHtml(observacoes[iso]||"")+'</textarea>';
       var evs=(porData[iso]||[]).slice().sort(function(a,b){ return (a.horarioAbertura||"99:99").localeCompare(b.horarioAbertura||"99:99"); });
       evs.slice(0,3).forEach(function(p){
         html+='<div class="cal-ev '+statusCorClasse(p.status)+'" onclick="abrirDetalhe(\''+escHtml(p.id)+'\')" title="'+escHtml((p.numero||"")+" — "+(p.objeto||""))+'">'+escHtml(rotuloAgenda(p))+'</div>';
@@ -751,7 +766,12 @@ function renderCalendario(){
       html+='</div>';
     });
   });
+  /* preserva foco/cursor da observação aberta antes de reconstruir o calendário */
+  var _fa=document.activeElement, _faId=null, _s=0, _e=0;
+  if(_fa&&_fa.classList&&_fa.classList.contains("cal-obs-edit")){ _faId=_fa.id; _s=_fa.selectionStart; _e=_fa.selectionEnd; }
   grid.innerHTML=html;
+  grid.querySelectorAll(".cal-obs-edit").forEach(function(el){ el.style.height="auto"; el.style.height=Math.min(el.scrollHeight,70)+"px"; });
+  if(_faId){ var _re=document.getElementById(_faId); if(_re){ _re.focus(); try{ _re.setSelectionRange(_s,_e); }catch(e){} } }
 }
 
 function renderProximos(){
