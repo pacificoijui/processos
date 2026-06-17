@@ -539,13 +539,13 @@ function fmtDiaMes(iso){ if(!iso)return ""; var p=iso.split("-"); return p[2]+"/
 /* Traduz prefixos/códigos para nome legível: PE/RPPE -> Pregão; CC/CONCORRENCIA -> Concorrência */
 function tipoLicitacao(numero){
   var n=(numero||"").toString().trim().toUpperCase();
-  if(/^(RP\s*PE|RPPE)\b/.test(n) || /^PE\b/.test(n) || /PREG/.test(n)) return "Pregão";
+  if(/^(RP\s*PE|RPPE|RPE)\b/.test(n) || /^PE\b/.test(n) || /PREG/.test(n)) return "Pregão";
   if(/^(CC|CONC)/.test(n) || /CONCORR/.test(n)) return "Concorrência";
   return ""; /* desconhecido */
 }
 /* Extrai apenas o número/sequência (ex: "PE 45/2026" -> "45/2026") */
 function numeroSeq(numero){
-  var n=(numero||"").toString().trim();
+  var n=(numero||"").toString().trim().replace(/\s*[-\u2013]\s*[^\d].*$/,""); /* remove sufixo " - PEDRO" */
   var m=n.match(/(\d+\s*\/?\s*\d{0,4})\s*$/);
   return m?m[1].replace(/\s+/g,""):n;
 }

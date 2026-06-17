@@ -1732,6 +1732,34 @@ function atualizarStats(){
 
 function escHtml(s){ return (s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
 function formatarData(iso){ if(!iso)return ""; var p=iso.split("-"); return p[2]+"/"+p[1]+"/"+p[0]; }
+/* ── Tipo de licitação e rótulo do processo (integrado com a Agenda) ──────── */
+/* Traduz prefixos para nome legível: PE/RPE/RPPE -> Pregão; CC/CONC -> Concorrência */
+function tipoLicitacao(numero){
+  var n=(numero||"").toString().trim().toUpperCase();
+  if(/^(RP\s*PE|RPPE|RPE)\b/.test(n) || /^PE\b/.test(n) || /PREG/.test(n)) return "Pregão";
+  if(/^(CC|CONC)/.test(n) || /CONCORR/.test(n)) return "Concorrência";
+  return ""; /* desconhecido: mantém o número como está */
+}
+/* Extrai só a sequência/ano (ex: "PE 75/2026 - PEDRO" -> "75/2026") */
+function numeroSeq(numero){
+  var n=(numero||"").toString().trim().replace(/\s*[-\u2013]\s*[^\d].*$/,""); /* remove sufixo " - PEDRO" */
+  var m=n.match(/(\d+\s*\/?\s*\d{0,4})\s*$/);
+  return m?m[1].replace(/\s+/g,""):n;
+}
+/* Primeiro nome do agente responsável (usa o nome completo cadastrado) */
+function primeiroNomeAgente(abrev){
+  var a=agentes.find(function(x){return x.nomeAbrev===abrev;});
+  var comp=(a&&a.nomeCompleto)?a.nomeCompleto:(abrev||"");
+  return comp.toString().trim().split(/\s+/)[0]||"";
+}
+/* Rótulo final exibido no index: "Pregão 75/2026 - Pedro" */
+function rotuloProcesso(p){
+  var tipo=tipoLicitacao(p.numero);
+  var seq=numeroSeq(p.numero);
+  var base=tipo?(tipo+" "+seq):(p.numero||"Sem número");
+  var nome=primeiroNomeAgente(p.responsavel);
+  return base+(nome?" - "+nome:"");
+}
 function classData(iso){
   if(!iso)return "";
   var hoje=new Date(); hoje.setHours(0,0,0,0);
@@ -1955,7 +1983,7 @@ function renderizar(){
   var busca=document.getElementById("search").value.toLowerCase();
   renderFiltroAnos();
   var lista=processos.filter(function(p){
-    var txt=(p.numero+p.objeto+p.responsavel+(p.contato||"")).toLowerCase();
+    var txt=(p.numero+rotuloProcesso(p)+p.objeto+p.responsavel+(p.contato||"")).toLowerCase();
     if(busca&&!txt.includes(busca))return false;
     if(filtroAgente!=="todos"&&p.responsavel!==filtroAgente)return false;
     if(filtroStatus!=="todos"&&p.status!==filtroStatus)return false;
@@ -1973,13 +2001,10 @@ function renderizar(){
     grid.innerHTML='<div class="empty"><div class="empty-icon">&#128194;</div><h3>Nenhum processo encontrado</h3><p>Ajuste os filtros ou cadastre um novo processo.</p></div>';
     atualizarStats(); return;
   }
-  var badgeCls=["badge-pedro","badge-lucilda","badge-extra1","badge-extra2"];
   var html="";
   for(var i=0;i<lista.length;i++){
     var p=lista[i];
     var st=getStatusCfg(p.status);
-    var agIdx=agentes.findIndex(function(a){return a.nomeAbrev===p.responsavel;});
-    var respCls=badgeCls[agIdx%badgeCls.length]||"badge-pedro";
     var ex=procExtras[p.id]||{};
     var prog=cardProgresso(ex);
     var progHtml='';
@@ -2013,10 +2038,9 @@ function renderizar(){
     html+='<div class="card'+(p.fixado?' pinned':'')+'" data-pid="'+escHtml(p.id)+'">';
     html+='<div class="card-header">';
     html+='<div class="card-header-top">';
-    html+='<div><div class="card-num">'+escHtml(p.numero)+'</div>';
+    html+='<div><div class="card-num">'+escHtml(rotuloProcesso(p))+'</div>';
     html+='<div class="card-obj">'+escHtml(p.objeto)+'</div></div>';
     html+='<div style="display:flex;align-items:center;gap:8px;flex-shrink:0">';
-    html+='<span class="badge '+respCls+'">'+escHtml(p.responsavel)+'</span>';
     html+='<button class="card-pin-btn'+(p.fixado?' on':'')+'" data-action="pin" title="'+(p.fixado?'Desafixar':'Fixar no topo')+'">&#128204;</button>';
     html+='</div>';
     html+='</div>';
@@ -2070,7 +2094,7 @@ function renderHoje(){
   doDia.forEach(function(p){
     var st=getStatusCfg(p.status);
     html+='<div class="hoje-item" data-pid="'+escHtml(p.id)+'" data-action="editar">';
-    html+='<div class="hoje-item-num">'+escHtml(p.numero)+'</div>';
+    html+='<div class="hoje-item-num">'+escHtml(rotuloProcesso(p))+'</div>';
     if(p.objeto) html+='<div class="hoje-item-obj">'+escHtml(p.objeto)+'</div>';
     html+='<div class="hoje-item-meta">';
     html+='<span class="hoje-item-tag" style="'+getStatusStyle(p.status)+'">'+escHtml(st.nome||st.label||p.status)+'</span>';
