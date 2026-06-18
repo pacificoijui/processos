@@ -823,9 +823,63 @@
   .asgs-sigprev img{max-width:100%;max-height:120px;display:block;margin:0 auto}
   .asgs-err{color:#c0392b;font-size:13px;margin-top:8px;min-height:16px}
   .asgs-others .it{display:flex;justify-content:space-between;font-size:12.5px;padding:6px 0;border-top:1px solid #eef0f5;color:#556}
+  /* ── Login / Portão de acesso ── */
+  #authGate{position:fixed;inset:0;z-index:12000;display:flex;align-items:center;justify-content:center;background:linear-gradient(160deg,#1a3a6b,#0d1f3d);padding:18px;font-family:Arial,sans-serif;-webkit-text-size-adjust:100%}
+  .auth-card{background:#fff;border-radius:16px;padding:26px 24px;width:100%;max-width:380px;box-shadow:0 12px 40px rgba(0,0,0,.3);box-sizing:border-box}
+  .auth-logo{height:48px;width:auto;display:block;margin:2px auto 14px;border-radius:6px}
+  .auth-title{font-size:18px;font-weight:800;color:#1a3a6b;text-align:center;margin:0 0 2px;line-height:1.2}
+  .auth-sub{font-size:11.5px;color:#8590a8;text-align:center;margin:0 0 18px;letter-spacing:.3px}
+  .auth-first{font-size:12.5px;color:#556;background:#f0f4fb;border-radius:8px;padding:9px 11px;margin:0 0 14px;text-align:center}
+  .auth-label{display:block;font-size:11px;font-weight:700;color:#445;text-transform:uppercase;letter-spacing:.4px;margin:11px 0 4px}
+  .auth-input{width:100%;padding:11px 13px;border:1px solid #c8d0e0;border-radius:9px;font-size:15px;box-sizing:border-box}
+  .auth-input:focus{outline:none;border-color:#1a3a6b;box-shadow:0 0 0 3px rgba(26,58,107,.12)}
+  .auth-btn{width:100%;margin-top:18px;padding:13px;border:none;border-radius:10px;background:#1a3a6b;color:#fff;font-size:15px;font-weight:700;cursor:pointer}
+  .auth-btn:hover{background:#16315b}
+  .auth-btn:disabled{opacity:.6;cursor:default}
+  .auth-err{color:#c0392b;font-size:12.5px;margin-top:12px;text-align:center;min-height:16px;line-height:1.4}
+  .auth-chip{font-size:12px;font-weight:700;color:var(--navy);background:var(--blue-bg);border:1px solid var(--border);padding:7px 11px;border-radius:8px;white-space:nowrap;display:inline-flex;align-items:center}
+  .usr-row{display:flex;align-items:center;justify-content:space-between;gap:10px;border:1px solid var(--border);border-radius:10px;padding:10px 12px;background:#fafbfd}
+  .usr-row .usr-info{min-width:0}
+  .usr-row .usr-nome{font-weight:700;color:var(--navy);font-size:14px}
+  .usr-row .usr-login{font-size:12px;color:var(--muted);margin-top:1px}
+  .usr-row .usr-acts{display:flex;gap:6px;flex-shrink:0}
+  .usr-btn{border:1px solid #cfd6e4;background:#fff;border-radius:7px;padding:6px 9px;font-size:13px;cursor:pointer;color:var(--navy)}
+  .usr-btn.del{border-color:#e3b3b3;color:#c0392b}
 </style>
 </head>
 <body>
+<!-- PORTÃO DE ACESSO (login) -->
+<div id="authGate">
+  <div class="auth-card">
+    <img class="auth-logo" id="authLogo" alt="">
+    <h1 class="auth-title">Gestão de Processos Licitatórios</h1>
+    <p class="auth-sub">Município de Ijuí · COPAM</p>
+
+    <div id="authLoginBox" style="display:none">
+      <label class="auth-label">Usuário</label>
+      <input id="authUser" class="auth-input" autocomplete="username" placeholder="usuário">
+      <label class="auth-label">Senha</label>
+      <input id="authPass" type="password" class="auth-input" autocomplete="current-password" placeholder="senha">
+      <button id="authBtnEntrar" class="auth-btn" type="button" onclick="authEntrar()">Entrar</button>
+    </div>
+
+    <div id="authCreateBox" style="display:none">
+      <p class="auth-first">Primeiro acesso — crie o usuário administrador.</p>
+      <label class="auth-label">Nome</label>
+      <input id="authNome" class="auth-input" placeholder="Seu nome">
+      <label class="auth-label">Usuário</label>
+      <input id="authUserC" class="auth-input" placeholder="usuário de acesso">
+      <label class="auth-label">Senha</label>
+      <input id="authPassC" type="password" class="auth-input" placeholder="senha">
+      <label class="auth-label">Confirmar senha</label>
+      <input id="authPass2" type="password" class="auth-input" placeholder="repita a senha">
+      <button id="authBtnCriar" class="auth-btn" type="button" onclick="authCriarPrimeiro()">Criar e entrar</button>
+    </div>
+
+    <div class="auth-err" id="authErr"></div>
+  </div>
+</div>
+
 
 <!-- Loading spinner enquanto Firebase conecta -->
 <div class="loading-overlay" id="loadingOverlay">
@@ -847,7 +901,9 @@
       <button class="btn-ghost" onclick="abrirModalAgentes()">&#128100; Agentes</button>
       <button class="btn-ghost" onclick="abrirModalStatus()">&#127381; Status</button>
       <button class="btn-ghost" onclick="window.location.href='agenda.html'">&#128197; Agenda</button>
-      <button class="btn-primary" onclick="abrirModalNovo()">&#43; Novo Processo</button>
+      <button class="btn-ghost" onclick="abrirModalUsuarios()">&#128273; Usuários</button>
+      <span class="auth-chip" id="authUserChip" style="display:none"></span>
+      <button class="btn-ghost" onclick="authLogout()" title="Sair">Sair</button>
     </div>
   </div>
 </header>
@@ -994,11 +1050,11 @@
   <div class="grid" id="grid"></div>
 </main>
 
-<!-- MODAL NOVO/EDITAR PROCESSO -->
+<!-- MODAL EDITAR PROCESSO (novos processos são cadastrados na agenda) -->
 <div class="overlay" id="modalProcesso">
   <div class="modal">
     <div class="modal-header">
-      <h2 id="modalTitulo">Novo Processo</h2>
+      <h2 id="modalTitulo">Editar Processo</h2>
       <button class="modal-close" onclick="fecharModal()">&#10005;</button>
     </div>
     <div class="modal-body">
@@ -1035,10 +1091,6 @@
           <label>Contato da Secretaria</label>
           <input type="text" id="inputContato" placeholder="Ex: Maria Silva – Sec. Finanças">
         </div>
-      </div>
-      <div class="field" id="campoAtualizacaoInicial">
-        <label>Atualização Inicial (opcional)</label>
-        <textarea id="inputAtualizacao" placeholder="Descreva o andamento atual do processo..."></textarea>
       </div>
     </div>
     <div class="modal-footer" style="justify-content:space-between">
@@ -1473,6 +1525,43 @@
   </div>
 </div>
 
+
+
+<div class="overlay" id="modalUsuarios">
+  <div class="modal" style="max-width:520px">
+    <div class="modal-header">
+      <h2>Usuários do Sistema</h2>
+      <button class="modal-close" onclick="fecharModalUsuarios()">&#10005;</button>
+    </div>
+    <div class="modal-body" style="gap:12px">
+      <div style="background:#f0f4fb;border-radius:10px;padding:16px;display:flex;flex-direction:column;gap:12px;border:1.5px solid var(--border)">
+        <div style="font-size:13px;font-weight:700;color:var(--navy);text-transform:uppercase;letter-spacing:.5px">Cadastrar Usuário</div>
+        <div class="row">
+          <div class="field">
+            <label>Nome</label>
+            <input type="text" id="usrNome" placeholder="Nome da pessoa">
+          </div>
+          <div class="field">
+            <label>Usuário</label>
+            <input type="text" id="usrLogin" placeholder="usuário de acesso">
+          </div>
+        </div>
+        <div class="field">
+          <label>Senha</label>
+          <input type="password" id="usrSenha" placeholder="senha de acesso">
+        </div>
+        <div style="display:flex;gap:8px;justify-content:flex-end">
+          <button class="btn-cancel" onclick="usuariosLimparForm()" style="padding:8px 16px;font-size:13px">Limpar</button>
+          <button class="btn-save" id="btnSalvarUsuario" onclick="usuariosSalvar()" style="padding:8px 20px;font-size:13px">Salvar Usuário</button>
+        </div>
+      </div>
+      <div id="listaUsuarios" style="display:flex;flex-direction:column;gap:8px;max-height:280px;overflow-y:auto"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="fecharModalUsuarios()">Fechar</button>
+    </div>
+  </div>
+</div>
 
 <!-- PAINEL DE ASSINATURA (link ?assinar=ID&tipo=dec|dil&s=SIGNERID) -->
 <div id="asgSharedPanel">
@@ -2326,18 +2415,7 @@ function excluirAgente(id){
   agColRef.doc(id).delete().then(function(){toast("Agente excluido.");}).catch(function(e){alert("Erro: "+e.message);});
 }
 
-// ── Modal Processo ────────────────────────────────────────────────────────────
-function abrirModalNovo(){
-  editandoId=null;
-  document.getElementById("modalTitulo").textContent="Novo Processo";
-  ["inputNumero","inputObjeto","inputLink","inputContato","inputAtualizacao"].forEach(function(id){document.getElementById(id).value="";});
-  if(agentes.length)document.getElementById("inputResponsavel").value=agentes[0].nomeAbrev;
-  document.getElementById("inputStatus").value="em-andamento";
-  document.getElementById("inputDataLicit").value="";
-  document.getElementById("campoAtualizacaoInicial").style.display="";
-  document.getElementById("btnExcluirNoEdit").style.display="none";
-  document.getElementById("modalProcesso").classList.add("open");
-}
+// ── Modal Processo (edição — novos processos são cadastrados na agenda) ───────
 function editarProcesso(id){
   var p=processos.find(function(x){return x.id===id;}); if(!p)return;
   editandoId=id;
@@ -2349,7 +2427,6 @@ function editarProcesso(id){
   document.getElementById("inputDataLicit").value=p.dataLicit||"";
   document.getElementById("inputLink").value=p.link||"";
   document.getElementById("inputContato").value=p.contato||"";
-  document.getElementById("campoAtualizacaoInicial").style.display="none";
   document.getElementById("btnExcluirNoEdit").style.display="inline-flex";
   document.getElementById("modalProcesso").classList.add("open");
 }
@@ -2363,19 +2440,13 @@ function salvarProcesso(){
   var dataLicit=document.getElementById("inputDataLicit").value;
   var link=document.getElementById("inputLink").value.trim();
   var contato=document.getElementById("inputContato").value.trim();
-  var atualiz=document.getElementById("inputAtualizacao").value.trim();
+  if(!editandoId)return;
   if(!numero||!objeto){alert("Preencha o numero e o objeto.");return;}
   btn.disabled=true; btn.textContent="Salvando...";
   var ts=firebase.firestore.FieldValue.serverTimestamp();
-  var op;
-  if(editandoId){
-    var existing=processos.find(function(x){return x.id===editandoId;});
-    op=colRef.doc(editandoId).set({numero:numero,objeto:objeto,responsavel:resp,status:status,dataLicit:dataLicit,link:link,contato:contato,atualizacoes:existing.atualizacoes||[],fixado:existing.fixado||false,observacao:existing.observacao||"",updatedAt:ts});
-  } else {
-    var atualizacoes=atualiz?[{texto:atualiz,data:hoje(),ts:Date.now()}]:[];
-    op=colRef.add({numero:numero,objeto:objeto,responsavel:resp,status:status,dataLicit:dataLicit,link:link,contato:contato,atualizacoes:atualizacoes,createdAt:ts});
-  }
-  op.then(function(){toast(editandoId?"Processo atualizado!":"Processo cadastrado!"); fecharModal();})
+  var existing=processos.find(function(x){return x.id===editandoId;});
+  var op=colRef.doc(editandoId).set({numero:numero,objeto:objeto,responsavel:resp,status:status,dataLicit:dataLicit,link:link,contato:contato,atualizacoes:existing.atualizacoes||[],fixado:existing.fixado||false,observacao:existing.observacao||"",updatedAt:ts});
+  op.then(function(){toast("Processo atualizado!"); fecharModal();})
     .catch(function(e){alert("Erro ao salvar: "+e.message);})
     .finally(function(){btn.disabled=false; btn.textContent="Salvar Processo";});
 }
@@ -6420,6 +6491,231 @@ function asgPadInit(canvas){
       });
     };
   }
+})();
+
+
+/* ════════════════════════════════════════════════════════════════
+   LOGIN / CONTROLE DE ACESSO
+   Portão de acesso no cliente. Usuários ficam na coleção "usuarios"
+   do Firestore (senha guardada apenas como hash SHA-256 + salt).
+   A sessão fica salva por dispositivo (localStorage) até o logout.
+   Links externos (?ranking=, ?hab=, ?assinar=) NÃO exigem login.
+   IMPORTANTE: adicione a regra da coleção "usuarios" no Firestore.
+   ════════════════════════════════════════════════════════════════ */
+var usuariosColRef = db.collection("usuarios");
+var AUTH_SALT = "copam-ijui-v1";
+var AUTH_KEY  = "copam_auth";
+var authCurrentUser = null;
+var authMode = "login";
+
+/* SHA-256 compacto (funciona em https e file://, sem dependências) */
+function authUtf8(s){ try{ return unescape(encodeURIComponent(s)); }catch(e){ return s; } }
+function authSha256(ascii){
+  function rightRotate(value, amount){ return (value>>>amount)|(value<<(32-amount)); }
+  var mathPow=Math.pow, maxWord=mathPow(2,32), result="";
+  var words=[], asciiBitLength=ascii.length*8;
+  var hash=authSha256.h=authSha256.h||[];
+  var k=authSha256.k=authSha256.k||[];
+  var primeCounter=k.length;
+  var isComposite={};
+  for(var candidate=2; primeCounter<64; candidate++){
+    if(!isComposite[candidate]){
+      for(var i=0;i<313;i+=candidate){ isComposite[i]=candidate; }
+      hash[primeCounter]=(mathPow(candidate,0.5)*maxWord)|0;
+      k[primeCounter++]=(mathPow(candidate,1/3)*maxWord)|0;
+    }
+  }
+  ascii+="\x80";
+  while(ascii.length%64-56) ascii+="\x00";
+  for(i=0;i<ascii.length;i++){
+    var j=ascii.charCodeAt(i);
+    if(j>>8){ return ""; }
+    words[i>>2]|=j<<((3-i)%4)*8;
+  }
+  words[words.length]=((asciiBitLength/maxWord)|0);
+  words[words.length]=(asciiBitLength);
+  for(j=0;j<words.length;){
+    var w=words.slice(j,j+=16);
+    var oldHash=hash;
+    hash=hash.slice(0,8);
+    for(i=0;i<64;i++){
+      var w15=w[i-15], w2=w[i-2];
+      var a=hash[0], e=hash[4];
+      var temp1=hash[7]
+        +(rightRotate(e,6)^rightRotate(e,11)^rightRotate(e,25))
+        +((e&hash[5])^((~e)&hash[6]))
+        +k[i]
+        +(w[i]=(i<16)?w[i]:(
+            w[i-16]
+            +(rightRotate(w15,7)^rightRotate(w15,18)^(w15>>>3))
+            +w[i-7]
+            +(rightRotate(w2,17)^rightRotate(w2,19)^(w2>>>10))
+          )|0
+        );
+      var temp2=(rightRotate(a,2)^rightRotate(a,13)^rightRotate(a,22))
+        +((a&hash[1])^(a&hash[2])^(hash[1]&hash[2]));
+      hash=[(temp1+temp2)|0].concat(hash);
+      hash[4]=(hash[4]+temp1)|0;
+    }
+    for(i=0;i<8;i++){ hash[i]=(hash[i]+oldHash[i])|0; }
+  }
+  for(i=0;i<8;i++){
+    for(j=3;j+1;j--){
+      var b=(hash[i]>>(j*8))&255;
+      result+=((b<16)?0:"")+b.toString(16);
+    }
+  }
+  return result;
+}
+function authHash(senha, usuario){ return authSha256(authUtf8(AUTH_SALT+":"+(usuario||"").toLowerCase()+":"+senha)); }
+
+/* Sessão (localStorage) */
+function authGetSession(){ try{ var r=localStorage.getItem(AUTH_KEY); return r?JSON.parse(r):null; }catch(e){ return null; } }
+function authSetSession(o){ try{ localStorage.setItem(AUTH_KEY, JSON.stringify(o)); }catch(e){} }
+function authClearSession(){ try{ localStorage.removeItem(AUTH_KEY); }catch(e){} }
+function authLogout(){ if(!confirm("Deseja sair do sistema?")) return; authClearSession(); window.location.reload(); }
+
+function authErr(msg){ var e=document.getElementById("authErr"); if(e) e.textContent=msg||""; }
+function authSetMode(m){
+  authMode=m;
+  var lb=document.getElementById("authLoginBox"), cb=document.getElementById("authCreateBox");
+  if(lb) lb.style.display=(m==="login")?"block":"none";
+  if(cb) cb.style.display=(m==="create")?"block":"none";
+  authErr("");
+}
+function authShowApp(){
+  var g=document.getElementById("authGate"); if(g) g.style.display="none";
+  var chip=document.getElementById("authUserChip");
+  if(chip && authCurrentUser){ chip.textContent="\uD83D\uDC64 "+(authCurrentUser.nome||authCurrentUser.u); chip.style.display="inline-flex"; }
+}
+function authStartGate(){
+  var g=document.getElementById("authGate"); if(g) g.style.display="flex";
+  try{ var lg=document.getElementById("authLogo"); if(lg && typeof LOGO_B64_PDF!=="undefined") lg.src=LOGO_B64_PDF; }catch(e){}
+  usuariosColRef.limit(1).get().then(function(snap){
+    authSetMode(snap.empty ? "create" : "login");
+  }).catch(function(e){
+    authSetMode("login");
+    authErr("Não foi possível verificar usuários. Verifique a regra da coleção \"usuarios\" no Firestore.");
+  });
+  ["authUser","authPass","authNome","authUserC","authPassC","authPass2"].forEach(function(id){
+    var i=document.getElementById(id);
+    if(i) i.addEventListener("keydown", function(e){ if(e.key==="Enter"){ (authMode==="create")?authCriarPrimeiro():authEntrar(); } });
+  });
+}
+
+function authEntrar(){
+  var u=(document.getElementById("authUser").value||"").trim().toLowerCase();
+  var p=document.getElementById("authPass").value||"";
+  if(!u||!p){ authErr("Informe usuário e senha."); return; }
+  var btn=document.getElementById("authBtnEntrar"); btn.disabled=true; btn.textContent="Entrando...";
+  var hash=authHash(p,u);
+  usuariosColRef.where("usuario","==",u).limit(1).get().then(function(snap){
+    if(snap.empty) throw new Error("nf");
+    var d=snap.docs[0].data();
+    if(d.senhaHash!==hash) throw new Error("nf");
+    authCurrentUser={u:u, nome:d.nome||u};
+    authSetSession(authCurrentUser);
+    authShowApp();
+  }).catch(function(e){
+    authErr(e.message==="nf" ? "Usuário ou senha incorretos." : ("Erro ao entrar: "+e.message));
+  }).finally(function(){ btn.disabled=false; btn.textContent="Entrar"; });
+}
+function authCriarPrimeiro(){
+  var nome=(document.getElementById("authNome").value||"").trim();
+  var u=(document.getElementById("authUserC").value||"").trim().toLowerCase();
+  var p=document.getElementById("authPassC").value||"";
+  var p2=document.getElementById("authPass2").value||"";
+  if(!nome||!u||!p){ authErr("Preencha todos os campos."); return; }
+  if(p.length<4){ authErr("A senha deve ter ao menos 4 caracteres."); return; }
+  if(p!==p2){ authErr("As senhas não conferem."); return; }
+  var btn=document.getElementById("authBtnCriar"); btn.disabled=true; btn.textContent="Criando...";
+  usuariosColRef.add({usuario:u, nome:nome, senhaHash:authHash(p,u), criadoEm:firebase.firestore.FieldValue.serverTimestamp()})
+    .then(function(){
+      authCurrentUser={u:u, nome:nome};
+      authSetSession(authCurrentUser);
+      authShowApp();
+      toast("Usuário criado. Bem-vindo, "+nome+"!");
+    }).catch(function(e){ authErr("Erro ao criar usuário: "+e.message); })
+    .finally(function(){ btn.disabled=false; btn.textContent="Criar e entrar"; });
+}
+
+/* ── Gerenciamento de usuários (modal) ── */
+function abrirModalUsuarios(){
+  document.getElementById("modalUsuarios").classList.add("open");
+  usuariosLimparForm();
+  usuariosListar();
+}
+function fecharModalUsuarios(){ document.getElementById("modalUsuarios").classList.remove("open"); }
+function usuariosLimparForm(){
+  ["usrNome","usrLogin","usrSenha"].forEach(function(id){ var e=document.getElementById(id); if(e) e.value=""; });
+}
+function usuariosListar(){
+  var box=document.getElementById("listaUsuarios");
+  if(box) box.innerHTML='<div style="color:var(--muted);font-size:13px;text-align:center;padding:8px">Carregando...</div>';
+  usuariosColRef.get().then(function(snap){
+    var arr=snap.docs.map(function(d){ return Object.assign({id:d.id}, d.data()); });
+    arr.sort(function(a,b){ return (a.nome||"").localeCompare(b.nome||""); });
+    if(!arr.length){ box.innerHTML='<div style="color:var(--muted);font-size:13px;text-align:center;padding:8px">Nenhum usuário cadastrado.</div>'; return; }
+    var html="";
+    arr.forEach(function(u){
+      var euMesmo=authCurrentUser && authCurrentUser.u===u.usuario;
+      html+='<div class="usr-row"><div class="usr-info">'
+        +'<div class="usr-nome">'+escHtml(u.nome||u.usuario)+(euMesmo?' <span style="font-size:11px;color:var(--muted);font-weight:400">(você)</span>':'')+'</div>'
+        +'<div class="usr-login">'+escHtml(u.usuario)+'</div></div>'
+        +'<div class="usr-acts">'
+        +'<button class="usr-btn" title="Redefinir senha" onclick="usuariosRedefinirSenha(\''+u.id+'\',\''+escHtml(u.usuario)+'\')">&#128273;</button>'
+        +'<button class="usr-btn del" title="Excluir" onclick="usuariosExcluir(\''+u.id+'\',\''+escHtml(u.usuario)+'\','+arr.length+')">&#128465;</button>'
+        +'</div></div>';
+    });
+    box.innerHTML=html;
+  }).catch(function(e){
+    if(box) box.innerHTML='<div style="color:#c0392b;font-size:13px;text-align:center;padding:8px">Erro ao listar: '+escHtml(e.message)+'</div>';
+  });
+}
+function usuariosSalvar(){
+  var nome=(document.getElementById("usrNome").value||"").trim();
+  var u=(document.getElementById("usrLogin").value||"").trim().toLowerCase();
+  var p=document.getElementById("usrSenha").value||"";
+  if(!nome||!u||!p){ alert("Preencha nome, usuário e senha."); return; }
+  if(p.length<4){ alert("A senha deve ter ao menos 4 caracteres."); return; }
+  var btn=document.getElementById("btnSalvarUsuario"); btn.disabled=true; btn.textContent="Salvando...";
+  usuariosColRef.where("usuario","==",u).limit(1).get().then(function(snap){
+    if(!snap.empty) throw new Error("dup");
+    return usuariosColRef.add({usuario:u, nome:nome, senhaHash:authHash(p,u), criadoEm:firebase.firestore.FieldValue.serverTimestamp()});
+  }).then(function(){
+    toast("Usuário cadastrado!"); usuariosLimparForm(); usuariosListar();
+  }).catch(function(e){
+    alert(e.message==="dup" ? "Já existe um usuário com esse login." : ("Erro ao salvar: "+e.message));
+  }).finally(function(){ btn.disabled=false; btn.textContent="Salvar Usuário"; });
+}
+function usuariosRedefinirSenha(id, usuario){
+  var p=prompt("Nova senha para \""+usuario+"\":");
+  if(p===null) return;
+  if(p.length<4){ alert("A senha deve ter ao menos 4 caracteres."); return; }
+  usuariosColRef.doc(id).update({senhaHash:authHash(p,usuario)})
+    .then(function(){ toast("Senha redefinida."); })
+    .catch(function(e){ alert("Erro: "+e.message); });
+}
+function usuariosExcluir(id, usuario, total){
+  if(total<=1){ alert("Não é possível excluir o único usuário do sistema. Cadastre outro antes."); return; }
+  if(!confirm("Excluir o usuário \""+usuario+"\"? Ele não conseguirá mais entrar.")) return;
+  usuariosColRef.doc(id).delete().then(function(){
+    toast("Usuário excluído.");
+    if(authCurrentUser && authCurrentUser.u===usuario){ authClearSession(); window.location.reload(); return; }
+    usuariosListar();
+  }).catch(function(e){ alert("Erro: "+e.message); });
+}
+
+/* Inicialização do portão de acesso */
+(function(){
+  var params=new URLSearchParams(window.location.search);
+  if(params.has("ranking")||params.has("hab")||params.has("assinar")){
+    var g0=document.getElementById("authGate"); if(g0) g0.style.display="none";
+    return;
+  }
+  var sess=authGetSession();
+  if(sess && sess.u){ authCurrentUser=sess; authShowApp(); return; }
+  authStartGate();
 })();
 
 </script>
