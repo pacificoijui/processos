@@ -354,7 +354,7 @@
   .dil-preview blockquote { margin: 8px 0 8px 12px; padding: 6px 12px; border-left: 3px solid var(--border); color: #555; font-style: italic; background: #f8fafd; }
 
   /* ── RANKING PANEL ──────────────────────────────────────────────────────── */
-  #rankingPanel{position:fixed;inset:0;background:#f0f2f5;z-index:500;display:none;flex-direction:column;overflow:hidden;zoom:1.75}
+  #rankingPanel{position:fixed;inset:0;background:#f0f2f5;z-index:500;display:none;flex-direction:column;overflow:hidden}
   #rankingPanel.open{display:flex}
   .rk-topbar{background:#102040;padding:0 24px;display:flex;align-items:center;justify-content:space-between;height:56px;flex-shrink:0;gap:16px}
   .rk-topbar-title{color:#fff;font-size:15px;font-weight:700;display:flex;align-items:center;gap:10px}
@@ -443,7 +443,7 @@
   .rk-print-header{display:none}
   .rk-print-footer{display:none}
   /* Hab panel */
-  #habPanel{position:fixed;inset:0;background:#f0f2f5;z-index:500;display:none;flex-direction:column;overflow:hidden;zoom:1.75}
+  #habPanel{position:fixed;inset:0;background:#f0f2f5;z-index:500;display:none;flex-direction:column;overflow:hidden}
   #habPanel.open{display:flex}
   .hab-card{background:#fff;border-radius:14px;padding:16px 18px;margin-bottom:12px;box-shadow:0 1px 5px rgba(26,58,107,.07);border-left:5px solid #e2e6ec;transition:border-color .2s}
   .hab-card.habil{border-left-color:#1E5F3A;background:#fbfffd}
@@ -571,6 +571,7 @@
     .rk-sit-btns{display:none!important}
     /* Permitir quebra de página dentro dos blocos de item */
     .rk-item-block{page-break-inside:auto}
+    .rk-table-scroll{overflow:visible!important}
     /* Cabeçalho de impressão — aparece em todas as páginas, dentro da margem superior */
     .rk-print-header{
       display:flex!important;
@@ -845,6 +846,84 @@
   .usr-row .usr-acts{display:flex;gap:6px;flex-shrink:0}
   .usr-btn{border:1px solid #cfd6e4;background:#fff;border-radius:7px;padding:6px 9px;font-size:13px;cursor:pointer;color:var(--navy)}
   .usr-btn.del{border-color:#e3b3b3;color:#c0392b}
+
+  /* ═══════════════════════════════════════════════════════════════════════
+     RESPONSIVIDADE DOS PAINÉIS (Ranking / Habilitação) + USO MULTITELA
+     O zoom fixo de 1.75 foi trocado por zoom responsivo em degraus:
+     na tela cheia continua grande e confortável; ao estreitar a janela
+     (uso lado a lado com o portal) o zoom reduz pra caber; no celular 1:1.
+     Largura útil = viewport / zoom — mantida ~constante (~850px) nas faixas.
+     ═══════════════════════════════════════════════════════════════════════ */
+  #rankingPanel, #habPanel { zoom: 1; }
+  @media (min-width: 820px)  { #rankingPanel, #habPanel { zoom: 1.05; } }
+  @media (min-width: 980px)  { #rankingPanel, #habPanel { zoom: 1.20; } }
+  @media (min-width: 1160px) { #rankingPanel, #habPanel { zoom: 1.45; } }
+  @media (min-width: 1360px) { #rankingPanel, #habPanel { zoom: 1.70; } }
+
+  /* Topbar dos painéis: permite quebrar e encolher quando estreito */
+  .rk-topbar { flex-wrap: wrap; height: auto; min-height: 56px; padding: 8px 16px; row-gap: 8px; }
+  .rk-topbar-left { display: flex; align-items: center; gap: 10px; min-width: 0; }
+  .rk-panel-title { color: #fff; font-size: 15px; font-weight: 700; margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .rk-topbar-title { min-width: 0; }
+  .rk-topbar-title #rkPanelTitle { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .rk-topbar-actions { flex-wrap: wrap; justify-content: flex-end; }
+  .rk-empty-state { text-align: center; padding: 50px 20px; color: #888; }
+  .rk-empty-state h3 { font-size: 16px; color: #444; margin-bottom: 8px; }
+  .rk-empty-state p { line-height: 1.6; }
+
+  /* Tabela de ranking dentro de um contêiner com rolagem horizontal —
+     assim a tabela nunca corta nem estoura o painel em janela estreita. */
+  .rk-table-scroll { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .rk-table-scroll::-webkit-scrollbar { height: 7px; }
+  .rk-table-scroll::-webkit-scrollbar-thumb { background: #c4ccda; border-radius: 5px; }
+
+  /* Faixa intermediária / multitela (janela real ≤ 1000px): tudo mais compacto */
+  @media (max-width: 1000px) {
+    .rk-topbar { padding: 7px 12px; gap: 8px; }
+    .rk-topbar-title, .rk-panel-title { font-size: 14px; }
+    .rk-btn { font-size: 11px; padding: 5px 10px; gap: 4px; }
+    .rk-btn-close { width: 30px; height: 30px; }
+    .rk-stats { gap: 6px; }
+    .rk-stat { padding: 7px 8px; }
+    .rk-stat .n { font-size: 17px; }
+    .rk-stat .l { font-size: 10px; }
+    .rk-body { padding: 14px; }
+  }
+
+  /* Painéis no celular / janela bem estreita (real ≤ 640px) */
+  @media (max-width: 640px) {
+    .rk-topbar { padding: 8px 12px; }
+    .rk-topbar-title span:first-child, .rk-panel-title { font-size: 13.5px; }
+    .rk-topbar-actions { gap: 6px; width: 100%; }
+    .rk-topbar-actions .rk-btn { flex: 1 1 auto; justify-content: center; font-size: 11px; padding: 7px 8px; }
+    .rk-topbar-actions .rk-btn-close { flex: 0 0 auto; width: 34px; }
+    .rk-stats { flex-wrap: wrap; gap: 6px; }
+    .rk-stat { flex: 1 1 30%; min-width: 78px; padding: 8px 6px; }
+    .rk-hint { font-size: 10.5px; }
+    .rk-filters-wrap { gap: 6px; }
+    .rk-filter-field { min-width: 100%; flex-basis: 100%; }
+    .rk-filter-field[style] { max-width: none !important; }
+    .rk-body { padding: 12px; }
+    .rk-item-title { font-size: 12.5px; }
+    .rk-table th { font-size: 10.5px; padding: 5px 8px; }
+    .rk-table td { font-size: 11.5px; padding: 5px 8px; }
+    .rk-table td:first-child { min-width: 120px; }
+    .rk-table td.sit { min-width: 170px; }
+    /* Cards de habilitação mais justos no celular */
+    .hab-card { padding: 13px 14px; }
+    .hab-nome { font-size: 14px; }
+    .hab-btns { gap: 8px; }
+    .hab-sbtn { font-size: 12px; min-height: 42px; }
+  }
+
+  /* ── GRID PRINCIPAL: melhor aproveitamento em janela de meia-tela ──────────
+     Entre o desktop cheio (>1100px) e o celular (≤768px) ficava 1 coluna só,
+     desperdiçando espaço. Aqui empacotamos 2 colunas mais estreitas. */
+  @media (min-width: 769px) and (max-width: 1100px) {
+    .grid { grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 16px; }
+    main { padding: 20px 20px; }
+    .card-num { font-size: 16px; }
+  }
 </style>
 </head>
 <body>
@@ -4427,7 +4506,7 @@ function rkRenderRanking(){
       trOc.addEventListener('click',function(){ rkModoOculto=false; var btn=document.getElementById('rkBtnToggleOculto'); if(btn) btn.innerHTML='&#128065; Ocultar Classificados'; rkRenderRanking(); });
       tbody.appendChild(trOc);
     }
-    tbl.appendChild(tbody); block.appendChild(tbl); c.appendChild(block);
+    tbl.appendChild(tbody); var tblWrap=document.createElement('div'); tblWrap.className='rk-table-scroll'; tblWrap.appendChild(tbl); block.appendChild(tblWrap); c.appendChild(block);
     block.querySelectorAll('.rk-motivo-input').forEach(rkAutoResize);
   });
   if(body) body.scrollTop=savedScroll;
