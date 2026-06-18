@@ -773,6 +773,56 @@
   .hoje-item-tag { font-size: 10.5px; font-weight: 800; padding: 3px 9px; border-radius: 6px; }
   .hoje-item-obs { margin-top: 8px; font-size: 11.5px; font-weight: 700; color: var(--navy); background: var(--blue-bg); border-radius: 6px; padding: 5px 9px; line-height: 1.4; }
 
+  /* ── Sistema de Assinaturas: editor (nos modais) ── */
+  .asg-box{display:flex;flex-direction:column;gap:10px}
+  .asg-row{border:1px solid #dfe4ee;border-radius:10px;padding:10px;background:#fafbfd}
+  .asg-row-top{display:flex;gap:8px;align-items:center}
+  .asg-row input{width:100%;padding:8px 10px;border:1px solid #cfd6e4;border-radius:8px;font-size:13.5px;box-sizing:border-box;background:#fff}
+  .asg-row .asg-in-nome{flex:1}
+  .asg-row .asg-in-cargo{margin-top:7px}
+  .asg-rm{flex-shrink:0;width:30px;height:30px;border:1px solid #e3b3b3;background:#fff;color:#c0392b;border-radius:8px;font-size:18px;line-height:1;cursor:pointer}
+  .asg-row-foot{display:flex;align-items:center;justify-content:space-between;margin-top:8px;gap:8px;flex-wrap:wrap}
+  .asg-badge{font-size:11.5px;font-weight:600;padding:3px 9px;border-radius:20px}
+  .asg-badge.ok{background:#e6f6ec;color:#1d7a3e}
+  .asg-badge.wait{background:#fff4e0;color:#9a6a10}
+  .asg-link{font-size:12px;background:#102040;color:#fff;border:none;border-radius:7px;padding:6px 11px;cursor:pointer}
+  .asg-note{font-size:12px;color:var(--muted);font-style:italic}
+
+  /* ── Página de assinatura (?assinar=ID) ── */
+  body.asg-shared-mode>*:not(#asgSharedPanel){display:none!important}
+  #asgSharedPanel{position:fixed;inset:0;z-index:9999;display:none;flex-direction:column;font-family:Arial,sans-serif;background:#eef1f6;-webkit-text-size-adjust:100%}
+  .asgs-header{background:#1a3a6b;color:#fff;padding:12px 16px;padding-top:max(12px,env(safe-area-inset-top));display:flex;align-items:center;gap:12px;flex-shrink:0}
+  .asgs-logo{height:30px;width:auto;flex-shrink:0;border-radius:4px}
+  .asgs-htitle{font-size:14px;font-weight:700}
+  .asgs-hsub{font-size:10px;color:rgba(255,255,255,.7)}
+  .asgs-body{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:14px;padding-bottom:max(16px,env(safe-area-inset-bottom));max-width:760px;margin:0 auto;width:100%;box-sizing:border-box}
+  .asgs-card{background:#fff;border-radius:14px;padding:18px;box-shadow:0 1px 5px rgba(0,0,0,.08);margin-bottom:14px}
+  .asgs-doctitle{font-size:17px;font-weight:800;color:#1a3a6b;margin:0 0 4px}
+  .asgs-docmeta{font-size:12.5px;color:#667;margin-bottom:2px}
+  .asgs-texto{font-size:13.5px;line-height:1.6;color:#222;max-height:42vh;overflow-y:auto;border:1px solid #e6e9f0;border-radius:10px;padding:12px 14px;background:#fcfcfe;margin-top:10px}
+  .asgs-texto h1{font-size:14.5px;color:#1a3a6b;margin:12px 0 6px;text-transform:uppercase}
+  .asgs-texto h2{font-size:13.5px;color:#1a3a6b;margin:10px 0 5px}
+  .asgs-texto h3{font-size:13px;margin:8px 0 4px}
+  .asgs-texto p{margin:0 0 8px;text-align:justify}
+  .asgs-texto blockquote{border-left:3px solid #1a3a6b;background:#f3f6fb;margin:8px 0;padding:8px 12px;font-style:italic;color:#48506a;border-radius:0 6px 6px 0}
+  .asgs-texto ul{margin:6px 0;padding-left:20px}
+  .asgs-label{font-size:12px;font-weight:700;color:#445;text-transform:uppercase;letter-spacing:.3px;margin:14px 0 5px;display:block}
+  .asgs-input{width:100%;padding:11px 13px;border:1px solid #c8d0e0;border-radius:9px;font-size:15px;box-sizing:border-box}
+  .asgs-padwrap{margin-top:6px;position:relative}
+  .asgs-pad{width:100%;height:180px;background:#fff;border:2px dashed #b9c3d8;border-radius:12px;touch-action:none;display:block}
+  .asgs-padhint{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);color:#aab2c4;font-size:13px;pointer-events:none}
+  .asgs-padbtns{display:flex;gap:10px;margin-top:8px}
+  .asgs-btn{flex:1;padding:13px;border-radius:10px;font-size:15px;font-weight:700;border:none;cursor:pointer}
+  .asgs-btn.primary{background:#1a3a6b;color:#fff}
+  .asgs-btn.ghost{background:#fff;color:#1a3a6b;border:1px solid #c8d0e0}
+  .asgs-done{text-align:center;padding:18px 6px}
+  .asgs-done .chk{width:64px;height:64px;border-radius:50%;background:#e6f6ec;color:#1d7a3e;font-size:34px;line-height:64px;margin:0 auto 12px}
+  .asgs-done h2{color:#1d7a3e;margin:0 0 6px;font-size:20px}
+  .asgs-done p{color:#556;font-size:13.5px;margin:2px 0}
+  .asgs-sigprev{margin-top:12px;border:1px solid #e6e9f0;border-radius:10px;padding:10px;background:#fff}
+  .asgs-sigprev img{max-width:100%;max-height:120px;display:block;margin:0 auto}
+  .asgs-err{color:#c0392b;font-size:13px;margin-top:8px;min-height:16px}
+  .asgs-others .it{display:flex;justify-content:space-between;font-size:12.5px;padding:6px 0;border-top:1px solid #eef0f5;color:#556}
 </style>
 </head>
 <body>
@@ -796,6 +846,7 @@
     <div class="header-actions">
       <button class="btn-ghost" onclick="abrirModalAgentes()">&#128100; Agentes</button>
       <button class="btn-ghost" onclick="abrirModalStatus()">&#127381; Status</button>
+      <button class="btn-ghost" onclick="window.location.href='agenda.html'">&#128197; Agenda</button>
       <button class="btn-primary" onclick="abrirModalNovo()">&#43; Novo Processo</button>
     </div>
   </div>
@@ -1303,6 +1354,11 @@
         <label>Texto da Decisão <span style="font-weight:400;text-transform:none;font-size:11px;color:var(--muted)">(cole o texto bruto — títulos com #, ##, MAIÚSCULAS ou **negrito** são reconhecidos automaticamente)</span></label>
         <textarea id="decTexto" style="min-height:240px;font-size:13.5px;line-height:1.6" placeholder="Cole aqui o texto da decisão (pode vir do Claude ou ChatGPT)..."></textarea>
       </div>
+      <div class="field">
+        <label>Assinantes do documento <span style="font-weight:400;text-transform:none;font-size:11px;color:var(--muted)">(o 1º assinante é o pregoeiro; adicione outros, como o engenheiro)</span></label>
+        <div id="decAssinantesBox" class="asg-box"></div>
+        <button type="button" class="btn-cancel" style="font-size:13px;margin-top:8px" onclick="asgEditAdd('dec')">&#43; Adicionar assinante</button>
+      </div>
       <div style="display:flex;gap:8px;flex-wrap:wrap">
         <button type="button" class="btn-cancel" style="font-size:13px" onclick="decTogglePreview()">&#128065; Pré-visualizar Estrutura</button>
         <button type="button" class="btn-cancel" id="decBtnIA" style="font-size:13px;display:none" onclick="decEstruturarComIA()">&#10024; Estruturar com IA</button>
@@ -1396,6 +1452,11 @@
         <label>Texto do Pedido de Diligência <span style="font-weight:400;text-transform:none;font-size:11px;color:var(--muted)">(cole o texto bruto — títulos com #, ##, MAIÚSCULAS ou **negrito** são reconhecidos automaticamente)</span></label>
         <textarea id="dilTexto" style="min-height:240px;font-size:13.5px;line-height:1.6" placeholder="Cole aqui o texto do pedido de diligência (pode vir do Claude ou ChatGPT)..."></textarea>
       </div>
+      <div class="field">
+        <label>Assinantes do documento <span style="font-weight:400;text-transform:none;font-size:11px;color:var(--muted)">(o 1º assinante é o pregoeiro; adicione outros, como o engenheiro)</span></label>
+        <div id="dilAssinantesBox" class="asg-box"></div>
+        <button type="button" class="btn-cancel" style="font-size:13px;margin-top:8px" onclick="asgEditAdd('dil')">&#43; Adicionar assinante</button>
+      </div>
       <div style="display:flex;gap:8px;flex-wrap:wrap">
         <button type="button" class="btn-cancel" style="font-size:13px" onclick="dilTogglePreview()">&#128065; Pré-visualizar Estrutura</button>
         <button type="button" class="btn-cancel" id="dilBtnIA" style="font-size:13px;display:none" onclick="dilEstruturarComIA()">&#10024; Estruturar com IA</button>
@@ -1410,6 +1471,19 @@
       </div>
     </div>
   </div>
+</div>
+
+
+<!-- PAINEL DE ASSINATURA (link ?assinar=ID&tipo=dec|dil&s=SIGNERID) -->
+<div id="asgSharedPanel">
+  <div class="asgs-header">
+    <img class="asgs-logo" id="asgsLogo" alt="">
+    <div>
+      <div class="asgs-htitle">Assinatura de Documento</div>
+      <div class="asgs-hsub">Município de Ijuí · Gestão de Processos Licitatórios</div>
+    </div>
+  </div>
+  <div class="asgs-body" id="asgsBody"></div>
 </div>
 
 <div id="rkSharedPanel">
@@ -4907,6 +4981,7 @@ function abrirModalDec(){
   decPopularSelects();
   document.getElementById("decAgente").value="";
   decSugerirNumero();
+  asgEditInit("dec", null, document.getElementById("decAgente").value);
   decPreviewAberto=false;
   document.getElementById("decPreview").style.display="none";
   document.getElementById("decBtnIA").style.display = DEC_IA_ENDPOINT ? "inline-block" : "none";
@@ -4928,6 +5003,7 @@ function editarDec(id){
   document.getElementById("decTipo").value=DEC_TIPOS[d.tipo]?d.tipo:"outro";
   document.getElementById("decResultado").value=DEC_RESULTADOS[d.resultado]?d.resultado:"outro";
   document.getElementById("decTexto").value=d.texto||"";
+  asgEditInit("dec", d, d.agente);
   decPreviewAberto=false;
   document.getElementById("decPreview").style.display="none";
   document.getElementById("decBtnIA").style.display = DEC_IA_ENDPOINT ? "inline-block" : "none";
@@ -4962,6 +5038,7 @@ function salvarDec(){
     tipo:document.getElementById("decTipo").value,
     resultado:document.getElementById("decResultado").value,
     dataDecisao:document.getElementById("decData").value,
+    assinantes:asgMergeForSave("dec", editandoDecId?decisoes.find(function(x){return x.id===editandoDecId;}):null),
     texto:texto,
     updatedAt:ts
   };
@@ -5298,9 +5375,9 @@ function decGerarPDF(dec){
       var qH=ql.length*LH+9;
       if(qH<(BOTTOM-28)&&y+qH>BOTTOM) newPage(); else y+=3;
       fill([245,247,252]);draw([215,222,238]);doc.setLineWidth(0.3);
-      doc.roundedRect(ML+4,y-4,CW-4,ql.length*LH+6,1,1,"FD");
+      doc.roundedRect(ML+4,y-5,CW-4,ql.length*LH+2,1,1,"FD");
       draw(cNavy);doc.setLineWidth(1.2);
-      doc.line(ML+4,y-4,ML+4,y-4+ql.length*LH+6);
+      doc.line(ML+4,y-5,ML+4,y-5+ql.length*LH+2);
       doc.setLineWidth(0.3);
       fs(FS-0.5);ft("italic");tc([75,80,105]);
       for(var qi=0;qi<ql.length;qi++){
@@ -5316,13 +5393,15 @@ function decGerarPDF(dec){
   }
 
   y+=10;
-  if(y+55>BOTTOM) newPage();
   fs(FS);ft("normal");tc(cText);
-  doc.text("Ijui/RS, "+formatarData(dec.dataDecisao||hoje())+".",ML,y); y+=24;
-  var sigX=PW/2;
-  draw(cNavy);doc.setLineWidth(0.5);doc.line(sigX-44,y,sigX+44,y);y+=7;
-  fs(11);ft("bold");tc(cNavy);doc.text(nomeAssina,sigX,y,{align:"center"});y+=6;
-  fs(9);ft("normal");tc(cMuted);doc.text("Pregoeiro(a) - Municipio de Ijui",sigX,y,{align:"center"});
+  doc.text(asgDataExtenso(dec.dataDecisao||hoje()),PW/2,y,{align:"center"}); y+=8;
+  y=asgAssinaturasPDF(doc,{
+    signers:asgSignersDoc(dec,nomeAssina),
+    PW:PW,ML:ML,MR:MR,CW:CW,BOTTOM:BOTTOM,LH:LH,
+    cNavy:cNavy,cMuted:cMuted,cText:cText,cBorder:cBorder,
+    y:y,
+    requestPage:function(){ newPage(); return y; }
+  });
 
   var total=doc.internal.getNumberOfPages();
   for(var pg=1;pg<=total;pg++){
@@ -5529,6 +5608,7 @@ function abrirModalDil(){
   dilPopularSelects();
   document.getElementById("dilAgente").value="";
   dilSugerirNumero();
+  asgEditInit("dil", null, document.getElementById("dilAgente").value);
   dilPreviewAberto=false;
   document.getElementById("dilPreview").style.display="none";
   document.getElementById("dilBtnIA").style.display = DIL_IA_ENDPOINT ? "inline-block" : "none";
@@ -5550,6 +5630,7 @@ function editarDil(id){
   document.getElementById("dilTipo").value=DIL_TIPOS[d.tipo]?d.tipo:"outro";
   document.getElementById("dilResultado").value=DIL_RESULTADOS[d.resultado]?d.resultado:"outro";
   document.getElementById("dilTexto").value=d.texto||"";
+  asgEditInit("dil", d, d.agente);
   dilPreviewAberto=false;
   document.getElementById("dilPreview").style.display="none";
   document.getElementById("dilBtnIA").style.display = DIL_IA_ENDPOINT ? "inline-block" : "none";
@@ -5584,6 +5665,7 @@ function salvarDil(){
     tipo:document.getElementById("dilTipo").value,
     resultado:document.getElementById("dilResultado").value,
     dataDecisao:document.getElementById("dilData").value,
+    assinantes:asgMergeForSave("dil", editandoDilId?diligenciasList.find(function(x){return x.id===editandoDilId;}):null),
     texto:texto,
     updatedAt:ts
   };
@@ -5920,9 +6002,9 @@ function dilGerarPDF(dec){
       var qH=ql.length*LH+9;
       if(qH<(BOTTOM-28)&&y+qH>BOTTOM) newPage(); else y+=3;
       fill([245,247,252]);draw([215,222,238]);doc.setLineWidth(0.3);
-      doc.roundedRect(ML+4,y-4,CW-4,ql.length*LH+6,1,1,"FD");
+      doc.roundedRect(ML+4,y-5,CW-4,ql.length*LH+2,1,1,"FD");
       draw(cNavy);doc.setLineWidth(1.2);
-      doc.line(ML+4,y-4,ML+4,y-4+ql.length*LH+6);
+      doc.line(ML+4,y-5,ML+4,y-5+ql.length*LH+2);
       doc.setLineWidth(0.3);
       fs(FS-0.5);ft("italic");tc([75,80,105]);
       for(var qi=0;qi<ql.length;qi++){
@@ -5938,13 +6020,15 @@ function dilGerarPDF(dec){
   }
 
   y+=10;
-  if(y+55>BOTTOM) newPage();
   fs(FS);ft("normal");tc(cText);
-  doc.text("Ijui/RS, "+formatarData(dec.dataDecisao||hoje())+".",ML,y); y+=24;
-  var sigX=PW/2;
-  draw(cNavy);doc.setLineWidth(0.5);doc.line(sigX-44,y,sigX+44,y);y+=7;
-  fs(11);ft("bold");tc(cNavy);doc.text(nomeAssina,sigX,y,{align:"center"});y+=6;
-  fs(9);ft("normal");tc(cMuted);doc.text("Pregoeiro(a) - Municipio de Ijui",sigX,y,{align:"center"});
+  doc.text(asgDataExtenso(dec.dataDecisao||hoje()),PW/2,y,{align:"center"}); y+=8;
+  y=asgAssinaturasPDF(doc,{
+    signers:asgSignersDoc(dec,nomeAssina),
+    PW:PW,ML:ML,MR:MR,CW:CW,BOTTOM:BOTTOM,LH:LH,
+    cNavy:cNavy,cMuted:cMuted,cText:cText,cBorder:cBorder,
+    y:y,
+    requestPage:function(){ newPage(); return y; }
+  });
 
   var total=doc.internal.getNumberOfPages();
   for(var pg=1;pg<=total;pg++){
@@ -5986,6 +6070,357 @@ function dilEstruturarComIA(){
     btn.disabled=false; btn.innerHTML="&#10024; Estruturar com IA";
   });
 }
+
+
+/* ════════════════════════════════════════════════════════════════
+   SISTEMA DE ASSINATURAS
+   Adiciona vários assinantes a uma Decisão ou Pedido de Diligência.
+   Cada assinante recebe um link (?assinar=ID&tipo=..&s=..) onde
+   informa nome completo, CPF, e-mail e assina com o dedo/mouse.
+   As assinaturas ficam embutidas no próprio documento (campo
+   "assinantes") nas coleções "decisoes"/"diligencias" — sem coleção
+   nova e sem regras adicionais no Firestore.
+   ════════════════════════════════════════════════════════════════ */
+var asgEditState = { dec: [], dil: [] };
+function asgUid(){ return "s"+Date.now().toString(36)+Math.random().toString(36).slice(2,7); }
+function asgColRefByTipo(tipo){ return (tipo==="dil")?dilColRef:decColRef; }
+
+var ASG_MESES=["janeiro","fevereiro","março","abril","maio","junho","julho","agosto","setembro","outubro","novembro","dezembro"];
+function asgDataExtenso(iso){
+  if(!iso) return "Ijui/RS";
+  var p=String(iso).split("-");
+  if(p.length<3) return "Ijui/RS";
+  var dia=parseInt(p[2],10), mes=parseInt(p[1],10)-1, ano=p[0];
+  if(isNaN(dia)||mes<0||mes>11) return "Ijui/RS";
+  return "Ijui/RS, "+dia+" de "+ASG_MESES[mes]+" de "+ano+".";
+}
+function asgFmtCpf(cpf){
+  var d=String(cpf||"").replace(/\D/g,"").slice(0,11);
+  if(d.length!==11) return cpf||"";
+  return d.slice(0,3)+"."+d.slice(3,6)+"."+d.slice(6,9)+"-"+d.slice(9);
+}
+function asgFmtDataHora(iso){
+  if(!iso) return "";
+  var dt=new Date(iso);
+  if(isNaN(dt.getTime())) return "";
+  function z(n){return ("0"+n).slice(-2);}
+  return z(dt.getDate())+"/"+z(dt.getMonth()+1)+"/"+dt.getFullYear()+" às "+z(dt.getHours())+":"+z(dt.getMinutes());
+}
+function asgCpfValido(cpf){
+  var s=String(cpf||"").replace(/\D/g,"");
+  if(s.length!==11||/^(\d)\1{10}$/.test(s)) return false;
+  var sum=0,i,r;
+  for(i=0;i<9;i++) sum+=parseInt(s.charAt(i),10)*(10-i);
+  r=(sum*10)%11; if(r===10) r=0; if(r!==parseInt(s.charAt(9),10)) return false;
+  sum=0; for(i=0;i<10;i++) sum+=parseInt(s.charAt(i),10)*(11-i);
+  r=(sum*10)%11; if(r===10) r=0; return r===parseInt(s.charAt(10),10);
+}
+
+/* ── Editor de assinantes (dentro dos modais) ── */
+function asgEditInit(tipo, docObj, agenteAbrev){
+  var arr=[];
+  if(docObj && docObj.assinantes && docObj.assinantes.length){
+    arr=docObj.assinantes.map(function(s){
+      return { id:s.id||asgUid(), nome:s.nome||"", cargo:s.cargo||"", cpf:s.cpf||"",
+               email:s.email||"", img:s.img||"", assinadoEm:s.assinadoEm||"", ehPregoeiro:!!s.ehPregoeiro };
+    });
+  } else {
+    var ag=(typeof agentes!=="undefined"?agentes:[]).find(function(a){return a.nomeAbrev===agenteAbrev;});
+    arr=[{ id:asgUid(), nome:(ag&&ag.nomeCompleto)?ag.nomeCompleto:"",
+           cargo:"Pregoeiro(a) - Município de Ijuí", cpf:"", email:"", img:"", assinadoEm:"", ehPregoeiro:true }];
+  }
+  asgEditState[tipo]=arr;
+  asgEditRender(tipo);
+}
+function asgEditRender(tipo){
+  var box=document.getElementById(tipo+"AssinantesBox");
+  if(!box) return;
+  var list=asgEditState[tipo]||[];
+  var editId=(tipo==="dec")?editandoDecId:editandoDilId;
+  var html="";
+  list.forEach(function(s){
+    var assinado=!!s.img;
+    html+='<div class="asg-row">';
+    html+='<div class="asg-row-top">';
+    html+='<input type="text" class="asg-in-nome" placeholder="Nome completo" value="'+escHtml(s.nome||"")+'"'+(assinado?" readonly":"")+' oninput="asgEditField(&#39;'+tipo+'&#39;,&#39;'+s.id+'&#39;,&#39;nome&#39;,this.value)">';
+    html+='<button type="button" class="asg-rm" title="Remover" onclick="asgEditRemove(&#39;'+tipo+'&#39;,&#39;'+s.id+'&#39;)">&times;</button>';
+    html+='</div>';
+    html+='<input type="text" class="asg-in-cargo" placeholder="Cargo / função (ex.: Pregoeiro(a), Engenheiro Civil)" value="'+escHtml(s.cargo||"")+'" oninput="asgEditField(&#39;'+tipo+'&#39;,&#39;'+s.id+'&#39;,&#39;cargo&#39;,this.value)">';
+    html+='<div class="asg-row-foot">';
+    if(assinado) html+='<span class="asg-badge ok">&#10003; Assinado em '+escHtml(asgFmtDataHora(s.assinadoEm))+'</span>';
+    else html+='<span class="asg-badge wait">Aguardando assinatura</span>';
+    if(editId) html+='<button type="button" class="asg-link" onclick="asgEditCopyLink(&#39;'+tipo+'&#39;,&#39;'+s.id+'&#39;)">&#128279; Copiar link</button>';
+    html+='</div>';
+    html+='</div>';
+  });
+  if(!editId) html+='<div class="asg-note">Salve o documento para gerar os links de assinatura de cada pessoa.</div>';
+  box.innerHTML=html;
+}
+function asgEditField(tipo,id,field,val){
+  var s=(asgEditState[tipo]||[]).find(function(x){return x.id===id;});
+  if(s) s[field]=val;
+}
+function asgEditAdd(tipo){
+  asgEditState[tipo]=asgEditState[tipo]||[];
+  asgEditState[tipo].push({ id:asgUid(), nome:"", cargo:"", cpf:"", email:"", img:"", assinadoEm:"", ehPregoeiro:false });
+  asgEditRender(tipo);
+}
+function asgEditRemove(tipo,id){
+  asgEditState[tipo]=(asgEditState[tipo]||[]).filter(function(x){return x.id!==id;});
+  asgEditRender(tipo);
+}
+function asgAgenteChanged(tipo){
+  var sel=document.getElementById(tipo+"Agente");
+  if(!sel) return;
+  var ag=(typeof agentes!=="undefined"?agentes:[]).find(function(a){return a.nomeAbrev===sel.value;});
+  if(!ag) return;
+  var preg=(asgEditState[tipo]||[]).find(function(x){return x.ehPregoeiro && !x.img;});
+  if(preg && !preg.nome){ preg.nome=ag.nomeCompleto||""; asgEditRender(tipo); }
+}
+function asgEditCopyLink(tipo,id){
+  var editId=(tipo==="dec")?editandoDecId:editandoDilId;
+  if(!editId){ alert("Salve o documento primeiro para gerar o link."); return; }
+  var url=window.location.origin+window.location.pathname+"?assinar="+editId+"&tipo="+tipo+"&s="+id;
+  asgCopy(url);
+}
+function asgCopy(txt){
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(txt).then(function(){ toast("Link copiado!"); }).catch(function(){ asgCopyFallback(txt); });
+  } else asgCopyFallback(txt);
+}
+function asgCopyFallback(txt){
+  try{ var ta=document.createElement("textarea"); ta.value=txt; document.body.appendChild(ta); ta.select(); document.execCommand("copy"); document.body.removeChild(ta); toast("Link copiado!"); }
+  catch(e){ prompt("Copie o link:", txt); }
+}
+function asgMergeForSave(tipo, storedDoc){
+  var stored=(storedDoc && storedDoc.assinantes)?storedDoc.assinantes:[];
+  return (asgEditState[tipo]||[]).map(function(e){
+    var prev=stored.find(function(p){return p.id===e.id;});
+    if(prev && prev.img){
+      return { id:e.id, nome:prev.nome||e.nome||"", cargo:(e.cargo||prev.cargo||""), cpf:prev.cpf||"",
+               email:prev.email||"", img:prev.img, assinadoEm:prev.assinadoEm||"", ehPregoeiro:!!e.ehPregoeiro };
+    }
+    return { id:e.id, nome:e.nome||"", cargo:e.cargo||"", cpf:"", email:"", img:"", assinadoEm:"", ehPregoeiro:!!e.ehPregoeiro };
+  });
+}
+
+/* Preenche o nome do pregoeiro ao escolher o agente no select */
+(function(){
+  ["dec","dil"].forEach(function(t){
+    var sel=document.getElementById(t+"Agente");
+    if(sel) sel.addEventListener("change", function(){ asgAgenteChanged(t); });
+  });
+})();
+
+/* ── Renderização das assinaturas no PDF ── */
+function asgSignersDoc(dec, nomeAssina){
+  if(dec && dec.assinantes && dec.assinantes.length) return dec.assinantes;
+  return [{ nome:nomeAssina||"", cargo:"Pregoeiro(a) - Municipio de Ijui", cpf:"", email:"", img:"", assinadoEm:"" }];
+}
+function asgAssinaturasPDF(doc, o){
+  var signers=(o.signers||[]).slice(0,6);
+  if(!signers.length) return o.y;
+  var cy=o.y;
+  var ABOVE=20;
+  function ensure(h){ if(cy+h>o.BOTTOM) cy=o.requestPage(); }
+  function navy(){ doc.setDrawColor(o.cNavy[0],o.cNavy[1],o.cNavy[2]); }
+  var rows=[];
+  for(var i=0;i<signers.length;i+=2) rows.push(signers.slice(i,i+2));
+  for(var r=0;r<rows.length;r++){
+    var cells=rows[r];
+    ensure(46);
+    var lineY=cy+ABOVE;
+    for(var c=0;c<cells.length;c++){
+      var sg=cells[c];
+      var solo=(cells.length===1);
+      var cx=solo?(o.PW/2):((c===0)?(o.ML+o.CW*0.27):(o.ML+o.CW*0.73));
+      var half=solo?44:38;
+      if(sg.img){
+        try{
+          var iw=solo?60:50, ih=solo?20:18;
+          doc.addImage(sg.img,"PNG",cx-iw/2,lineY-ih-1,iw,ih);
+        }catch(e){}
+      }
+      navy(); doc.setLineWidth(0.5); doc.line(cx-half,lineY,cx+half,lineY);
+      var ty=lineY+5.5;
+      doc.setFontSize(solo?11:10); doc.setFont("helvetica","bold");
+      doc.setTextColor(o.cNavy[0],o.cNavy[1],o.cNavy[2]);
+      var nm=(sg.nome||"").trim()||"__________________________";
+      doc.text(nm, cx, ty, {align:"center"}); ty+=4.6;
+      if(sg.cargo){
+        doc.setFontSize(8.5); doc.setFont("helvetica","normal"); doc.setTextColor(o.cMuted[0],o.cMuted[1],o.cMuted[2]);
+        var cgl=doc.splitTextToSize(sg.cargo, solo?120:76);
+        for(var k=0;k<cgl.length;k++){ doc.text(cgl[k],cx,ty,{align:"center"}); ty+=3.8; }
+      }
+      doc.setFontSize(7.5); doc.setFont("helvetica","normal"); doc.setTextColor(o.cMuted[0],o.cMuted[1],o.cMuted[2]);
+      if(sg.img){
+        if(sg.assinadoEm){ doc.text("Assinado eletronicamente em "+asgFmtDataHora(sg.assinadoEm),cx,ty,{align:"center"}); ty+=3.6; }
+        if(sg.cpf){ doc.text("CPF "+asgFmtCpf(sg.cpf),cx,ty,{align:"center"}); }
+      } else {
+        doc.text("(assinatura pendente)",cx,ty,{align:"center"});
+      }
+    }
+    cy=lineY+24;
+  }
+  return cy;
+}
+
+/* ── Página de assinatura (?assinar=ID) ── */
+function asgTextoHTML(texto){
+  var blocos=(typeof decParseBlocos==="function")?decParseBlocos(texto||""):[];
+  function inl(s){ return escHtml(s).replace(/\*\*(.+?)\*\*/g,"<strong>$1</strong>"); }
+  var html="", emLista=false;
+  blocos.forEach(function(b){
+    if(b.t==="li"){ if(!emLista){html+="<ul>";emLista=true;} html+="<li>"+inl(b.x)+"</li>"; return; }
+    if(emLista){ html+="</ul>"; emLista=false; }
+    if(b.t==="h1") html+="<h1>"+escHtml(b.x)+"</h1>";
+    else if(b.t==="h2") html+="<h2>"+escHtml(b.x)+"</h2>";
+    else if(b.t==="h3") html+="<h3>"+escHtml(b.x)+"</h3>";
+    else if(b.t==="q") html+="<blockquote>"+inl(b.x)+"</blockquote>";
+    else html+="<p>"+inl(b.x)+"</p>";
+  });
+  if(emLista) html+="</ul>";
+  return html;
+}
+function asgMaskCpfInput(el){
+  var d=el.value.replace(/\D/g,"").slice(0,11);
+  var out=d;
+  if(d.length>9) out=d.slice(0,3)+"."+d.slice(3,6)+"."+d.slice(6,9)+"-"+d.slice(9);
+  else if(d.length>6) out=d.slice(0,3)+"."+d.slice(3,6)+"."+d.slice(6);
+  else if(d.length>3) out=d.slice(0,3)+"."+d.slice(3);
+  el.value=out;
+}
+function asgPadInit(canvas){
+  var ctx=canvas.getContext("2d"); var ready=false;
+  function resize(){
+    var rect=canvas.getBoundingClientRect(); if(!rect.width) return;
+    var ratio=window.devicePixelRatio||1;
+    canvas.width=Math.round(rect.width*ratio); canvas.height=Math.round(rect.height*ratio);
+    ctx.setTransform(ratio,0,0,ratio,0,0);
+    ctx.lineWidth=2.2; ctx.lineCap="round"; ctx.lineJoin="round"; ctx.strokeStyle="#0d1b3a"; ready=true;
+  }
+  var drawing=false,last=null,dirty=false;
+  function pos(e){ var rect=canvas.getBoundingClientRect(); var t=(e.touches&&e.touches[0])||e; return {x:t.clientX-rect.left,y:t.clientY-rect.top}; }
+  function start(e){ if(!ready) resize(); e.preventDefault(); drawing=true; last=pos(e); var h=document.getElementById("asgPadHint"); if(h) h.style.display="none"; }
+  function move(e){ if(!drawing) return; e.preventDefault(); var p=pos(e); ctx.beginPath(); ctx.moveTo(last.x,last.y); ctx.lineTo(p.x,p.y); ctx.stroke(); last=p; dirty=true; }
+  function end(){ drawing=false; }
+  canvas.addEventListener("mousedown",start); canvas.addEventListener("mousemove",move); window.addEventListener("mouseup",end);
+  canvas.addEventListener("touchstart",start,{passive:false}); canvas.addEventListener("touchmove",move,{passive:false}); canvas.addEventListener("touchend",end);
+  setTimeout(resize,60);
+  return { clear:function(){ ctx.clearRect(0,0,canvas.width,canvas.height); dirty=false; var h=document.getElementById("asgPadHint"); if(h) h.style.display=""; },
+           isEmpty:function(){ return !dirty; }, toDataURL:function(){ return canvas.toDataURL("image/png"); } };
+}
+
+(function(){
+  var params=new URLSearchParams(window.location.search);
+  var docId=params.get("assinar");
+  if(!docId) return;
+  var tipo=(params.get("tipo")==="dil")?"dil":"dec";
+  var signerId=params.get("s")||"";
+  document.body.classList.add("asg-shared-mode");
+  var panel=document.getElementById("asgSharedPanel");
+  if(panel) panel.style.display="flex";
+  try{ var lg=document.getElementById("asgsLogo"); if(lg && typeof LOGO_B64_PDF!=="undefined") lg.src=LOGO_B64_PDF; }catch(e){}
+  var body=document.getElementById("asgsBody");
+  function msg(t){ if(body) body.innerHTML='<div class="asgs-card"><p style="text-align:center;color:#667;margin:8px 0">'+t+'</p></div>'; }
+  msg("Carregando documento...");
+  var ref=asgColRefByTipo(tipo).doc(docId);
+  var pad=null;
+
+  ref.get().then(function(snap){
+    if(!snap.exists){ msg("Documento não encontrado ou removido."); return; }
+    render(snap.data());
+  }).catch(function(e){ msg("Erro ao carregar: "+e.message); });
+
+  function othersHTML(signers, selfId){
+    var outros=signers.filter(function(s){return s.id!==selfId;});
+    if(!outros.length) return "";
+    var h='<div class="asgs-card"><div class="asgs-label" style="margin-top:0">Demais assinantes</div>';
+    outros.forEach(function(s){
+      h+='<div class="it"><span>'+escHtml(s.nome||s.cargo||"Assinante")+'</span><span>'+(s.img?"&#10003; assinado":"pendente")+'</span></div>';
+    });
+    h+='</div>';
+    return h;
+  }
+
+  function render(d){
+    var signers=d.assinantes||[];
+    var sg=null; for(var j=0;j<signers.length;j++){ if(signers[j].id===signerId){ sg=signers[j]; break; } }
+    var rotulo=(tipo==="dil")?"Pedido de Diligência":"Decisão do Pregoeiro";
+    var num=(d.numero?("nº "+("00"+d.numero).slice(-3)+"/"+(d.ano||"")):"");
+    var head='<div class="asgs-card">';
+    head+='<h1 class="asgs-doctitle">'+escHtml(rotulo)+' '+escHtml(num)+'</h1>';
+    if(d.processoNumero) head+='<div class="asgs-docmeta">Processo: '+escHtml(d.processoNumero)+'</div>';
+    if(d.titulo) head+='<div class="asgs-docmeta"><b>Assunto:</b> '+escHtml(d.titulo)+'</div>';
+    if(d.dataDecisao) head+='<div class="asgs-docmeta">'+escHtml(asgDataExtenso(d.dataDecisao))+'</div>';
+    head+='<div class="asgs-texto">'+asgTextoHTML(d.texto||"")+'</div>';
+    head+='</div>';
+
+    if(!sg){
+      body.innerHTML=head+'<div class="asgs-card"><p style="text-align:center;color:#c0392b">Link de assinatura inválido. Solicite um novo link ao pregoeiro.</p></div>';
+      return;
+    }
+
+    if(sg.img){
+      var done='<div class="asgs-card asgs-done">'
+        +'<div class="chk">&#10003;</div>'
+        +'<h2>Documento assinado</h2>'
+        +'<p><b>'+escHtml(sg.nome||"")+'</b></p>'
+        +(sg.cargo?'<p>'+escHtml(sg.cargo)+'</p>':"")
+        +(sg.cpf?'<p>CPF '+escHtml(asgFmtCpf(sg.cpf))+'</p>':"")
+        +'<p>Assinado em '+escHtml(asgFmtDataHora(sg.assinadoEm))+'</p>'
+        +'<div class="asgs-sigprev"><img src="'+sg.img+'" alt="assinatura"></div>'
+        +'</div>';
+      body.innerHTML=head+done+othersHTML(signers,signerId);
+      return;
+    }
+
+    var form='<div class="asgs-card">'
+      +'<label class="asgs-label">Nome completo</label>'
+      +'<input class="asgs-input" id="asgFNome" placeholder="Seu nome completo" value="'+escHtml(sg.nome||"")+'">'
+      +'<label class="asgs-label">CPF</label>'
+      +'<input class="asgs-input" id="asgFCpf" inputmode="numeric" placeholder="000.000.000-00" oninput="asgMaskCpfInput(this)">'
+      +'<label class="asgs-label">E-mail</label>'
+      +'<input class="asgs-input" id="asgFEmail" inputmode="email" placeholder="seu@email.com">'
+      +'<label class="asgs-label">Assinatura'+(sg.cargo?" — "+escHtml(sg.cargo):"")+'</label>'
+      +'<div class="asgs-padwrap"><canvas id="asgPad" class="asgs-pad"></canvas><span class="asgs-padhint" id="asgPadHint">assine aqui com o dedo</span></div>'
+      +'<div class="asgs-padbtns"><button class="asgs-btn ghost" type="button" onclick="asgPadClear()">Limpar</button><button class="asgs-btn primary" id="asgBtnConfirm" type="button" onclick="asgConfirmar()">Confirmar assinatura</button></div>'
+      +'<div class="asgs-err" id="asgErr"></div>'
+      +'</div>';
+    body.innerHTML=head+form+othersHTML(signers,signerId);
+
+    pad=asgPadInit(document.getElementById("asgPad"));
+    window.asgPadClear=function(){ if(pad) pad.clear(); };
+    window.asgConfirmar=function(){
+      var err=document.getElementById("asgErr");
+      var nome=(document.getElementById("asgFNome").value||"").trim();
+      var cpf=(document.getElementById("asgFCpf").value||"").replace(/\D/g,"");
+      var email=(document.getElementById("asgFEmail").value||"").trim();
+      if(nome.length<5||nome.indexOf(" ")<0){ err.textContent="Informe seu nome completo."; return; }
+      if(!asgCpfValido(cpf)){ err.textContent="CPF inválido. Verifique os números."; return; }
+      if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){ err.textContent="E-mail inválido."; return; }
+      if(!pad||pad.isEmpty()){ err.textContent="Faça a assinatura no quadro acima."; return; }
+      err.textContent="";
+      var img=pad.toDataURL();
+      var btn=document.getElementById("asgBtnConfirm"); btn.disabled=true; btn.textContent="Salvando...";
+      var nowIso=new Date().toISOString();
+      db.runTransaction(function(tx){
+        return tx.get(ref).then(function(s2){
+          if(!s2.exists) throw new Error("Documento removido.");
+          var dd=s2.data()||{}; var arr=(dd.assinantes||[]).slice();
+          var idx=-1; for(var k=0;k<arr.length;k++){ if(arr[k].id===signerId){ idx=k; break; } }
+          if(idx<0) throw new Error("Assinante não encontrado.");
+          arr[idx]=Object.assign({},arr[idx],{nome:nome,cpf:cpf,email:email,img:img,assinadoEm:nowIso});
+          tx.update(ref,{assinantes:arr, updatedAt:firebase.firestore.FieldValue.serverTimestamp()});
+        });
+      }).then(function(){
+        ref.get().then(function(s3){ render(s3.data()); window.scrollTo(0,0); });
+      }).catch(function(e){
+        err.textContent="Erro ao salvar: "+e.message; btn.disabled=false; btn.textContent="Confirmar assinatura";
+      });
+    };
+  }
+})();
 
 </script>
 </body>
