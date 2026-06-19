@@ -131,7 +131,13 @@
   .link-btn:hover { background: var(--navy-light); }
   .link-btn-disabled { background: #dde2ee; color: #99a; cursor: default; }
 
-  .updates-area { padding: 14px 19px; flex: 1; display: flex; flex-direction: column; gap: 10px; max-height: 210px; overflow-y: auto; }
+  /* Por padrão a área NÃO captura a rolagem (mouse/dedo passa direto pra página);
+     vira rolável só depois de um clique/toque dentro dela (classe scroll-active). */
+  .updates-area { padding: 14px 19px; flex: 1; display: flex; flex-direction: column; gap: 10px; max-height: 210px; overflow: hidden; position: relative; cursor: default; }
+  .updates-area.has-overflow { cursor: pointer; }
+  .updates-area.has-overflow::after { content: "\25BC role para ver mais"; position: absolute; left: 0; right: 0; bottom: 0; text-align: center; font-size: 10.5px; font-weight: 700; color: var(--navy-light); padding: 6px 0 3px; background: linear-gradient(to top, var(--card) 55%, rgba(255,255,255,0)); pointer-events: none; }
+  .updates-area.scroll-active { overflow-y: auto; overscroll-behavior: contain; box-shadow: inset 0 0 0 1.5px var(--navy-light); border-radius: 8px; }
+  .updates-area.scroll-active::after { display: none; }
   .updates-area::-webkit-scrollbar { width: 4px; }
   .updates-area::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
   .update-item { display: flex; gap: 10px; align-items: flex-start; }
@@ -192,11 +198,12 @@
     .stat-num { font-size: 20px; }
     .stat-label { font-size: 10px; }
 
-    main { padding: 14px; }
+    main { padding: 14px; max-width: 100%; }
     .toolbar { flex-direction: column; gap: 10px; margin-bottom: 16px; }
+    .toolbar > * { min-width: 0; max-width: 100%; }
     .search-box { min-width: unset; width: 100%; }
-    .filter-group { overflow-x: auto; flex-wrap: nowrap; padding-bottom: 4px; }
-    .filter-group::-webkit-scrollbar { height: 3px; }
+    /* Filtros agora QUEBRAM em mais de uma linha — nada fica cortado fora da tela */
+    .filter-group { overflow-x: visible; flex-wrap: wrap; }
     .filter-btn { white-space: nowrap; flex-shrink: 0; padding: 7px 12px; font-size: 12px; }
 
     .grid { grid-template-columns: 1fr; gap: 14px; }
@@ -239,7 +246,11 @@
   /* ── IMPUGNAÇÕES + ABERTURAS DE HOJE lado a lado ───────────────────────────── */
   .top-row { max-width: 1440px; margin: 0 auto; padding: 20px 32px 0; display: flex; gap: 20px; align-items: stretch; }
   .top-row > .imp-section, .top-row > .hoje-section { flex: 1 1 380px; min-width: 0; margin-bottom: 0; display: flex; flex-direction: column; }
-  @media (max-width: 900px) { .top-row { flex-direction: column; padding: 14px 14px 0; } }
+  @media (max-width: 900px) {
+    .top-row { flex-direction: column; padding: 14px 14px 0; gap: 14px; }
+    /* em coluna o flex-basis de 380px virava ALTURA mínima e criava um vão enorme */
+    .top-row > .imp-section, .top-row > .hoje-section { flex: 0 0 auto; }
+  }
 
   /* ── IMPUGNAÇÕES ─────────────────────────────────────────────────────────── */
   .imp-section { background: var(--card); border-radius: 14px; box-shadow: var(--shadow); border: 1.5px solid var(--border); margin-bottom: 24px; overflow: hidden; }
@@ -916,6 +927,59 @@
     .hab-sbtn { font-size: 12px; min-height: 42px; }
   }
 
+  /* ═══════════════════════════════════════════════════════════════════════
+     RANKING EM CARDS (telas estreitas / celular)
+     Em vez de uma tabela larga com rolagem lateral, cada fornecedor vira um
+     cartão com rótulo + valor empilhados — nada corta e fica ótimo no celular.
+     ═══════════════════════════════════════════════════════════════════════ */
+  @media (max-width: 860px) {
+    .rk-table-scroll { overflow-x: visible; }
+    .rk-table, .rk-table tbody, .rk-table tr, .rk-table td { display: block; width: 100%; }
+    .rk-table thead { position: absolute; left: -9999px; top: -9999px; }
+    .rk-table tr.rk-forn {
+      border: 1.5px solid #e3e8f0; border-radius: 11px; margin: 0 0 10px;
+      background: #fff; box-shadow: 0 1px 5px rgba(15,32,80,.07); overflow: hidden;
+    }
+    .rk-table tr.rk-forn.aprovado  { border-color: #bfe3c8; }
+    .rk-table tr.rk-forn.reprovado { border-color: #f1bcbc; }
+    .rk-table tr.rk-forn.diligencia{ border-color: #bcd4f6; }
+    .rk-table tr.rk-forn td {
+      display: flex; justify-content: space-between; align-items: baseline; gap: 14px;
+      padding: 8px 13px; text-align: right !important; white-space: normal !important;
+      min-width: 0 !important; max-width: none !important; width: auto;
+      border: none; border-bottom: 1px solid #eef1f6; background: transparent !important;
+      font-size: 12.5px;
+    }
+    .rk-table tr.rk-forn td:last-child { border-bottom: none; }
+    .rk-table tr.rk-forn td::before {
+      content: attr(data-label); flex: 0 0 auto; text-align: left;
+      font-weight: 700; font-size: 10.5px; letter-spacing: .4px; text-transform: uppercase;
+      color: #8190b0; white-space: nowrap;
+    }
+    .rk-table tr.rk-forn td:first-child {
+      font-weight: 800; font-size: 13.5px; color: #1a3a6b;
+      background: rgba(26,58,107,.05) !important; padding: 10px 13px;
+    }
+    .rk-table tr.rk-forn td:first-child::before { color: #5a6e99; }
+    .rk-table tr.rk-forn td.r { white-space: nowrap !important; }
+    .rk-table tr.rk-forn td.sit { flex-direction: column; align-items: stretch; text-align: left !important; gap: 0; }
+    .rk-table tr.rk-forn td.sit::before { margin-bottom: 7px; }
+    .rk-table tr.rk-hidden-row { display: block; margin-bottom: 10px; }
+    .rk-table tr.rk-hidden-row td { display: block; text-align: center !important; border-radius: 9px; }
+    .rk-table tr.rk-hidden-row td::before { content: ""; display: none; }
+    .rk-sit-btns { justify-content: flex-start; }
+    .rk-motivo-input { min-height: 60px; }
+    /* Habilitação: botões e documentos acomodam-se melhor no estreito */
+    .hab-doc { flex-wrap: wrap; }
+    .hab-doc-nome { flex: 1 1 100%; }
+    .hab-doc-btns { width: 100%; justify-content: flex-end; }
+    .hab-info-row { gap: 8px; }
+  }
+  @media (max-width: 420px) {
+    .rk-table tr.rk-forn td { flex-direction: column; align-items: stretch; gap: 2px; text-align: left !important; }
+    .rk-table tr.rk-forn td.r { text-align: left !important; }
+  }
+
   /* ── GRID PRINCIPAL: melhor aproveitamento em janela de meia-tela ──────────
      Entre o desktop cheio (>1100px) e o celular (≤768px) ficava 1 coluna só,
      desperdiçando espaço. Aqui empacotamos 2 colunas mais estreitas. */
@@ -1106,7 +1170,7 @@
       <span class="search-icon">&#128269;</span>
       <input type="text" id="search" placeholder="Buscar por número, objeto ou responsável..." oninput="renderizar()">
     </div>
-    <div style="display:flex;flex-direction:column;gap:8px;flex:1">
+    <div style="display:flex;flex-direction:column;gap:8px;flex:1;min-width:0">
       <!-- Linha 0: Ano + Ordenação -->
       <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
         <div style="display:flex;align-items:center;gap:6px">
@@ -1965,6 +2029,24 @@ db.collection("status").onSnapshot(function(snap){
   if(processos.length) renderizar();
 }, function(err){ console.error("Status:", err); statusList=STATUS_DEFAULT.slice(); statusListAll=STATUS_DEFAULT.slice(); renderSelectStatus(); });
 
+/* ── Rolagem da área de atualizações só depois de clicar/tocar nela ──────────
+   Assim girar o mouse ou deslizar o dedo rola a PÁGINA; a lista interna só
+   rola quando o usuário clica em cima dela primeiro. */
+document.addEventListener("click", function(e){
+  var area = e.target.closest(".updates-area");
+  document.querySelectorAll(".updates-area.scroll-active").forEach(function(a){
+    if(a!==area) a.classList.remove("scroll-active");
+  });
+  if(area && area.classList.contains("has-overflow")) area.classList.add("scroll-active");
+});
+/* Marca quais áreas têm conteúdo além do visível (mostra a dica "role para ver mais") */
+function marcarUpdatesOverflow(){
+  document.querySelectorAll(".updates-area").forEach(function(a){
+    if(a.scrollHeight > a.clientHeight + 2) a.classList.add("has-overflow");
+    else { a.classList.remove("has-overflow"); a.classList.remove("scroll-active"); }
+  });
+}
+
 // ── Delegação de eventos nos cards ────────────────────────────────────────────
 document.addEventListener("click", function(e){
   // Botão de excluir evento do feed (classe evt-del, não data-action)
@@ -2377,6 +2459,7 @@ function renderizar(){
     var _re=document.getElementById(_focoId);
     if(_re){ _re.focus(); try{ _re.setSelectionRange(_selS,_selE); }catch(e){} }
   }
+  marcarUpdatesOverflow();
   renderHoje();
   atualizarStats();
 }
@@ -3193,6 +3276,12 @@ function renderImpugnacoes(){
       });
 
   document.getElementById("impBadge").textContent = impugnacoes.length;
+  /* Sem itens visíveis → seção recolhida automaticamente; com itens → aberta */
+  impSectionOpen = listaImp.length > 0;
+  var _impBody = document.getElementById("impSectionBody");
+  var _impIcon = document.getElementById("impToggleIcon");
+  if(_impBody) _impBody.style.display = impSectionOpen ? "block" : "none";
+  if(_impIcon) _impIcon.innerHTML = impSectionOpen ? "&#9660;" : "&#9658;";
   if(!listaImp.length){
     el.innerHTML = '<div style="grid-column:1/-1;text-align:center;color:var(--muted);font-size:13px;padding:20px;font-style:italic">Nenhuma impugnacao ou esclarecimento' + (filtroAgente!=="todos" ? ' para este agente.' : ' cadastrado.') + '</div>';
     return;
@@ -4485,7 +4574,12 @@ function rkRenderRanking(){
       } else if(st==='aprovado') sitHTML+='<span class="rk-badge ap">Aprovado</span>';
       else if(st==='reprovado') sitHTML+='<span class="rk-badge rp">Reprovado</span><br><textarea class="rk-motivo-input" placeholder="Motivo da reprovação..." oninput="rkSetMotivo(this.dataset.key,this.value);this.nextElementSibling.textContent=this.value;rkAutoResize(this)" data-key="'+escHtml(key)+'">'+escHtml(mv)+'</textarea><div class="rk-motivo-print">'+escHtml(mv)+'</div>';
       else if(st==='diligencia') sitHTML+='<span class="rk-badge dil">Diligência</span><br><textarea class="rk-motivo-input" style="border-color:#bfdbfe;background:#eff6ff" placeholder="Motivo da diligência..." oninput="rkSetMotivo(this.dataset.key,this.value);this.nextElementSibling.textContent=this.value;rkAutoResize(this)" data-key="'+escHtml(key)+'">'+escHtml(mv)+'</textarea><div class="rk-motivo-print" style="color:#1d4ed8">'+escHtml(mv)+'</div>';
-      tr.innerHTML='<td>'+escHtml(f.nome)+'</td><td class="r">'+escHtml(f.valor)+'</td><td class="r"><span class="'+pc+'">'+pv+'</span></td><td>'+escHtml(f.modelo)+'</td><td>'+escHtml(f.marca)+'</td><td class="sit">'+sitHTML+'</td>';
+      tr.innerHTML='<td data-label="Fornecedor">'+escHtml(f.nome)+'</td>'
+        +'<td class="r" data-label="Valor Unit.">'+escHtml(f.valor)+'</td>'
+        +'<td class="r" data-label="Ref.">'+'<span class="'+pc+'">'+pv+'</span></td>'
+        +'<td data-label="Modelo">'+escHtml(f.modelo)+'</td>'
+        +'<td data-label="Marca/Fabricante">'+escHtml(f.marca)+'</td>'
+        +'<td class="sit" data-label="Situação / Motivo">'+sitHTML+'</td>';
       tr.querySelectorAll('[data-rkst]').forEach(function(btn){
         btn.addEventListener('click',function(){ rkSetEstado(btn.dataset.key, btn.dataset.rkst); });
       });
