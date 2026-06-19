@@ -456,6 +456,8 @@
   /* Hab panel */
   #habPanel{position:fixed;inset:0;background:#f0f2f5;z-index:500;display:none;flex-direction:column;overflow:hidden}
   #habPanel.open{display:flex}
+  #vencPanel{position:fixed;inset:0;background:#f0f2f5;z-index:500;display:none;flex-direction:column;overflow:hidden}
+  #vencPanel.open{display:flex}
   .hab-card{background:#fff;border-radius:14px;padding:16px 18px;margin-bottom:12px;box-shadow:0 1px 5px rgba(26,58,107,.07);border-left:5px solid #e2e6ec;transition:border-color .2s}
   .hab-card.habil{border-left-color:#1E5F3A;background:#fbfffd}
   .hab-card.inabil{border-left-color:#A32D2D;background:#fffbfb}
@@ -465,6 +467,18 @@
   .hab-badge.habil{background:#d4edda;color:#1E5F3A}
   .hab-badge.inabil{background:#f8d7da;color:#A32D2D}
   .hab-badge.pend{background:#f0f0f0;color:#888}
+  /* Painel Vencedores */
+  .venc-card{background:#fff;border-radius:10px;margin-bottom:14px;box-shadow:0 1px 5px rgba(26,58,107,.07);overflow:hidden;border:1px solid #ddd}
+  .venc-head{background:#102040;padding:10px 14px}
+  .venc-head-nome{color:#fff;font-weight:700;font-size:14px}
+  .venc-head-meta{color:rgba(255,255,255,.65);font-size:10.5px;margin-top:3px;line-height:1.4}
+  .venc-total-row{display:flex;justify-content:flex-end;gap:10px;padding:8px 14px;background:#f7f9fd;border-top:1px solid #e2e6ec;font-size:12px;font-weight:700;color:#102040}
+  .venc-total-row span{color:#1E5F3A}
+  .venc-grand-total{text-align:right;font-size:16px;font-weight:800;color:#102040;padding:16px 4px 4px}
+  .venc-grand-total span{color:#1E5F3A}
+  .venc-nota{font-size:11px;color:#A32D2D;text-align:right;padding:4px}
+  .venc-search{width:100%;max-width:320px;padding:9px 12px;border:1.5px solid var(--border);border-radius:9px;font-size:13px;font-family:Arial,sans-serif;outline:none;margin-bottom:14px}
+  .venc-search:focus{border-color:#1a3a6b}
   .hab-info-row{font-size:12px;color:#666;margin-bottom:12px;display:flex;gap:12px;flex-wrap:wrap;align-items:center}
   .hab-info-row b{color:#333}
   .hab-btns{display:flex;gap:10px}
@@ -709,8 +723,27 @@
   }
   .rks-card.rks-fracassado{border-left-color:#888;background:#f9f9f9}
   .rks-card.rks-confirmando{border-left-color:#A32D2D;background:#fffbfb}
+  .rks-card.rks-diligencia{border-left-color:#1d4ed8;background:#f7faff}
   .rks-prev-badge{background:#fff0f0;color:#A32D2D;font-size:11px;font-weight:700;padding:3px 9px;border-radius:8px;border:1px solid #fca5a5}
   .rks-forn-frac{opacity:.55}
+  /* Lista de colocações (registro dos reprovados + colocação atual) */
+  .rks-coloc-wrap{margin-bottom:16px;padding-bottom:14px;border-bottom:1px solid #eef0f3;display:flex;flex-direction:column;gap:8px}
+  .rks-coloc-rep{background:#fbf6f6;border:1px solid #f0dada;border-radius:9px;padding:7px 11px}
+  .rks-coloc-rep-linha{display:flex;flex-wrap:wrap;align-items:center;gap:7px;font-size:12px;color:#8a6d6d}
+  .rks-coloc-pos{font-weight:700;color:#A32D2D;background:#fdeeee;border:1px solid #f3cccc;border-radius:7px;padding:2px 8px;font-size:11px;white-space:nowrap}
+  .rks-coloc-nome-rep{font-weight:700;color:#6b4a4a}
+  .rks-coloc-tag-rep{margin-left:auto;font-size:11px;font-weight:700;color:#A32D2D;text-transform:uppercase;letter-spacing:.3px}
+  .rks-coloc-motivo-rep{margin-top:5px;font-size:11.5px;color:#9a7b7b;line-height:1.45;font-style:italic;white-space:pre-wrap}
+  .rks-coloc-atual{padding:2px 0}
+  .rks-coloc-atual.dilig{background:#eef4ff;border:1px solid #cfe0ff;border-radius:11px;padding:11px 13px}
+  .rks-coloc-atual-pos{display:inline-block;font-size:11px;font-weight:700;color:#1a3a6b;background:#e8eefb;border:1px solid #c9d6f0;border-radius:7px;padding:2px 9px;margin-bottom:8px}
+  .rks-coloc-atual.dilig .rks-coloc-atual-pos{color:#1d4ed8;background:#dde9ff;border-color:#bcd2fb}
+  /* Diligência salva (cor azul) */
+  .rks-dilig-saved{background:#eff6ff;border:1.5px solid #bfdbfe;border-radius:11px;padding:11px 14px;margin-bottom:12px}
+  .rks-dilig-saved-head{font-size:13px;font-weight:800;color:#1d4ed8;margin-bottom:5px}
+  .rks-dilig-saved-text{font-size:14px;color:#1d4ed8;line-height:1.5;white-space:pre-wrap}
+  .rks-dilig-saved-text.rks-dilig-empty{color:#7da0d8;font-style:italic;font-weight:500}
+  .rks-sbtn.sel-dil{border-color:#1d4ed8;background:#1d4ed8;color:#fff;box-shadow:0 3px 10px rgba(29,78,216,.28)}
   .rks-fracassado-badge{background:#f3f4f6;border:1.5px solid #d1d5db;border-radius:10px;padding:12px 16px;color:#6b7280;font-size:14px;font-weight:600;text-align:center}
   /* Confirm flow */
   .rks-confirm-wrap{display:flex;flex-direction:column;gap:10px}
@@ -762,6 +795,8 @@
   .card-pin-btn { background: none; border: 1.5px solid var(--border); border-radius: 8px; width: 34px; height: 34px; flex-shrink: 0; cursor: pointer; font-size: 15px; line-height: 1; color: var(--muted); transition: all .15s; display: flex; align-items: center; justify-content: center; }
   .card-pin-btn:hover { border-color: var(--gold); color: var(--gold); }
   .card-pin-btn.on { background: var(--gold); border-color: var(--gold); color: #fff; }
+  .card-cfg-btn { background: none; border: 1.5px solid var(--border); border-radius: 7px; width: 34px; height: 34px; flex: none; flex-shrink: 0; cursor: pointer; font-size: 14px; line-height: 1; color: var(--muted); transition: all .15s; display: flex; align-items: center; justify-content: center; }
+  .card-cfg-btn:hover { border-color: var(--navy); color: var(--navy); background: #eef1f8; }
 
   /* ── Observação específica do processo (aparece na agenda) ──────────────── */
   .card-obs-wrap { padding: 10px 19px; border-top: 1px solid var(--border); background: #fbfcff; }
@@ -865,11 +900,11 @@
      (uso lado a lado com o portal) o zoom reduz pra caber; no celular 1:1.
      Largura útil = viewport / zoom — mantida ~constante (~850px) nas faixas.
      ═══════════════════════════════════════════════════════════════════════ */
-  #rankingPanel, #habPanel { zoom: 1; }
-  @media (min-width: 820px)  { #rankingPanel, #habPanel { zoom: 1.05; } }
-  @media (min-width: 980px)  { #rankingPanel, #habPanel { zoom: 1.20; } }
-  @media (min-width: 1160px) { #rankingPanel, #habPanel { zoom: 1.45; } }
-  @media (min-width: 1360px) { #rankingPanel, #habPanel { zoom: 1.70; } }
+  #rankingPanel, #habPanel, #vencPanel { zoom: 1; }
+  @media (min-width: 820px)  { #rankingPanel, #habPanel, #vencPanel { zoom: 1.05; } }
+  @media (min-width: 980px)  { #rankingPanel, #habPanel, #vencPanel { zoom: 1.20; } }
+  @media (min-width: 1160px) { #rankingPanel, #habPanel, #vencPanel { zoom: 1.45; } }
+  @media (min-width: 1360px) { #rankingPanel, #habPanel, #vencPanel { zoom: 1.70; } }
 
   /* Topbar dos painéis: permite quebrar e encolher quando estreito */
   .rk-topbar { flex-wrap: wrap; height: auto; min-height: 56px; padding: 8px 16px; row-gap: 8px; }
@@ -1773,6 +1808,7 @@
     <div class="rk-topbar-actions">
       <button class="rk-btn rk-btn-import" onclick="rkCopiarLink()" title="Copiar link para preencher análise">&#128279; Compartilhar</button>
       <button class="rk-btn rk-btn-import" id="rkBtnToggleOculto" onclick="rkToggleModoOculto()" title="Alterna entre mostrar só os fornecedores relevantes ou todos">&#128065; Mostrar Todos</button>
+      <button class="rk-btn rk-btn-import" id="rkBtnOcultarRep" onclick="rkToggleOcultarReprovados()" title="Mostra só o fornecedor atual de cada item (aprovado ou pendente), ocultando os reprovados">&#128683; Ocultar Reprovados</button>
       <label class="rk-btn rk-btn-import" style="cursor:pointer">
         &#128196; Importar JSON
         <input type="file" id="rkFileInput" accept=".json" style="display:none">
@@ -1847,6 +1883,35 @@
     <div id="habLista"></div>
   </div>
 </div><!-- /#habPanel -->
+
+<!-- ══ PAINEL VENCEDORES ══════════════════════════════════════════════════ -->
+<div id="vencPanel">
+  <div class="rk-topbar">
+    <div class="rk-topbar-left">
+      <button class="rk-btn" onclick="fecharVencedores()">&#8592; Voltar</button>
+      <h2 class="rk-panel-title" id="vencPanelTitle">Vencedores</h2>
+    </div>
+    <div class="rk-topbar-actions">
+      <button class="rk-btn rk-btn-pdf" style="background:#1a3a6b" onclick="vencGerarWord()">&#128196; Baixar Word</button>
+      <button class="rk-btn rk-btn-close" onclick="fecharVencedores()">&#10005;</button>
+    </div>
+  </div>
+  <div class="rk-stats" id="vencStatsWrap" style="display:none">
+    <div class="rk-stat stotal"><div class="n" id="vencs-emp">0</div><div class="l">Empresas Vencedoras</div></div>
+    <div class="rk-stat sap"><div class="n" id="vencs-itens">0</div><div class="l">Itens Arrematados</div></div>
+    <div class="rk-stat" style="background:#fff8ea"><div class="n" style="color:#102040" id="vencs-total">R$ 0,00</div><div class="l">Valor Total</div></div>
+  </div>
+  <div class="rk-body" id="vencBody">
+    <div class="rk-empty-state" id="vencEmpty">
+      <h3>Nenhuma empresa vencedora ainda</h3>
+      <p>O relatório de <strong>Vencedores</strong> é gerado automaticamente a partir do <strong>Ranking de Propostas</strong>.<br>Aprove os itens no painel <strong>Propostas</strong> deste processo — as empresas com itens arrematados aparecerão aqui.</p>
+    </div>
+    <div id="vencConteudo" style="display:none">
+      <input type="text" class="venc-search" id="vencFiltroForn" placeholder="Buscar empresa..." oninput="vencOnFiltro()">
+      <div id="vencLista"></div>
+    </div>
+  </div>
+</div><!-- /#vencPanel -->
 
 <!-- ══ MODAL QUALIFICAÇÃO TÉCNICA (9.19) ══ -->
 <div class="overlay" id="modalHabTec">
@@ -2093,6 +2158,7 @@ document.addEventListener("click", function(e){
   }
   if(action === "portal" && pid) { /* removido */ }
   if(action === "ranking" && pid) abrirRanking(pid);
+  if(action === "vencedores" && pid) abrirVencedores(pid);
   if(action === "habilitacao" && pid) abrirHabilitacao(pid);
 });
 
@@ -2439,9 +2505,10 @@ function renderizar(){
     html+='<textarea class="card-obs-input" id="obsin_'+escHtml(p.id)+'" placeholder="Anote algo sobre este processo… (aparece na Agenda)" oninput="onProcObsInput(\''+escHtml(p.id)+'\',this)">'+escHtml(p.observacao||"")+'</textarea>';
     html+='</div>';
     html+='<div class="card-footer">';
-    html+='<button class="btn-sm" data-action="editar">Editar</button>';
     html+='<button class="btn-sm" data-action="ranking" style="background:#102040;color:#fff;border-color:#102040">&#128202; Propostas</button>';
     html+='<button class="btn-sm" data-action="habilitacao" style="background:#1E5F3A;color:#fff;border-color:#1E5F3A">&#9989; Habilitação</button>';
+    html+='<button class="btn-sm" data-action="vencedores" style="background:#e8a020;color:#fff;border-color:#e8a020">&#127942; Vencedores</button>';
+    html+='<button class="card-cfg-btn" data-action="editar" title="Editar processo">&#9881;&#65039;</button>';
     html+='</div></div>';
   }
   /* preserva foco e cursor da observação que está sendo digitada antes de reconstruir */
@@ -3509,10 +3576,19 @@ var rkFiltroAtivo = null;
 var rkFiltroNum = '';
 var rkFiltroDesc = '';
 var rkFiltroForn = '';
-var rkModoOculto = true; // por padrão oculta os fornecedores além do atual
+var rkModoOculto = true; /* por padrão oculta os fornecedores além do atual */
+var rkOcultarReprovados = false; /* quando true: mostra só o fornecedor atual (aprovado ou pendente), nunca reprovados */
 
-// Retorna os índices dos fornecedores a exibir para um item
+/* Retorna os índices dos fornecedores a exibir para um item */
 function rkFornVisiveis(it){
+  if(rkOcultarReprovados){
+    var atualIdx=-1;
+    for(var k=0;k<it.fornecedores.length;k++){
+      var stR=rkEstados[it.num+'-'+k]||'neutro';
+      if(stR!=='reprovado'){ atualIdx=k; break; }
+    }
+    return atualIdx!==-1?[atualIdx]:[];
+  }
   if(!rkModoOculto) return it.fornecedores.map(function(_,k){ return k; });
   var vistos=[], firstAtivo=-1;
   for(var k=0;k<it.fornecedores.length;k++){
@@ -3531,10 +3607,57 @@ function rkToggleModoOculto(){
   if(btn) btn.innerHTML=rkModoOculto?'&#128065; Mostrar Todos':'&#128065; Ocultar Classificados';
   rkRenderRanking();
 }
+function rkToggleOcultarReprovados(){
+  rkOcultarReprovados=!rkOcultarReprovados;
+  var btn=document.getElementById('rkBtnOcultarRep');
+  if(btn) btn.innerHTML=rkOcultarReprovados?'&#128064; Mostrar Reprovados':'&#128683; Ocultar Reprovados';
+  rkRenderRanking();
+}
 var rkMotivoTimer = null;
+/* Sincronização em tempo real do painel de Propostas (COPAM) com a nuvem.
+   rkOwn evita que o eco da própria gravação re-renderize e tire o foco/scroll;
+   rkPendingSnap guarda atualizações recebidas durante digitação/confirmação
+   para reaplicar assim que o usuário terminar. */
+var rkUnsubscribe=null, rkOwn=false, rkOwnTimer=null, rkPendingSnap=null, rkHasPending=false;
+
+function rkApplySnap(d){
+  if(d){
+    rkItens=d.itens||[];
+    rkEstados=d.estados||{};
+    rkMotivos=d.motivos||{};
+    rkEventos=d.eventos||[];
+  } else {
+    rkItens=[]; rkEstados={}; rkMotivos={}; rkEventos=[];
+  }
+  var noJson=document.getElementById('rkNoJson');
+  if(rkItens.length){
+    if(noJson) noJson.style.display='none';
+    document.getElementById('rkConteudo').style.display='block';
+    rkRenderProcesso();
+  } else {
+    if(noJson){
+      noJson.innerHTML='<h3>Nenhum ranking importado para este processo</h3><p>Clique em <strong>Importar JSON</strong> para carregar o arquivo de ranking.</p>';
+      noJson.style.display='block';
+    }
+    document.getElementById('rkConteudo').style.display='none';
+  }
+}
+function rkDigitando(){
+  var a=document.activeElement;
+  return !!(a&&a.classList&&a.classList.contains('rk-motivo-input'));
+}
+function rkFlushPending(){
+  if(!rkHasPending) return;
+  if(rkOwn||rkPendConfirm!==null||rkDigitando()) return;
+  rkHasPending=false;
+  rkApplySnap(rkPendingSnap);
+}
 
 function rkSalvarFirestore(){
   if(!rkProcessoAtual) return;
+  rkOwn=true;
+  if(rkOwnTimer) clearTimeout(rkOwnTimer);
+  rkOwnTimer=setTimeout(function(){ rkOwn=false; rkFlushPending(); }, 2500);
   rkColRef.doc(rkProcessoAtual.id).set({
     itens: rkItens,
     estados: rkEstados,
@@ -3586,28 +3709,27 @@ function abrirRanking(pid){
   noJson.style.display='block';
   document.getElementById('rkConteudo').style.display='none';
   document.getElementById('rankingPanel').classList.add('open');
-  rkColRef.doc(pid).get().then(function(doc){
-    if(doc.exists){
-      var d=doc.data();
-      rkItens=d.itens||[];
-      rkEstados=d.estados||{};
-      rkMotivos=d.motivos||{};
-      rkEventos=d.eventos||[];
+  if(rkUnsubscribe){ rkUnsubscribe(); rkUnsubscribe=null; }
+  rkOwn=false; rkHasPending=false; rkPendingSnap=null; rkPendConfirm=null;
+  var primeiraCarga=true;
+  rkUnsubscribe=rkColRef.doc(pid).onSnapshot(function(doc){
+    var d=doc.exists?doc.data():null;
+    if(primeiraCarga){
+      primeiraCarga=false;
+      rkApplySnap(d);
+      return;
     }
-    if(rkItens.length){
-      noJson.style.display='none';
-      document.getElementById('rkConteudo').style.display='block';
-      rkRenderProcesso();
-    } else {
-      noJson.innerHTML='<h3>Nenhum ranking importado para este processo</h3><p>Clique em <strong>Importar JSON</strong> para carregar o arquivo de ranking.</p>';
-      noJson.style.display='block';
-      document.getElementById('rkConteudo').style.display='none';
-    }
-  }).catch(function(e){
-    noJson.innerHTML='<h3>Erro ao carregar</h3><p>'+e.message+'</p>';
+    if(rkOwn||rkPendConfirm!==null||rkDigitando()){ rkPendingSnap=d; rkHasPending=true; return; }
+    rkApplySnap(d);
+  }, function(e){
+    if(noJson) noJson.innerHTML='<h3>Erro ao carregar</h3><p>'+e.message+'</p>';
   });
 }
-function fecharRanking(){ document.getElementById('rankingPanel').classList.remove('open'); }
+function fecharRanking(){
+  document.getElementById('rankingPanel').classList.remove('open');
+  if(rkUnsubscribe){ rkUnsubscribe(); rkUnsubscribe=null; }
+  rkHasPending=false; rkPendingSnap=null;
+}
 
 // ══ HABILITAÇÃO ══════════════════════════════════════════════════════════════
 // Empresas derivadas automaticamente do Ranking de Propostas (rankings/{pid}).
@@ -4243,6 +4365,210 @@ function habGerarPDF(){
   doc.save(fname);
 }
 
+/* ══ VENCEDORES ══════════════════════════════════════════════════════════════
+   Relatório por empresa dos itens arrematados (status "aprovado" no Ranking
+   de Propostas), no estilo do relatório "Vencedores do Processo" do Portal
+   de Compras Públicas. Comunica-se em tempo real com rankings/{pid}. */
+var vencProcessoAtual=null, vencRkUnsubscribe=null, vencEmpresas=[], vencFiltro='';
+
+function vencNum(v){
+  if(v===undefined||v===null||v==='') return null;
+  if(typeof v==='number') return isNaN(v)?null:v;
+  var s=String(v).trim();
+  if(!s) return null;
+  s=s.replace(/\./g,'').replace(',', '.').replace(/[^0-9.\-]/g,'');
+  var n=parseFloat(s);
+  return isNaN(n)?null:n;
+}
+function vencFmtBRL(n){
+  return (n||0).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+}
+function vencFmtNum(n){
+  return n.toLocaleString('pt-BR');
+}
+function habKeyEmpresaVenc(nome){ return habKeyEmpresa(nome); }
+
+/* Deriva a lista de empresas vencedoras com o detalhe completo dos itens
+   arrematados (apenas itens com status "aprovado" — itens pendentes,
+   em diligência ou reprovados não entram no relatório final). */
+function vencDerivarEmpresas(itens, estados){
+  var map={}, ordem=[];
+  (itens||[]).forEach(function(it){
+    if(!it.fornecedores||!it.fornecedores.length) return;
+    var win=-1;
+    for(var k=0;k<it.fornecedores.length;k++){
+      if((estados||{})[it.num+'-'+k]==='aprovado'){ win=k; break; }
+    }
+    if(win===-1) return;
+    var f=it.fornecedores[win];
+    var key=habKeyEmpresaVenc(f.nome);
+    if(!key) return;
+    if(!map[key]){
+      map[key]={
+        nome:f.nome, tipo:f.tipo||'', lc123:(f.lc123!==undefined?f.lc123:(f.LC123!==undefined?f.LC123:'')),
+        cnpj:f.cnpj||f.CNPJ||f.documento||'', endereco:f.endereco||f.logradouro||'',
+        cep:f.cep||'', uf:f.uf||'', cidade:f.cidade||f.municipio||'', telefone:f.telefone||f.fone||'',
+        itens:[], total:0, totalParcial:false
+      };
+      ordem.push(key);
+    }
+    var emp=map[key];
+    if(!emp.tipo&&f.tipo) emp.tipo=f.tipo;
+    if(emp.lc123===''&&f.lc123!==undefined) emp.lc123=f.lc123;
+    if(!emp.cnpj&&(f.cnpj||f.CNPJ||f.documento)) emp.cnpj=f.cnpj||f.CNPJ||f.documento;
+    if(!emp.endereco&&(f.endereco||f.logradouro)) emp.endereco=f.endereco||f.logradouro;
+    if(!emp.cep&&f.cep) emp.cep=f.cep;
+    if(!emp.uf&&f.uf) emp.uf=f.uf;
+    if(!emp.cidade&&(f.cidade||f.municipio)) emp.cidade=f.cidade||f.municipio;
+    if(!emp.telefone&&(f.telefone||f.fone)) emp.telefone=f.telefone||f.fone;
+    var qtde=vencNum(it.qtde!==undefined?it.qtde:(it.quantidade!==undefined?it.quantidade:it.qtd));
+    var unidade=it.unidade||it.unid||it.um||'';
+    var valorUnit=rkParseBRL(f.valor);
+    var valorTotal=(qtde!==null)?qtde*valorUnit:null;
+    if(valorTotal!==null) emp.total+=valorTotal; else emp.totalParcial=true;
+    emp.itens.push({num:it.num, desc:it.desc||'', modelo:f.modelo||'', marca:f.marca||'', qtde:qtde, unidade:unidade, valorUnit:valorUnit, valorTotal:valorTotal});
+  });
+  var lista=ordem.map(function(k){ return map[k]; });
+  lista.sort(function(a,b){ return a.nome.localeCompare(b.nome,'pt-BR'); });
+  return lista;
+}
+
+function abrirVencedores(pid){
+  var proc=processos.find(function(p){ return p.id===pid; });
+  if(!proc) return;
+  vencProcessoAtual=proc;
+  document.getElementById('vencPanelTitle').textContent='Vencedores — '+proc.numero;
+  vencFiltro='';
+  var fi=document.getElementById('vencFiltroForn'); if(fi) fi.value='';
+  vencEmpresas=[];
+  document.getElementById('vencPanel').classList.add('open');
+  if(vencRkUnsubscribe){ vencRkUnsubscribe(); vencRkUnsubscribe=null; }
+  vencRkUnsubscribe=rkColRef.doc(pid).onSnapshot(function(doc){
+    var itens=[], estados={};
+    if(doc.exists){ var d=doc.data(); itens=d.itens||[]; estados=d.estados||{}; }
+    vencEmpresas=vencDerivarEmpresas(itens, estados);
+    vencRenderLista();
+  }, function(err){ console.error('Vencedores/ranking snapshot error:', err); });
+}
+function fecharVencedores(){
+  document.getElementById('vencPanel').classList.remove('open');
+  if(vencRkUnsubscribe){ vencRkUnsubscribe(); vencRkUnsubscribe=null; }
+}
+function vencOnFiltro(){
+  vencFiltro=(document.getElementById('vencFiltroForn').value||'').trim().toLowerCase();
+  vencRenderLista();
+}
+
+function vencRenderLista(){
+  var empty=document.getElementById('vencEmpty');
+  var cont=document.getElementById('vencConteudo');
+  var statsWrap=document.getElementById('vencStatsWrap');
+  if(!vencEmpresas.length){
+    empty.style.display='block'; cont.style.display='none'; statsWrap.style.display='none';
+    return;
+  }
+  empty.style.display='none'; cont.style.display='block'; statsWrap.style.display='flex';
+  var totalItens=0, totalGeral=0, parcial=false;
+  vencEmpresas.forEach(function(e){ totalItens+=e.itens.length; totalGeral+=e.total; if(e.totalParcial) parcial=true; });
+  document.getElementById('vencs-emp').textContent=vencEmpresas.length;
+  document.getElementById('vencs-itens').textContent=totalItens;
+  document.getElementById('vencs-total').textContent='R$ '+vencFmtBRL(totalGeral);
+  var lista=vencEmpresas;
+  if(vencFiltro) lista=lista.filter(function(e){ return e.nome.toLowerCase().indexOf(vencFiltro)!==-1; });
+  var html='';
+  if(!lista.length){
+    html='<div class="rk-no-results">Nenhuma empresa encontrada para a busca informada.</div>';
+  } else {
+    lista.forEach(function(e){
+      html+='<div class="venc-card">';
+      html+='<div class="venc-head"><div class="venc-head-nome">'+escHtml(e.nome)+'</div>';
+      var meta=[];
+      if(e.tipo) meta.push('Tipo: '+escHtml(e.tipo));
+      if(e.lc123!=='') meta.push('LC123: '+escHtml(e.lc123===true?'Sim':e.lc123===false?'Não':String(e.lc123)));
+      if(e.cnpj) meta.push('Documento '+escHtml(e.cnpj));
+      if(e.endereco) meta.push('Endereço: '+escHtml(e.endereco));
+      if(e.cep) meta.push('CEP: '+escHtml(e.cep));
+      if(e.uf) meta.push('UF: '+escHtml(e.uf));
+      if(e.cidade) meta.push('Município: '+escHtml(e.cidade));
+      if(e.telefone) meta.push('Telefone: '+escHtml(e.telefone));
+      if(meta.length) html+='<div class="venc-head-meta">'+meta.join(' &middot; ')+'</div>';
+      html+='</div>';
+      html+='<div class="rk-table-scroll"><table class="rk-table"><thead><tr><th>Código</th><th>Produto</th><th>Modelo</th><th>Marca/Fabricante</th><th class="r">Qtde</th><th class="r">Valor Unit.</th><th class="r">Valor Total</th></tr></thead><tbody>';
+      e.itens.forEach(function(it){
+        html+='<tr class="neutro"><td data-label="Código">'+escHtml(it.num)+'</td><td data-label="Produto">'+escHtml(it.desc)+'</td><td data-label="Modelo">'+escHtml(it.modelo)+'</td><td data-label="Marca/Fabricante">'+escHtml(it.marca)+'</td>'
+          +'<td class="r" data-label="Qtde">'+(it.qtde!==null?vencFmtNum(it.qtde)+(it.unidade?' '+escHtml(it.unidade):''):'—')+'</td>'
+          +'<td class="r" data-label="Valor Unit.">R$ '+vencFmtBRL(it.valorUnit)+'</td>'
+          +'<td class="r" data-label="Valor Total">'+(it.valorTotal!==null?'R$ '+vencFmtBRL(it.valorTotal):'—')+'</td></tr>';
+      });
+      html+='</tbody></table></div>';
+      html+='<div class="venc-total-row">TOTAL DO VENCEDOR&nbsp; <span>R$ '+vencFmtBRL(e.total)+'</span></div>';
+      html+='</div>';
+    });
+    html+='<div class="venc-grand-total">Valor Total: <span>R$ '+vencFmtBRL(totalGeral)+'</span></div>';
+    if(parcial) html+='<p class="venc-nota">* Itens sem quantidade informada não entram nos totais. Inclua o campo de quantidade no JSON importado no Ranking para completar os valores.</p>';
+  }
+  document.getElementById('vencLista').innerHTML=html;
+}
+
+/* Exporta a relação de vencedores em um arquivo .doc (compatível com o Word),
+   sem depender de bibliotecas externas — mesmo padrão de robustez do restante
+   do sistema (single-file, sem build). */
+function vencGerarWord(){
+  if(!vencEmpresas.length){ toast('Nenhuma empresa vencedora para exportar.'); return; }
+  var numero=(vencProcessoAtual&&vencProcessoAtual.numero)||'';
+  var totalGeral=0; vencEmpresas.forEach(function(e){ totalGeral+=e.total; });
+  var body='';
+  vencEmpresas.forEach(function(e){
+    var meta=[];
+    if(e.tipo) meta.push('Tipo: '+escHtml(e.tipo));
+    if(e.lc123!=='') meta.push('LC123: '+escHtml(e.lc123===true?'Sim':e.lc123===false?'Não':String(e.lc123)));
+    if(e.cnpj) meta.push('Documento '+escHtml(e.cnpj));
+    if(e.endereco) meta.push('Endereço: '+escHtml(e.endereco));
+    if(e.cep) meta.push('CEP: '+escHtml(e.cep));
+    if(e.uf) meta.push('UF: '+escHtml(e.uf));
+    if(e.cidade) meta.push('Município: '+escHtml(e.cidade));
+    if(e.telefone) meta.push('Telefone: '+escHtml(e.telefone));
+    body+='<div class="empresa">'+escHtml(e.nome)+(meta.length?' | '+meta.join(' - '):'')+'</div>';
+    body+='<table><thead><tr><th>Código</th><th>Produto</th><th>Modelo</th><th>Marca/Fabricante</th><th class="r">Qtde</th><th class="r">Valor Unit.</th><th class="r">Valor Total</th></tr></thead><tbody>';
+    e.itens.forEach(function(it){
+      body+='<tr><td>'+escHtml(it.num)+'</td><td>'+escHtml(it.desc)+'</td><td>'+escHtml(it.modelo)+'</td><td>'+escHtml(it.marca)+'</td>'
+        +'<td class="r">'+(it.qtde!==null?vencFmtNum(it.qtde)+(it.unidade?' '+escHtml(it.unidade):''):'—')+'</td>'
+        +'<td class="r">R$ '+vencFmtBRL(it.valorUnit)+'</td>'
+        +'<td class="r">'+(it.valorTotal!==null?'R$ '+vencFmtBRL(it.valorTotal):'—')+'</td></tr>';
+    });
+    body+='<tr class="totalrow"><td colspan="6" class="r">TOTAL DO VENCEDOR</td><td class="r">R$ '+vencFmtBRL(e.total)+'</td></tr>';
+    body+='</tbody></table>';
+  });
+  var htmlDoc = '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40">'
+    +'<head><meta charset="utf-8"><title>Vencedores '+escHtml(numero)+'</title>'
+    +'<style>'
+    +'body{font-family:Arial,sans-serif;font-size:11pt;color:#162038}'
+    +'h1{font-size:16pt;color:#102040;text-align:center;margin-bottom:2pt}'
+    +'.sub{text-align:center;font-size:10pt;color:#5a6e99;margin:0}'
+    +'.empresa{background:#102040;color:#fff;font-weight:bold;font-size:10.5pt;padding:6pt 8pt;margin-top:14pt}'
+    +'table{width:100%;border-collapse:collapse;margin-bottom:2pt}'
+    +'th{background:#1a3a6b;color:#fff;font-size:9pt;padding:5pt;border:1px solid #cdd5e8;text-align:left}'
+    +'td{font-size:9.5pt;padding:5pt;border:1px solid #cdd5e8}'
+    +'.r{text-align:right}'
+    +'.totalrow td{background:#eef1f8;font-weight:bold;color:#1E5F3A}'
+    +'.grandtotal{text-align:right;font-size:13pt;font-weight:bold;color:#102040;margin-top:18pt}'
+    +'</style></head><body>'
+    +'<h1>VENCEDORES DO PROCESSO</h1>'
+    +'<p class="sub">Município de Ijuí — Poder Executivo</p>'
+    +'<p class="sub">Coordenadoria de Compras, Patrimônio e Administração de Materiais — COPAM'+(numero?' &middot; '+escHtml(numero):'')+'</p>'
+    +body
+    +'<p class="grandtotal">Valor Total: R$ '+vencFmtBRL(totalGeral)+'</p>'
+    +'</body></html>';
+  var blob=new Blob(['\ufeff', htmlDoc], {type:'application/msword'});
+  var url=URL.createObjectURL(blob);
+  var a=document.createElement('a');
+  a.href=url;
+  a.download='Vencedores_'+String(numero).replace(/[^a-zA-Z0-9]/g,'_')+'.doc';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  setTimeout(function(){ URL.revokeObjectURL(url); }, 1500);
+  toast('Word gerado!');
+}
+
 // ── Gerar PDF do Ranking (jsPDF) ──────────────────────────────────────────────
 function rkGerarPDF(){
   if(!window.jspdf||!window.jspdf.jsPDF){ alert('Biblioteca PDF ainda carregando. Aguarde alguns segundos e tente novamente.'); return; }
@@ -4474,6 +4800,7 @@ function rkSetEstado(key, st){
     rkEstados[key]='neutro';
     delete rkMotivos[key];
     rkPendConfirm=null;
+    rkHasPending=false;
     rkSalvarFirestore(); rkRenderProcesso(); return;
   }
   rkPendConfirm={key:key, st:st};
@@ -4486,6 +4813,7 @@ function rkSetEstado(key, st){
 }
 function rkExecutarEstado(key, st, motivo){
   rkPendConfirm=null;
+  rkHasPending=false;
   var sep=key.lastIndexOf('-');
   var numIt=key.slice(0,sep), fIdx=parseInt(key.slice(sep+1),10);
   var it=rkItens.find(function(x){ return String(x.num)===String(numIt); });
@@ -4499,6 +4827,7 @@ function rkExecutarEstado(key, st, motivo){
 function rkCancelarConfirm(){
   rkPendConfirm=null;
   rkRenderRanking();
+  rkFlushPending();
 }
 function rkSetMotivo(key,val){
   rkMotivos[key]=val;
@@ -4597,7 +4926,11 @@ function rkRenderRanking(){
     if(ocultados>0){
       var trOc=document.createElement('tr'); trOc.className='rk-hidden-row';
       trOc.innerHTML='<td colspan="6">&#128274; '+ocultados+' fornecedor'+(ocultados>1?'es':'')+' oculto'+(ocultados>1?'s':'')+' — clique para mostrar todos</td>';
-      trOc.addEventListener('click',function(){ rkModoOculto=false; var btn=document.getElementById('rkBtnToggleOculto'); if(btn) btn.innerHTML='&#128065; Ocultar Classificados'; rkRenderRanking(); });
+      trOc.addEventListener('click',function(){
+        rkOcultarReprovados=false; var btnR=document.getElementById('rkBtnOcultarRep'); if(btnR) btnR.innerHTML='&#128683; Ocultar Reprovados';
+        rkModoOculto=false; var btn=document.getElementById('rkBtnToggleOculto'); if(btn) btn.innerHTML='&#128065; Ocultar Classificados';
+        rkRenderRanking();
+      });
       tbody.appendChild(trOc);
     }
     tbl.appendChild(tbody); var tblWrap=document.createElement('div'); tblWrap.className='rk-table-scroll'; tblWrap.appendChild(tbl); block.appendChild(tblWrap); c.appendChild(block);
@@ -4634,6 +4967,22 @@ function rkCopiarLink(){
   var saveTimer=null, sharedOwn=false;
   var sharedConfirmando=null; // {num, acao} aguardando confirmação
   var sharedFiltroSoPendentes=false;
+  var sPendingSnap=null, sHasPending=false;
+
+  function sApplySnap(d){
+    if(d){
+      sharedItens=d.itens||[]; sharedEstados=d.estados||{};
+      sharedMotivos=d.motivos||{}; sharedNumero=d.numero||'';
+      sharedEvts=d.eventos||[];
+    } else { sharedItens=[]; sharedNumero='Não encontrado'; }
+    sharedRender();
+  }
+  function sFlushPending(){
+    if(!sHasPending) return;
+    if(sharedOwn||sharedConfirmando!==null) return;
+    sHasPending=false;
+    sApplySnap(sPendingSnap);
+  }
 
   function setSaveDot(s){
     var dot=document.getElementById('rksSaveDot'), txt=document.getElementById('rksSaveStatus');
@@ -4647,8 +4996,8 @@ function rkCopiarLink(){
       itens:sharedItens, estados:sharedEstados, motivos:sharedMotivos,
       eventos:sharedEvts,
       numero:sharedNumero, updatedAt:firebase.firestore.FieldValue.serverTimestamp()
-    }).then(function(){ setSaveDot('saved'); setTimeout(function(){ sharedOwn=false; },3000); })
-    .catch(function(){ setSaveDot('idle'); sharedOwn=false; });
+    }).then(function(){ setSaveDot('saved'); setTimeout(function(){ sharedOwn=false; sFlushPending(); },3000); })
+    .catch(function(){ setSaveDot('idle'); sharedOwn=false; sFlushPending(); });
   }
   function triggerSave(){
     setSaveDot('saving');
@@ -4656,10 +5005,15 @@ function rkCopiarLink(){
     saveTimer=setTimeout(doSave, 800);
   }
 
+  function sOrdinalF(n){ return n+'ª'; }
+  function sPrimeiroNome(nome){ var p=String(nome||'').trim().split(/\s+/); return p[0]||String(nome||''); }
+
   function sGetStatus(it){
     var n=String(it.num);
     if(it.fornecedores.some(function(_,i){ return sharedEstados[n+'-'+i]==='aprovado'; })) return 'aprovado';
     if(it.fornecedores.length&&it.fornecedores.every(function(_,i){ return (sharedEstados[n+'-'+i]||'neutro')==='reprovado'; })) return 'fracassado';
+    var idx=sGetFornIdx(it);
+    if(idx>=0&&sharedEstados[n+'-'+idx]==='diligencia') return 'diligencia';
     return '';
   }
   function sGetFornIdx(it){
@@ -4724,37 +5078,73 @@ function rkCopiarLink(){
       var forn=idx>=0?it.fornecedores[idx]:null;
       var isConfirming=(sharedConfirmando&&sharedConfirmando.num===String(it.num));
       var reprovados=sContaReprovados(it);
+      var nIt=String(it.num);
       var cardCls='rks-card';
       if(st==='aprovado') cardCls+=' rks-aprovado';
       else if(st==='fracassado') cardCls+=' rks-fracassado';
+      else if(st==='diligencia') cardCls+=' rks-diligencia';
       else if(isConfirming) cardCls+=' rks-confirmando';
       var titleHtml='<div class="rks-card-title"><span class="rks-item-num">Item '+escHtml(it.num)+'</span>'
         +'<span class="rks-item-ref">'+escHtml(it.ref)+'</span>'+escHtml(it.desc)+'</div>';
-      var showForn=forn||(it.fornecedores[0]||null);
-      var fornHtml=showForn?('<div class="rks-card-forn'+(st==='fracassado'?' rks-forn-frac':'')+'">'
-        +'<span class="rks-forn-nome">'+escHtml(showForn.nome)+'</span>'
-        +'<div class="rks-forn-tags">'
-        +'<span class="rks-forn-tag"><b>Modelo</b> '+escHtml(showForn.modelo||'—')+'</span>'
-        +'<span class="rks-forn-tag"><b>Marca</b> '+escHtml(showForn.marca||'—')+'</span>'
-        +(reprovados>0&&st!=='fracassado'?'<span class="rks-prev-badge">'+reprovados+' reprovado'+(reprovados>1?'s':'')+'</span>':'')
-        +'</div></div>'):'';
-      var isConfirming=(sharedConfirmando&&sharedConfirmando.num===String(it.num));
+
+      /* Lista de colocações: cada reprovado fica registrado em letra pequena
+         ("Nª colocada — Empresa — Reprovado"); a colocação atual (próxima a
+         avaliar) aparece em destaque com modelo/marca. */
+      var fornHtml='<div class="rks-coloc-wrap">';
+      for(var ci=0;ci<it.fornecedores.length;ci++){
+        var cf=it.fornecedores[ci];
+        var ckey=nIt+'-'+ci;
+        var cst=sharedEstados[ckey]||'neutro';
+        var cmv=sharedMotivos[ckey]||'';
+        if(cst==='reprovado'){
+          fornHtml+='<div class="rks-coloc-rep">'
+            +'<div class="rks-coloc-rep-linha">'
+              +'<span class="rks-coloc-pos">'+sOrdinalF(ci+1)+' colocada</span>'
+              +'<span class="rks-coloc-nome-rep">'+escHtml(sPrimeiroNome(cf.nome))+'</span>'
+              +'<span class="rks-coloc-tag-rep">Reprovado</span>'
+            +'</div>'
+            +(cmv?'<div class="rks-coloc-motivo-rep">'+escHtml(cmv)+'</div>':'')
+            +'</div>';
+        } else if(ci===idx){
+          fornHtml+='<div class="rks-coloc-atual'+(cst==='diligencia'?' dilig':'')+'">'
+            +'<div class="rks-coloc-atual-pos">'+sOrdinalF(ci+1)+' colocada'+((reprovados>0&&st!=='aprovado')?' · a próxima para avaliar':'')+'</div>'
+            +'<span class="rks-forn-nome">'+escHtml(cf.nome)+'</span>'
+            +'<div class="rks-forn-tags">'
+            +'<span class="rks-forn-tag"><b>Modelo</b> '+escHtml(cf.modelo||'—')+'</span>'
+            +'<span class="rks-forn-tag"><b>Marca</b> '+escHtml(cf.marca||'—')+'</span>'
+            +'</div></div>';
+          break;
+        }
+      }
+      fornHtml+='</div>';
+
       var actionHtml='';
       if(st==='fracassado'){
         actionHtml='<div class="rks-fracassado-badge">🔴 Fracassado — todos os '+it.fornecedores.length+' fornecedores reprovados</div>';
       } else if(isConfirming){
         var cAcao=sharedConfirmando.acao;
         var cLabel=cAcao==='rp'?'Confirmar Reprovação':cAcao==='dil'?'Confirmar Diligência':'';
-        var cCls=cAcao==='rp'?'rec':'dil';
+        var prefill=(cAcao==='dil'&&idx>=0&&sharedEstados[nIt+'-'+idx]==='diligencia')?(sharedMotivos[nIt+'-'+idx]||''):'';
         actionHtml='<div class="rks-confirm-wrap">'
           +'<div class="rks-confirm-label" style="color:'+(cAcao==='dil'?'#1d4ed8':'#A32D2D')+'">'
             +(cAcao==='rp'?'Motivo da reprovação':'Motivo da diligência')
             +' <span style="color:#aaa;font-weight:400;font-size:13px">(opcional)</span></div>'
-          +'<textarea class="rks-motivo" placeholder="Descreva o motivo..." data-num="'+escHtml(it.num)+'" rows="3" style="'+(cAcao==='dil'?'border-color:#bfdbfe;background:#eff6ff':'')+'"></textarea>'
+          +'<textarea class="rks-motivo" placeholder="Descreva o motivo..." data-num="'+escHtml(it.num)+'" rows="3" style="'+(cAcao==='dil'?'border-color:#bfdbfe;background:#eff6ff':'')+'">'+escHtml(prefill)+'</textarea>'
           +'<div class="rks-confirm-btns">'
             +'<button class="rks-cancel-btn" data-action="cancel" data-num="'+escHtml(it.num)+'">Cancelar</button>'
             +'<button class="rks-confirm-btn" data-action="confirm" data-num="'+escHtml(it.num)+'" style="'+(cAcao==='dil'?'background:#1d4ed8':'')+'">'+escHtml(cLabel)+' →</button>'
           +'</div></div>';
+      } else if(st==='diligencia'){
+        var dmv=idx>=0?(sharedMotivos[nIt+'-'+idx]||''):'';
+        actionHtml='<div class="rks-dilig-saved">'
+          +'<div class="rks-dilig-saved-head">🔍 Diligência solicitada</div>'
+          +(dmv?'<div class="rks-dilig-saved-text">'+escHtml(dmv)+'</div>':'<div class="rks-dilig-saved-text rks-dilig-empty">Sem motivo registrado</div>')
+          +'</div>'
+          +'<div class="rks-card-btns">'
+          +'<button class="rks-sbtn rks-sbtn-rp" data-action="rp" data-num="'+escHtml(it.num)+'"><span class="rks-sbtn-icon">✕</span>Reprovado</button>'
+          +'<button class="rks-sbtn rks-sbtn-ap" data-action="ap" data-num="'+escHtml(it.num)+'"><span class="rks-sbtn-icon">✓</span>Aprovado</button>'
+          +'<button class="rks-sbtn sel-dil" data-action="dil" data-num="'+escHtml(it.num)+'"><span class="rks-sbtn-icon">🔍</span>Diligência</button>'
+          +'</div>';
       } else if(st==='aprovado'){
         actionHtml='<div class="rks-card-btns">'
           +'<button class="rks-sbtn rks-sbtn-rp" data-action="rp" data-num="'+escHtml(it.num)+'"><span class="rks-sbtn-icon">✕</span>Reprovado</button>'
@@ -4793,7 +5183,7 @@ function rkCopiarLink(){
             for(var k=0;k<it.fornecedores.length;k++){
               if((sharedEstados[String(it.num)+'-'+k]||'neutro')==='aprovado') sharedEstados[String(it.num)+'-'+k]='neutro';
             }
-            triggerSave(); sharedRender();
+            sHasPending=false; triggerSave(); sharedRender();
           } else {
             sharedConfirmando={num:String(num),acao:'rp'}; sharedRender();
             setTimeout(function(){ var ta=body.querySelector('textarea[data-num="'+num+'"]'); if(ta) ta.focus(); },80);
@@ -4802,9 +5192,9 @@ function rkCopiarLink(){
           sharedConfirmando={num:String(num),acao:'dil'}; sharedRender();
           setTimeout(function(){ var ta=body.querySelector('textarea[data-num="'+num+'"]'); if(ta) ta.focus(); },80);
         } else if(action==='ap'){
-          sSetAprovado(it); sharedConfirmando=null; triggerSave(); sharedRender();
+          sSetAprovado(it); sharedConfirmando=null; sHasPending=false; triggerSave(); sharedRender();
         } else if(action==='cancel'){
-          sharedConfirmando=null; sharedRender();
+          sharedConfirmando=null; sharedRender(); sFlushPending();
         } else if(action==='confirm'){
           var ta=btn.closest('.rks-confirm-wrap').querySelector('textarea');
           var mv=ta?ta.value:'';
@@ -4819,7 +5209,7 @@ function rkCopiarLink(){
           } else {
             sReprovaCurrent(it, mv);
           }
-          sharedConfirmando=null; triggerSave(); sharedRender();
+          sharedConfirmando=null; sHasPending=false; triggerSave(); sharedRender();
           setTimeout(function(){ var card=body.querySelector('[data-num="'+num+'"]'); if(card) card.scrollIntoView({behavior:'smooth',block:'center'}); },100);
         }
       });
@@ -4830,15 +5220,9 @@ function rkCopiarLink(){
   if(typeof LOGO_B64_PDF!=='undefined') setLogo(); else window.addEventListener('load',setLogo);
 
   rkColRef.doc(sharedId).onSnapshot(function(doc){
-    if(sharedOwn) return;
-    if(sharedConfirmando!==null) return;
-    if(doc.exists){
-      var d=doc.data();
-      sharedItens=d.itens||[]; sharedEstados=d.estados||{};
-      sharedMotivos=d.motivos||{}; sharedNumero=d.numero||'';
-      sharedEvts=d.eventos||[];
-    } else { sharedItens=[]; sharedNumero='Não encontrado'; }
-    sharedRender();
+    var d=doc.exists?doc.data():null;
+    if(sharedOwn||sharedConfirmando!==null){ sPendingSnap=d; sHasPending=true; return; }
+    sApplySnap(d);
   }, function(err){
     var b=document.getElementById('rksBody');
     if(b) b.innerHTML='<div class="rks-msg" style="color:#A32D2D">Erro ao carregar: '+err.message+'</div>';
