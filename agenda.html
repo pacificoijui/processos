@@ -328,6 +328,60 @@
   .list-daygroup.holiday .list-daybox { box-shadow:0 0 0 2px var(--red); }
   .list-holiday-flag { display:inline-flex; align-items:center; gap:4px; font-size:10.5px; font-weight:800; color:var(--red); background:var(--red-bg); border:1px solid #f1c9cb; padding:2px 8px; border-radius:20px; margin-left:8px; vertical-align:middle; letter-spacing:0.2px; }
 
+  /* ── Camadas: férias e aniversários ─────────────────────────────────────── */
+  .cal-ev-ferias { background:#e0f2f1; color:#00695c; border-color:#26a69a; }
+  .cal-ev-aniv   { background:#fce4ec; color:#c2185b; border-color:#ec407a; }
+  .layer-toggle-mini-group { display:flex; gap:6px; }
+  .layer-pill-mini { width:38px; height:38px; border-radius:10px; border:1px solid var(--border); background:#fff; color:var(--muted); font-size:16px; cursor:pointer; transition:all .14s; display:flex; align-items:center; justify-content:center; position:relative; }
+  .layer-pill-mini:hover { border-color:var(--navy-light); transform:translateY(-1px); box-shadow:var(--shadow); }
+  /* estado ativo: mantém o fundo claro (não escurece) para o ícone nunca ficar invisível;
+     o indicador é um aro colorido + um pontinho no canto */
+  .layer-pill-mini.on { background:#fff; border-color:var(--navy); box-shadow:0 0 0 2px rgba(26,58,107,0.18); }
+  .layer-pill-mini.on::after { content:""; position:absolute; bottom:3px; right:3px; width:7px; height:7px; border-radius:50%; background:var(--navy); border:1.5px solid #fff; }
+  /* só aparece no desktop — em telas estreitas, fica oculto */
+  @media (max-width:1000px){ .layer-toggle-mini-group { display:none; } }
+  .gear-corner-btn { flex-shrink:0; width:34px; height:34px; border-radius:9px; border:1px solid var(--border); background:#fff; color:var(--muted); font-size:15px; cursor:pointer; transition:all .14s; display:flex; align-items:center; justify-content:center; }
+  .gear-corner-btn:hover { background:var(--navy); color:#fff; border-color:var(--navy); }
+
+  /* ── Painel interno (modal embutido) ────────────────────────────────────── */
+  .modal-wide { max-width:1040px; }
+  .pn-login { padding:30px 26px 26px; text-align:center; max-width:380px; margin:0 auto; }
+  .pn-login .emblema { width:54px; height:54px; border-radius:14px; background:linear-gradient(180deg,var(--navy-mid),var(--navy)); color:#fff; display:flex; align-items:center; justify-content:center; font-size:25px; margin:0 auto 14px; }
+  .pn-login h3 { font-size:17px; color:var(--navy); margin-bottom:4px; }
+  .pn-login p { font-size:12.5px; color:var(--muted); margin-bottom:18px; }
+  .pn-login input { width:100%; padding:12px 14px; border:1.5px solid var(--border); border-radius:10px; font-family:inherit; font-size:15px; outline:none; margin-bottom:10px; }
+  .pn-login input:focus { border-color:var(--navy-light); }
+  .pn-login .pn-erro { color:var(--red); font-size:12.5px; font-weight:700; min-height:16px; margin-bottom:8px; }
+  .pn-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(290px,1fr)); gap:18px; }
+  .pcard { border:1px solid var(--border); border-radius:14px; overflow:hidden; background:#fbfcff; }
+  .pcard-head { display:flex; align-items:center; gap:9px; padding:13px 16px; border-bottom:1px solid var(--border); background:linear-gradient(180deg,#fff,#f4f7fd); }
+  .pcard-head .ico { font-size:18px; }
+  .pcard-head h4 { font-size:12.5px; font-weight:800; color:var(--navy); text-transform:uppercase; letter-spacing:0.5px; }
+  .pcard-head .count { margin-left:auto; font-size:11.5px; font-weight:800; color:var(--muted); background:#eef2fa; border:1px solid var(--border); padding:2px 9px; border-radius:20px; }
+  .pcard-body { padding:14px 16px; }
+  .pcard-body .field { margin-bottom:11px; }
+  .pcard-body .field label { font-size:10.5px; }
+  .pn-add { width:100%; background:var(--navy); border:1.5px solid var(--navy); color:#fff; border-radius:9px; padding:10px 14px; font-family:inherit; font-size:12.5px; font-weight:800; cursor:pointer; transition:all .14s; }
+  .pn-add:hover { background:var(--navy-mid); }
+  .pn-lista { margin-top:13px; border-top:1px dashed var(--border); padding-top:11px; display:flex; flex-direction:column; gap:7px; max-height:230px; overflow-y:auto; }
+  .pn-item { display:flex; align-items:center; gap:9px; padding:8px 10px; border:1px solid var(--border); border-radius:9px; background:#fff; }
+  .pn-item .pi-ico { font-size:15px; flex-shrink:0; }
+  .pn-item .pi-main { flex:1; min-width:0; }
+  .pn-item .pi-nome { font-size:12.5px; font-weight:800; color:var(--text); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .pn-item .pi-sub { font-size:11px; font-weight:700; color:var(--muted); }
+  .pn-item.is-pf { border-left:4px solid var(--red); }
+  .pn-item.is-fer { border-left:4px solid #00695c; }
+  .pn-item.is-an { border-left:4px solid #c2185b; }
+  .pi-del { background:#fff; border:1px solid var(--border); color:var(--muted); width:28px; height:28px; border-radius:7px; font-size:13px; cursor:pointer; flex-shrink:0; transition:all .14s; display:flex; align-items:center; justify-content:center; }
+  .pi-del:hover { background:var(--red-bg); border-color:#f1c9cb; color:var(--red); }
+  .pn-vazio { text-align:center; color:var(--muted); font-size:12px; font-style:italic; padding:12px 6px; }
+  .list-card-ferias { border-left-color:#26a69a !important; }
+  .list-card-aniv   { border-left-color:#ec407a !important; }
+  .list-card-extra { display:flex; align-items:center; gap:9px; }
+  .list-card-extra .lc-ico { font-size:18px; flex-shrink:0; }
+  .list-card-extra .lc-nome { font-size:13.5px; font-weight:800; color:var(--text); min-width:0; }
+  .list-card-extra .lc-sub { font-size:11.5px; font-weight:700; color:var(--muted); margin-left:auto; white-space:nowrap; flex-shrink:0; }
+
   /* ── Compactação no desktop: tudo em uma tela, sem rolar ────────────────── */
   @media (min-width:1001px){
     html, body { height:100%; }
@@ -431,6 +485,10 @@
         <div class="cal-title" id="calTitulo">—</div>
       </div>
       <div class="cal-nav">
+        <div class="layer-toggle-mini-group">
+          <button class="layer-pill-mini" data-tipo="ferias" onclick="toggleCamada('ferias')" title="Mostrar férias dos servidores">&#127958;</button>
+          <button class="layer-pill-mini" data-tipo="aniv" onclick="toggleCamada('aniv')" title="Mostrar aniversários">&#127874;</button>
+        </div>
         <button class="btn-primary cal-novo" onclick="abrirCadastro()">&#43; Novo Processo</button>
         <button class="hoje-btn" onclick="irHoje()">Hoje</button>
         <button onclick="mudarMes(-1)" title="Mês anterior">&#8249;</button>
@@ -451,6 +509,10 @@
         <div class="list-title" id="listTitulo">—</div>
       </div>
       <div class="list-nav">
+        <div class="layer-toggle-mini-group">
+          <button class="layer-pill-mini" data-tipo="ferias" onclick="toggleCamada('ferias')" title="Mostrar férias dos servidores">&#127958;</button>
+          <button class="layer-pill-mini" data-tipo="aniv" onclick="toggleCamada('aniv')" title="Mostrar aniversários">&#127874;</button>
+        </div>
         <button class="btn-primary cal-novo" onclick="abrirCadastro()" style="height:36px;padding:0 14px">&#43; Novo</button>
         <button class="hoje-btn" onclick="irHojeList()">Hoje</button>
         <button onclick="mudarMesList(-1)" title="Mês anterior">&#8249;</button>
@@ -469,6 +531,7 @@
       <button class="view-btn" data-view="month">📅 Calendário</button>
       <button class="view-btn active" data-view="list">📋 Lista</button>
     </div>
+    <button class="gear-corner-btn" onclick="abrirPainel()" title="Painel interno (cadastros)">&#9881;</button>
   </section>
 
   <!-- Busca de processos -->
@@ -581,6 +644,74 @@
   </div>
 </div>
 
+<!-- Modal: Painel Interno (embutido) -->
+<div class="overlay" id="modalPainel">
+  <div class="modal modal-wide">
+    <div class="modal-header">
+      <h2>&#9881; Painel Interno — Cadastros</h2>
+      <button class="modal-close" onclick="fecharPainel()">&times;</button>
+    </div>
+
+    <!-- Estado: login -->
+    <div class="modal-body pn-login" id="pnLogin">
+      <div class="emblema">&#128274;</div>
+      <h3>Área restrita</h3>
+      <p>Informe a senha de acesso da equipe da COPAM.</p>
+      <div class="pn-erro" id="pnErro"></div>
+      <input type="password" id="pnSenha" placeholder="Senha de acesso" onkeydown="if(event.key==='Enter')pnEntrar()">
+      <button class="btn-save" style="width:100%" onclick="pnEntrar()">Entrar</button>
+    </div>
+
+    <!-- Estado: conteúdo -->
+    <div class="modal-body" id="pnConteudo" style="display:none">
+      <div class="pn-grid">
+
+        <!-- Pontos Facultativos -->
+        <div class="pcard">
+          <div class="pcard-head"><span class="ico">&#127983;</span><h4>Pontos Facultativos</h4><span class="count" id="pnPfCount">0</span></div>
+          <div class="pcard-body">
+            <div class="field"><label>Data</label><input type="date" id="pnPfData"></div>
+            <div class="field"><label>Descrição</label><input type="text" id="pnPfNome" placeholder="Ex: véspera de feriado" value="Ponto Facultativo"></div>
+            <button class="pn-add" onclick="pnAddPF()">&#43; Cadastrar</button>
+            <div class="pn-lista" id="pnPfLista"></div>
+          </div>
+        </div>
+
+        <!-- Férias -->
+        <div class="pcard">
+          <div class="pcard-head"><span class="ico">&#127958;</span><h4>Férias dos Servidores</h4><span class="count" id="pnFerCount">0</span></div>
+          <div class="pcard-body">
+            <div class="field"><label>Servidor</label><input type="text" id="pnFerServidor" list="pnServidoresList" placeholder="Nome do servidor" autocomplete="off"></div>
+            <div class="row2">
+              <div class="field"><label>Início</label><input type="date" id="pnFerInicio"></div>
+              <div class="field"><label>Fim</label><input type="date" id="pnFerFim"></div>
+            </div>
+            <button class="pn-add" onclick="pnAddFer()">&#43; Cadastrar</button>
+            <div class="pn-lista" id="pnFerLista"></div>
+          </div>
+        </div>
+
+        <!-- Aniversários -->
+        <div class="pcard">
+          <div class="pcard-head"><span class="ico">&#127874;</span><h4>Aniversários</h4><span class="count" id="pnAnCount">0</span></div>
+          <div class="pcard-body">
+            <div class="field"><label>Servidor</label><input type="text" id="pnAnServidor" list="pnServidoresList" placeholder="Nome do servidor" autocomplete="off"></div>
+            <div class="field"><label>Dia do aniversário</label><input type="date" id="pnAnData"></div>
+            <div style="font-size:10.5px;color:var(--muted);margin:-6px 0 11px">O ano é ignorado — repete todo ano.</div>
+            <button class="pn-add" onclick="pnAddAniv()">&#43; Cadastrar</button>
+            <div class="pn-lista" id="pnAnLista"></div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="fecharPainel()">Fechar</button>
+    </div>
+  </div>
+</div>
+<datalist id="pnServidoresList"></datalist>
+
 <div class="toast" id="toast"></div>
 
 <script>
@@ -643,9 +774,38 @@ function feriadosDoAno(ano){
 }
 function feriadoNome(iso){
   if(!iso) return null;
+  if(pontosFac[iso]) return pontosFac[iso];   /* ponto facultativo: vermelho igual feriado */
   var ano=parseInt(iso.split("-")[0],10);
   if(!ano) return null;
   return feriadosDoAno(ano)[iso]||null;
+}
+
+/* ── Férias e aniversários por dia ──────────────────────────────────────── */
+function feriasNoDia(iso){
+  var out=[];
+  feriasList.forEach(function(f){
+    if(!f.inicio) return;
+    var fim=f.fim||f.inicio;
+    if(iso>=f.inicio && iso<=fim) out.push(f.servidor||"Servidor");
+  });
+  return out;
+}
+function aniversariosNoDia(iso){
+  var p=iso.split("-"); var mes=parseInt(p[1],10), dia=parseInt(p[2],10);
+  var out=[];
+  anivList.forEach(function(a){
+    if(parseInt(a.mes,10)===mes && parseInt(a.dia,10)===dia) out.push(a.servidor||"Servidor");
+  });
+  return out;
+}
+function toggleCamada(tipo){
+  var ativo;
+  if(tipo==="ferias"){ _mostrarFerias=!_mostrarFerias; ativo=_mostrarFerias; }
+  else { _mostrarAniv=!_mostrarAniv; ativo=_mostrarAniv; }
+  document.querySelectorAll('.layer-pill-mini[data-tipo="'+tipo+'"]').forEach(function(b){
+    b.classList.toggle("on", ativo);
+  });
+  render();
 }
 
 /* ── Tipo de licitação e rótulos ────────────────────────────────────────── */
@@ -737,6 +897,17 @@ try { obsColRef = db.collection("observacoes"); } catch(e){ obsColRef = null; }
 var _portalDebounceTimer = null;
 var _viewAtual = "list";  /* view ativa: "list" ou "month" */
 
+/* ── Camadas internas (pontos facultativos, férias, aniversários) ───────────
+   Declaradas ANTES dos onSnapshots para evitar erro de ordem de inicialização. */
+var pontosFac   = {};      /* iso "YYYY-MM-DD" -> nome do ponto facultativo */
+var feriasList  = [];      /* { servidor, inicio, fim } */
+var anivList    = [];      /* { servidor, dia, mes } */
+var _mostrarFerias = false, _mostrarAniv = false;
+var pfColRef, ferColRef, anivColRef;
+try { pfColRef   = db.collection("pontos_facultativos"); } catch(e){ pfColRef   = null; }
+try { ferColRef  = db.collection("ferias"); }             catch(e){ ferColRef  = null; }
+try { anivColRef = db.collection("aniversarios"); }       catch(e){ anivColRef = null; }
+
 /* ── Firestore em tempo real ────────────────────────────────────────────── */
 try{ db.collection("status").onSnapshot(function(snap){
   if(!snap.empty){
@@ -763,6 +934,7 @@ try{ agColRef.onSnapshot(function(snap){
   agentes = snap.docs.map(function(d){ return Object.assign({id:d.id},d.data()); })
     .sort(function(a,b){ return (a.nomeAbrev||"").localeCompare(b.nomeAbrev||""); });
   popularAgentesSelect();
+  if(typeof pnPopularServidores==="function") pnPopularServidores();
   render();
 }); }catch(e){ console.warn("agentes onSnapshot:", e); }
 
@@ -776,6 +948,23 @@ try{ if(obsColRef) obsColRef.onSnapshot(function(snap){
   snap.docs.forEach(function(d){ observacoes[d.id]=d.data().texto||""; });
   render();
 }); }catch(e){ console.warn("observacoes onSnapshot:", e); }
+
+try{ if(pfColRef) pfColRef.onSnapshot(function(snap){
+  pontosFac={};
+  snap.docs.forEach(function(d){ var x=d.data()||{}; var iso=x.data||d.id; if(iso) pontosFac[iso]=x.nome||"Ponto Facultativo"; });
+  _feriadosCache={};   /* limpa cache para recolorir o calendário */
+  render(); refreshPainel();
+}); }catch(e){ console.warn("pontos_facultativos onSnapshot:", e); }
+
+try{ if(ferColRef) ferColRef.onSnapshot(function(snap){
+  feriasList=snap.docs.map(function(d){ return Object.assign({id:d.id},d.data()); });
+  render(); refreshPainel();
+}); }catch(e){ console.warn("ferias onSnapshot:", e); }
+
+try{ if(anivColRef) anivColRef.onSnapshot(function(snap){
+  anivList=snap.docs.map(function(d){ return Object.assign({id:d.id},d.data()); });
+  render(); refreshPainel();
+}); }catch(e){ console.warn("aniversarios onSnapshot:", e); }
 
 /* ── Funções de observações ────────────────────────────────────────────────── */
 function salvarObs(iso, texto){
@@ -902,6 +1091,12 @@ function renderCalendario(){
       if(!aberto&&temNota) html+='<span class="cal-note-text" title="'+escHtml(observacoes[iso])+'">'+escHtml(observacoes[iso])+'</span>';
       html+='</div>';
       if(nomeFer) html+='<div class="cal-holiday-name" title="Feriado: '+escHtml(nomeFer)+'">'+escHtml(nomeFer)+'</div>';
+      if(_mostrarFerias) feriasNoDia(iso).forEach(function(nm){
+        html+='<div class="cal-ev cal-ev-ferias" title="Férias: '+escHtml(nm)+'">&#127958; '+escHtml(nm)+'</div>';
+      });
+      if(_mostrarAniv) aniversariosNoDia(iso).forEach(function(nm){
+        html+='<div class="cal-ev cal-ev-aniv" title="Aniversário: '+escHtml(nm)+'">&#127874; '+escHtml(nm)+'</div>';
+      });
       if(aberto) html+='<textarea class="cal-obs-edit" id="calobs_'+isoC+'" placeholder="observação…" onclick="event.stopPropagation()" oninput="onObsInput(\''+iso+'\',this)">'+escHtml(observacoes[iso]||"")+'</textarea>';
       var evs=(porData[iso]||[]).slice().sort(function(a,b){ return (a.horarioAbertura||"99:99").localeCompare(b.horarioAbertura||"99:99"); });
       evs.slice(0,3).forEach(function(p){
@@ -1048,17 +1243,45 @@ function renderLista(){
     return (a.horarioAbertura||"").localeCompare(b.horarioAbertura||"");
   });
 
-  if(!doMes.length){
+  /* agrupa processos por data */
+  var grupos={};
+  doMes.forEach(function(p){
+    (grupos[p.dataLicit]=grupos[p.dataLicit]||[]).push(p);
+  });
+
+  /* camadas opcionais: férias (ancoradas no início dentro do mês) e aniversários */
+  var firstISO=ymd(new Date(ano,mes,1));
+  var lastISO=ymd(new Date(ano,mes+1,0));
+  var extraFerias={}, extraAniv={};
+  if(_mostrarFerias){
+    feriasList.forEach(function(f){
+      if(!f.inicio) return;
+      var fim=f.fim||f.inicio;
+      if(f.inicio>lastISO || fim<firstISO) return;        /* sem sobreposição com o mês */
+      var anchor=(f.inicio<firstISO)?firstISO:f.inicio;    /* aparece uma vez no mês */
+      (extraFerias[anchor]=extraFerias[anchor]||[]).push(f);
+    });
+  }
+  if(_mostrarAniv){
+    anivList.forEach(function(a){
+      if(parseInt(a.mes,10)!==mes+1) return;
+      var dia=parseInt(a.dia,10); if(!dia) return;
+      var iso=ano+"-"+("0"+(mes+1)).slice(-2)+"-"+("0"+dia).slice(-2);
+      (extraAniv[iso]=extraAniv[iso]||[]).push(a.servidor||"Servidor");
+    });
+  }
+
+  /* todas as datas com algo a exibir, em ordem crescente */
+  var todasDatas={};
+  Object.keys(grupos).forEach(function(k){ todasDatas[k]=true; });
+  Object.keys(extraFerias).forEach(function(k){ todasDatas[k]=true; });
+  Object.keys(extraAniv).forEach(function(k){ todasDatas[k]=true; });
+  var ordem=Object.keys(todasDatas).sort();
+
+  if(!ordem.length){
     box.innerHTML='<div class="list-empty">Nenhum processo agendado em '+MESES[mes]+'.<br>Toque em “+ Novo” para cadastrar.</div>';
     return;
   }
-
-  /* agrupa por data */
-  var grupos={}, ordem=[];
-  doMes.forEach(function(p){
-    if(!grupos[p.dataLicit]){ grupos[p.dataLicit]=[]; ordem.push(p.dataLicit); }
-    grupos[p.dataLicit].push(p);
-  });
 
   var html="";
   ordem.forEach(function(iso){
@@ -1080,7 +1303,15 @@ function renderLista(){
     html+='</div><span class="list-day-chevron">&#9660;</span></div>';
     html+='<div class="obs-wrap" id="obswrap_'+isoClean+'" style="display:'+(aberto?'flex':'none')+'"><span class="obs-icon">📝</span><textarea class="obs-input" id="'+obsId+'" rows="1" placeholder="Adicionar observação para este dia…" oninput="onObsInput(\''+iso+'\',this)">'+obsVal+'</textarea><span class="obs-saving" id="'+obsStId+'" style="opacity:0"></span><button class="obs-close" title="Fechar" onclick="fecharDiaObs(\''+iso+'\')">&#10005;</button></div>';
     html+='<div class="list-items">';
-    grupos[iso].forEach(function(p){
+    (extraFerias[iso]||[]).forEach(function(f){
+      var ff=f.fim||f.inicio;
+      var faixa=(f.inicio===ff)?fmtData(f.inicio):(fmtData(f.inicio)+" a "+fmtData(ff));
+      html+='<div class="list-card list-card-ferias list-card-extra"><span class="lc-ico">🏖</span><span class="lc-nome">Férias — '+escHtml(f.servidor||"Servidor")+'</span><span class="lc-sub">'+escHtml(faixa)+'</span></div>';
+    });
+    (extraAniv[iso]||[]).forEach(function(nm){
+      html+='<div class="list-card list-card-aniv list-card-extra"><span class="lc-ico">🎂</span><span class="lc-nome">Aniversário — '+escHtml(nm)+'</span></div>';
+    });
+    (grupos[iso]||[]).forEach(function(p){
       var tipo=tipoLicitacao(p.numero);
       var titulo=tipo?(tipo+" "+numeroSeq(p.numero)):(p.numero||"Sem número");
       html+='<div class="list-card" style="border-left-color:'+_buscaBorda(p.status)+'" onclick="abrirDetalhe(\''+escHtml(p.id)+'\')">';
@@ -1508,6 +1739,149 @@ function salvarCadastro(){
   .then(function(){ toast("Processo cadastrado!"); fecharCadastro(); })
   .catch(function(e){ alert("Erro ao salvar: "+e.message); })
   .finally(function(){ btn.disabled=false; btn.textContent="Salvar Processo"; });
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   PAINEL INTERNO EMBUTIDO — cadastros de pontos facultativos, férias e
+   aniversários. Grava nas coleções pfColRef / ferColRef / anivColRef.
+   ══════════════════════════════════════════════════════════════════════════ */
+/* Senha padrão: copam2026 — troque gerando o SHA-256 da nova senha. */
+var PN_SENHA_HASH = "e5564018e94c236f86bf95125278ff2c78adfd7f464cf98109584926ce909fae";
+function _pad2(n){ return ("0"+n).slice(-2); }
+function _pnSha256(txt){
+  if(!(window.crypto && window.crypto.subtle)) return Promise.reject(new Error("sem-subtle"));
+  var data=new TextEncoder().encode(txt);
+  return window.crypto.subtle.digest("SHA-256", data).then(function(buf){
+    return Array.prototype.map.call(new Uint8Array(buf), function(b){ return ("0"+b.toString(16)).slice(-2); }).join("");
+  });
+}
+function _pnAutenticado(){ try{ return sessionStorage.getItem("gestao_ok")==="1"; }catch(e){ return false; } }
+function abrirPainel(){
+  document.getElementById("modalPainel").classList.add("open");
+  if(_pnAutenticado()){ _pnMostrarConteudo(); }
+  else {
+    document.getElementById("pnLogin").style.display="block";
+    document.getElementById("pnConteudo").style.display="none";
+    document.getElementById("pnErro").textContent="";
+    var s=document.getElementById("pnSenha"); if(s){ s.value=""; setTimeout(function(){ s.focus(); },80); }
+  }
+}
+function fecharPainel(){ document.getElementById("modalPainel").classList.remove("open"); }
+function _pnMostrarConteudo(){
+  document.getElementById("pnLogin").style.display="none";
+  document.getElementById("pnConteudo").style.display="block";
+  pnPopularServidores();
+  refreshPainel();
+}
+function pnEntrar(){
+  var senha=document.getElementById("pnSenha").value;
+  var erro=document.getElementById("pnErro");
+  _pnSha256(senha).then(function(h){
+    if(h===PN_SENHA_HASH){
+      try{ sessionStorage.setItem("gestao_ok","1"); }catch(e){}
+      _pnMostrarConteudo();
+    } else {
+      erro.textContent="Senha incorreta.";
+      document.getElementById("pnSenha").value="";
+    }
+  }).catch(function(){ erro.textContent="Abra a versão publicada (https) para autenticar."; });
+}
+
+function pnPopularServidores(){
+  var dl=document.getElementById("pnServidoresList"); if(!dl) return;
+  dl.innerHTML="";
+  agentes.forEach(function(a){
+    var nome=a.nomeCompleto||a.nomeAbrev||"";
+    if(nome) dl.innerHTML+='<option value="'+escHtml(nome)+'">';
+  });
+}
+
+function refreshPainel(){
+  if(!document.getElementById("modalPainel").classList.contains("open")) return;
+  if(!_pnAutenticado()) return;
+  pnRenderPF(); pnRenderFer(); pnRenderAniv();
+}
+
+function pnRenderPF(){
+  var box=document.getElementById("pnPfLista"); if(!box) return;
+  var arr=Object.keys(pontosFac).sort();
+  document.getElementById("pnPfCount").textContent=arr.length;
+  if(!arr.length){ box.innerHTML='<div class="pn-vazio">Nenhum cadastrado.</div>'; return; }
+  var html="";
+  arr.forEach(function(iso){
+    html+='<div class="pn-item is-pf"><span class="pi-ico">&#127983;</span><div class="pi-main"><div class="pi-nome">'+escHtml(pontosFac[iso])+'</div><div class="pi-sub">'+fmtData(iso)+'</div></div><button class="pi-del" title="Excluir" onclick="pnDelPF(\''+escHtml(iso)+'\')">&#10005;</button></div>';
+  });
+  box.innerHTML=html;
+}
+function pnAddPF(){
+  var data=document.getElementById("pnPfData").value;
+  var nome=document.getElementById("pnPfNome").value.trim()||"Ponto Facultativo";
+  if(!data){ toast("Informe a data."); return; }
+  pfColRef.doc(data).set({data:data, nome:nome, criadoEm:firebase.firestore.FieldValue.serverTimestamp()})
+    .then(function(){ toast("Ponto facultativo cadastrado."); document.getElementById("pnPfData").value=""; document.getElementById("pnPfNome").value="Ponto Facultativo"; })
+    .catch(function(e){ toast("Erro ao salvar."); console.warn(e); });
+}
+function pnDelPF(id){
+  if(!confirm("Excluir este ponto facultativo?")) return;
+  pfColRef.doc(id).delete().then(function(){ toast("Excluído."); }).catch(function(){ toast("Erro ao excluir."); });
+}
+
+function pnRenderFer(){
+  var box=document.getElementById("pnFerLista"); if(!box) return;
+  document.getElementById("pnFerCount").textContent=feriasList.length;
+  if(!feriasList.length){ box.innerHTML='<div class="pn-vazio">Nenhuma cadastrada.</div>'; return; }
+  var arr=feriasList.slice().sort(function(a,b){ return (a.inicio||"").localeCompare(b.inicio||""); });
+  var html="";
+  arr.forEach(function(f){
+    var fim=f.fim||f.inicio;
+    var faixa=(f.inicio===fim)?fmtData(f.inicio):(fmtData(f.inicio)+" a "+fmtData(fim));
+    html+='<div class="pn-item is-fer"><span class="pi-ico">&#127958;</span><div class="pi-main"><div class="pi-nome">'+escHtml(f.servidor||"Servidor")+'</div><div class="pi-sub">'+escHtml(faixa)+'</div></div><button class="pi-del" title="Excluir" onclick="pnDelFer(\''+escHtml(f.id)+'\')">&#10005;</button></div>';
+  });
+  box.innerHTML=html;
+}
+function pnAddFer(){
+  var servidor=document.getElementById("pnFerServidor").value.trim();
+  var inicio=document.getElementById("pnFerInicio").value;
+  var fim=document.getElementById("pnFerFim").value;
+  if(!servidor){ toast("Informe o servidor."); return; }
+  if(!inicio){ toast("Informe a data de início."); return; }
+  if(fim && fim<inicio){ toast("A data fim não pode ser antes do início."); return; }
+  ferColRef.add({servidor:servidor, inicio:inicio, fim:fim||inicio, criadoEm:firebase.firestore.FieldValue.serverTimestamp()})
+    .then(function(){ toast("Férias cadastradas."); document.getElementById("pnFerServidor").value=""; document.getElementById("pnFerInicio").value=""; document.getElementById("pnFerFim").value=""; })
+    .catch(function(e){ toast("Erro ao salvar."); console.warn(e); });
+}
+function pnDelFer(id){
+  if(!confirm("Excluir este registro de férias?")) return;
+  ferColRef.doc(id).delete().then(function(){ toast("Excluído."); }).catch(function(){ toast("Erro ao excluir."); });
+}
+
+function pnRenderAniv(){
+  var box=document.getElementById("pnAnLista"); if(!box) return;
+  document.getElementById("pnAnCount").textContent=anivList.length;
+  if(!anivList.length){ box.innerHTML='<div class="pn-vazio">Nenhum cadastrado.</div>'; return; }
+  var arr=anivList.slice().sort(function(a,b){ return (a.mes-b.mes)||(a.dia-b.dia); });
+  var html="";
+  arr.forEach(function(a){
+    var sub=_pad2(a.dia)+"/"+_pad2(a.mes)+(a.mes?" · "+MESES[a.mes-1]:"");
+    html+='<div class="pn-item is-an"><span class="pi-ico">&#127874;</span><div class="pi-main"><div class="pi-nome">'+escHtml(a.servidor||"Servidor")+'</div><div class="pi-sub">'+escHtml(sub)+'</div></div><button class="pi-del" title="Excluir" onclick="pnDelAniv(\''+escHtml(a.id)+'\')">&#10005;</button></div>';
+  });
+  box.innerHTML=html;
+}
+function pnAddAniv(){
+  var servidor=document.getElementById("pnAnServidor").value.trim();
+  var data=document.getElementById("pnAnData").value;
+  if(!servidor){ toast("Informe o servidor."); return; }
+  if(!data){ toast("Informe a data."); return; }
+  var p=data.split("-");
+  var mes=parseInt(p[1],10), dia=parseInt(p[2],10);
+  if(!mes||!dia){ toast("Data inválida."); return; }
+  anivColRef.add({servidor:servidor, dia:dia, mes:mes, criadoEm:firebase.firestore.FieldValue.serverTimestamp()})
+    .then(function(){ toast("Aniversário cadastrado."); document.getElementById("pnAnServidor").value=""; document.getElementById("pnAnData").value=""; })
+    .catch(function(e){ toast("Erro ao salvar."); console.warn(e); });
+}
+function pnDelAniv(id){
+  if(!confirm("Excluir este aniversário?")) return;
+  anivColRef.doc(id).delete().then(function(){ toast("Excluído."); }).catch(function(){ toast("Erro ao excluir."); });
 }
 
 /* fechar modais ao clicar fora */
