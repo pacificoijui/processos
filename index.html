@@ -277,6 +277,8 @@
     .top-row { flex-direction: column; padding: 14px 14px 0; gap: 14px; }
     /* em coluna o flex-basis de 380px virava ALTURA mínima e criava um vão enorme */
     .top-row > .imp-section, .top-row > .hoje-section { flex: 0 0 auto; }
+    /* em tela reduzida/celular, oculta a coluna "Aberturas de Hoje" (override do display inline) */
+    .hoje-section { display: none !important; }
   }
 
   /* ── IMPUGNAÇÕES ─────────────────────────────────────────────────────────── */
@@ -1940,6 +1942,7 @@
       <h2 class="rk-panel-title" id="vencPanelTitle">Vencedores</h2>
     </div>
     <div class="rk-topbar-actions">
+      <button class="rk-btn rk-btn-pdf" style="background:#25a657" onclick="vencCompartilharWhatsapp()">&#128242; WhatsApp</button>
       <button class="rk-btn rk-btn-pdf" style="background:#1a3a6b" onclick="vencGerarWord()">&#128196; Baixar Word</button>
       <button class="rk-btn rk-btn-close" onclick="fecharVencedores()">&#10005;</button>
     </div>
@@ -2171,7 +2174,7 @@ document.addEventListener("click", function(e){
   var action = btn.dataset.action;
   if(action === "status-pop" && pid){ abrirStatusPop(pid, btn); return; }
   if(action === "share-proc" && pid){ compartilharProcWhatsapp(pid); return; }
-  if(action === "share-concluido" && pid){ compartilharConcluidoWhatsapp(pid); return; }
+  if(action === "share-concluido" && pid){ abrirWhatsappConcluido(pid); return; }
   if(action === "atualizar" && pid) abrirModalUpdate(pid);
   if(action === "pin" && pid){ togglePin(pid); return; }
   if(action === "editar"    && pid) editarProcesso(pid);
@@ -2300,29 +2303,46 @@ function compartilharProcWhatsapp(pid){
   var p=processos.find(function(x){return x.id===pid;}); if(!p)return;
   copiarParaClipboard(montarTextoProcWhatsapp(p));
 }
-function montarTextoConcluido(p){
-  var tipo=tipoLicitacao(p.numero);
-  var titulo=tipo?(tipo+" "+numeroSeq(p.numero)):(p.numero||"Processo");
-  var txt="PROCESSO CONCLUÍDO \u2705\n";
-  txt+="*"+titulo+"*\n\n";
-  if(p.objeto) txt+=p.objeto+"\n\n";
-  var ex=procExtras[p.id]||{};
-  var rk=ex.rk||{};
-  var empresas=vencDerivarEmpresas(rk.itens||[], rk.estados||{});
-  if(empresas.length){
+/* Item sem zeros à esquerda para o texto (0001 -> 1) */
+function vencItemNum(num){
+  var s=String(num==null?"":num).trim();
+  var m=s.match(/^0*(\d+)$/);
+  return m?m[1]:s;
+}
+/* Texto de PROCESSO CONCLUÍDO com vencedores (acima do objeto) e link */
+function montarTextoVencedores(proc, empresas){
+  var tipo=tipoLicitacao(proc.numero);
+  var titulo=tipo?(tipo+" "+numeroSeq(proc.numero)):(proc.numero||"Processo");
+  var txt="PROCESSO CONCLUÍDO \u2705\n*"+titulo+"*\n\n";
+  if(empresas && empresas.length){
+    txt+=(empresas.length>1?"Vencedores:":"Vencedor:")+" \uD83C\uDFC6\n";
     empresas.forEach(function(e){
-      var nums=e.itens.map(function(it){return it.num;}).filter(Boolean);
-      txt+="\uD83C\uDFC6 *"+e.nome+"*\n";
-      if(nums.length) txt+="Itens: "+nums.join(", ")+"\n";
-      txt+="\n";
+      var nums=e.itens.map(function(it){return vencItemNum(it.num);}).filter(Boolean);
+      txt+=e.nome+(nums.length?". Itens: "+nums.join(", "):"")+"\n";
     });
+    txt+="\n";
   }
-  if(p.link) txt+="Confira toda a documentação: "+p.link;
+  if(proc.objeto) txt+=proc.objeto+"\n\n";
+  if(proc.link) txt+="Confira toda a documentação: "+proc.link;
   return txt.replace(/\n{3,}/g,"\n\n").trim();
 }
-function compartilharConcluidoWhatsapp(pid){
+function vencCompartilharWhatsapp(){
+  if(!vencProcessoAtual){ toast("Abra um processo primeiro."); return; }
+  var empresas=(vencEmpresas||[]).slice().sort(function(a,b){ return (a.nome||"").localeCompare((b.nome||""),"pt-BR",{sensitivity:"base"}); });
+  if(!empresas.length){ toast("Nenhuma empresa vencedora ainda."); return; }
+  abrirWhatsapp(montarTextoVencedores(vencProcessoAtual, empresas));
+}
+/* Abre o WhatsApp com a mensagem já preenchida (escolhe-se a conversa no app) */
+function abrirWhatsapp(txt){
+  window.open("https://wa.me/?text="+encodeURIComponent(txt), "_blank");
+}
+/* Clique na barra "Processo concluído": monta o texto (vencedores acima do
+   objeto, a partir do ranking do card) e abre o WhatsApp. */
+function abrirWhatsappConcluido(pid){
   var p=processos.find(function(x){return x.id===pid;}); if(!p)return;
-  copiarParaClipboard(montarTextoConcluido(p));
+  var ex=procExtras[p.id]||{}; var rk=ex.rk||{};
+  var empresas=vencDerivarEmpresas(rk.itens||[], rk.estados||{});
+  abrirWhatsapp(montarTextoVencedores(p, empresas));
 }
 function copiarParaClipboard(txt){
   function ok(){ toast("Texto copiado! Cole no grupo do WhatsApp."); }
@@ -2356,6 +2376,20 @@ function getStatusStyle(id){
   var c=STATUS_COR_MAP[st.cor]||STATUS_COR_MAP.gray;
   return 'background:'+c.bg+';color:'+c.color+';font-weight:700;';
 }
+/* Tom sutil por status para colorir levemente o card (fundo + faixa superior) */
+var STATUS_TINT={
+  amber:  {accent:"#ef8a00", bg:"#fff8ec"},
+  blue:   {accent:"#1565c0", bg:"#f1f6fd"},
+  red:    {accent:"#d32f2f", bg:"#fdf3f3"},
+  green:  {accent:"#2e7d32", bg:"#f1f9f3"},
+  purple: {accent:"#6a1b9a", bg:"#f7f2fb"},
+  gray:   {accent:"#607d8b", bg:"#f5f8fb"}
+};
+function getStatusTint(id){
+  if(statusKey(id)==="em-andamento") return null; /* Em Andamento fica branco (padrão) */
+  var st=getStatusCfg(id);
+  return STATUS_TINT[st.cor]||STATUS_TINT.gray;
+}
 
 function atualizarStats(){
   /* stats bar removida — função mantida para compatibilidade */
@@ -2376,6 +2410,11 @@ function numeroSeq(numero){
   var n=(numero||"").toString().trim().replace(/\s*[-\u2013]\s*[^\d].*$/,""); /* remove sufixo " - PEDRO" */
   var m=n.match(/(\d+\s*\/?\s*\d{0,4})\s*$/);
   return m?m[1].replace(/\s+/g,""):n;
+}
+/* Sequência numérica do processo como inteiro (para ordenar por número) */
+function numeroSeqInt(numero){
+  var m=String(numeroSeq(numero)).match(/\d+/);
+  return m?parseInt(m[0],10):0;
 }
 /* Primeiro nome do agente responsável (usa o nome completo cadastrado) */
 function primeiroNomeAgente(abrev){
@@ -2644,8 +2683,13 @@ function renderizar(){
     if(filtroAno!=="todos"){ var ano=p.dataLicit?p.dataLicit.split("-")[0]:null; if(ano!==filtroAno)return false; }
     return true;
   });
-  lista=sortedLista(lista);
-  /* processos fixados sobem para o topo (mantendo a ordem por data entre eles) */
+  if(fTipo!=="todos"){
+    /* ao filtrar por categoria, ordena por número do processo (decrescente) */
+    lista=lista.slice().sort(function(a,b){ return numeroSeqInt(b.numero)-numeroSeqInt(a.numero); });
+  } else {
+    lista=sortedLista(lista);
+  }
+  /* processos fixados sobem para o topo (mantendo a ordem entre eles) */
   lista.sort(function(a,b){ return (b.fixado?1:0)-(a.fixado?1:0); });
   var grid=document.getElementById("grid");
   if(!lista.length){
@@ -2686,8 +2730,11 @@ function renderizar(){
     var contatoHtml=p.contato
       ? '<div class="card-contato">Contato: <span>'+escHtml(p.contato)+'</span></div>'
       : "";
-    html+='<div class="card'+(p.fixado?' pinned':'')+'" data-pid="'+escHtml(p.id)+'">';
-    html+='<div class="card-header">';
+    var _tint=getStatusTint(p.status);
+    var _cardStyle=_tint?' style="background:'+_tint.bg+'"':'';
+    var _hdrStyle=_tint?' style="border-top-color:'+_tint.accent+';background:linear-gradient(135deg,'+_tint.bg+' 0%,#fff 100%)"':'';
+    html+='<div class="card'+(p.fixado?' pinned':'')+'" data-pid="'+escHtml(p.id)+'"'+_cardStyle+'>';
+    html+='<div class="card-header"'+_hdrStyle+'>';
     html+='<div class="card-header-top">';
     html+='<div><div class="card-num">'+escHtml(rotuloProcesso(p))+'</div>';
     html+='<div class="card-obj">'+escHtml(p.objeto)+'</div></div>';
@@ -2712,7 +2759,7 @@ function renderizar(){
     html+='<button class="card-cfg-btn" data-action="editar" title="Editar processo">&#9881;&#65039;</button>';
     html+='</div>';
     if(isConcluido(p.status)){
-      html+='<button class="card-concluido-bar" data-action="share-concluido" title="Copiar anúncio de conclusão para o WhatsApp"><span class="ck">&#10003;</span> Processo concluído — copiar p/ WhatsApp</button>';
+      html+='<button class="card-concluido-bar" data-action="share-concluido" title="Abrir no WhatsApp"><span class="ck">&#10003;</span> Processo concluído</button>';
     }
     html+='</div>';
   }
@@ -7089,7 +7136,7 @@ function asgAssinaturasPDF(doc, o){
       doc.setFontSize(7.5); doc.setFont("helvetica","normal"); doc.setTextColor(o.cMuted[0],o.cMuted[1],o.cMuted[2]);
       if(sg.img){
         if(sg.assinadoEm){ doc.text("Assinado eletronicamente em "+asgFmtDataHora(sg.assinadoEm),cx,ty,{align:"center"}); ty+=3.6; }
-        if(sg.cpf){ doc.text("CPF "+asgFmtCpf(sg.cpf),cx,ty,{align:"center"}); }
+        /* CPF não é exibido no PDF (dado pessoal) */
       } else {
         doc.text("(assinatura pendente)",cx,ty,{align:"center"});
       }

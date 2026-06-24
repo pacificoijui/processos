@@ -177,6 +177,7 @@
   .ev-blue  { background: var(--blue-bg);  color: var(--blue-text); border-color: var(--navy-light); }
   .ev-green { background: var(--green-bg); color: var(--green); border-color: var(--green); }
   .ev-gray  { background: #eef1f6; color: #5b6577; border-color: #9aa6bd; }
+  .ev-branco { background: #fff; color: var(--navy); border-color: #cdd5e3; }
 
   /* ── Seções (Próximos / Busca) ──────────────────────────────────────────── */
   .section { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow-md); overflow: hidden; }
@@ -220,6 +221,16 @@
   .mini-meta { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
   .mini-tag { font-size: 10px; font-weight: 800; padding: 2px 8px; border-radius: 5px; }
   .search-hint { color: var(--muted); font-size: 12.5px; font-style: italic; padding: 16px 2px 2px; }
+  /* Painel lateral "Próximas Férias" (modo Visualizar férias) */
+  .fer-count { margin-left:auto; background:#26a69a; color:#fff; font-size:11px; font-weight:800; padding:3px 11px; border-radius:20px; }
+  .fer-card { background:#e8f6f4; border:1px solid #b6e0da; border-left:4px solid #26a69a; border-radius:12px; padding:13px 15px; box-shadow:var(--shadow); }
+  .fer-card + .fer-card { margin-top:12px; }
+  .fer-when { font-size:11px; font-weight:800; color:#00897b; text-transform:uppercase; letter-spacing:.3px; display:flex; align-items:center; gap:7px; margin-bottom:5px; }
+  .fer-when .fer-chip { background:#26a69a; color:#fff; padding:2px 8px; border-radius:20px; font-size:10px; }
+  .fer-nome { font-size:15px; font-weight:800; color:var(--navy); }
+  .fer-faixa { font-size:12.5px; color:var(--text); margin-top:3px; font-weight:600; }
+  .fer-dias { font-size:11.5px; color:var(--muted); font-weight:700; margin-top:4px; }
+  .fer-empty { color:var(--muted); font-size:13px; font-style:italic; padding:22px 6px; text-align:center; line-height:1.5; }
 
   /* filtros separados (tipo / número / objeto / ano) — iguais ao index */
   .ag-filtros { display: grid; grid-template-columns: 1fr 1fr; gap: 9px 10px; }
@@ -362,6 +373,11 @@
      o indicador é um aro colorido + um pontinho no canto */
   .layer-pill-mini.on { background:#fff; border-color:var(--navy); box-shadow:0 0 0 2px rgba(26,58,107,0.18); }
   .layer-pill-mini.on::after { content:""; position:absolute; bottom:3px; right:3px; width:7px; height:7px; border-radius:50%; background:var(--navy); border:1.5px solid #fff; }
+  .layer-pill-text { height:38px; padding:0 14px; border-radius:10px; border:1px solid var(--border); background:#fff; color:var(--muted); font-family:inherit; font-size:13px; font-weight:700; cursor:pointer; transition:all .14s; display:inline-flex; align-items:center; gap:7px; white-space:nowrap; }
+  .layer-pill-text:hover { border-color:var(--navy-light); transform:translateY(-1px); box-shadow:var(--shadow); }
+  /* impede que as regras ".cal-nav button"/".list-nav button" (largura fixa) cortem o texto */
+  .cal-nav .layer-pill-text, .list-nav .layer-pill-text { width:auto; height:38px; font-size:13px; padding:0 14px; }
+  .layer-pill-text.on { background:var(--navy); border-color:var(--navy); color:#fff; box-shadow:0 0 0 2px rgba(26,58,107,0.18); }
   /* só aparece no desktop — em telas estreitas, fica oculto */
   @media (max-width:1000px){ .layer-toggle-mini-group { display:none; } }
   .gear-corner-btn { flex-shrink:0; width:34px; height:34px; border-radius:9px; border:1px solid var(--border); background:#fff; color:var(--muted); font-size:15px; cursor:pointer; transition:all .14s; display:flex; align-items:center; justify-content:center; }
@@ -510,8 +526,7 @@
       </div>
       <div class="cal-nav">
         <div class="layer-toggle-mini-group">
-          <button class="layer-pill-mini" data-tipo="ferias" onclick="toggleCamada('ferias')" title="Mostrar férias dos servidores">&#127958;</button>
-          <button class="layer-pill-mini" data-tipo="aniv" onclick="toggleCamada('aniv')" title="Mostrar aniversários">&#127874;</button>
+          <button class="layer-pill-text" data-tipo="ferias" onclick="toggleCamada('ferias')" title="Mostrar/ocultar férias dos servidores">&#127958; Visualizar férias</button>
         </div>
         <button class="btn-primary cal-novo" onclick="abrirCadastro()">&#43; Novo Processo</button>
         <button class="hoje-btn" onclick="irHoje()">Hoje</button>
@@ -534,8 +549,7 @@
       </div>
       <div class="list-nav">
         <div class="layer-toggle-mini-group">
-          <button class="layer-pill-mini" data-tipo="ferias" onclick="toggleCamada('ferias')" title="Mostrar férias dos servidores">&#127958;</button>
-          <button class="layer-pill-mini" data-tipo="aniv" onclick="toggleCamada('aniv')" title="Mostrar aniversários">&#127874;</button>
+          <button class="layer-pill-text" data-tipo="ferias" onclick="toggleCamada('ferias')" title="Mostrar/ocultar férias dos servidores">&#127958; Visualizar férias</button>
         </div>
         <button class="btn-primary cal-novo" onclick="abrirCadastro()" style="height:36px;padding:0 14px">&#43; Novo</button>
         <button class="hoje-btn" onclick="irHojeList()">Hoje</button>
@@ -606,6 +620,17 @@
       <div class="up-grid" id="proximosLista">
         <div class="empty">Carregando processos…</div>
       </div>
+    </div>
+  </section>
+  <!-- Próximas Férias (aparece no modo "Visualizar férias") -->
+  <section class="section" id="feriasSection" style="display:none">
+    <div class="section-head">
+      <span class="ico">&#127958;</span>
+      <h3>Próximas Férias</h3>
+      <span class="fer-count" id="feriasCount"></span>
+    </div>
+    <div class="section-body">
+      <div id="feriasLista"><div class="fer-empty">Carregando…</div></div>
     </div>
   </section>
   </aside>
@@ -846,7 +871,7 @@ function toggleCamada(tipo){
   var ativo;
   if(tipo==="ferias"){ _mostrarFerias=!_mostrarFerias; ativo=_mostrarFerias; }
   else { _mostrarAniv=!_mostrarAniv; ativo=_mostrarAniv; }
-  document.querySelectorAll('.layer-pill-mini[data-tipo="'+tipo+'"]').forEach(function(b){
+  document.querySelectorAll('[data-tipo="'+tipo+'"]').forEach(function(b){
     b.classList.toggle("on", ativo);
   });
   render();
@@ -865,6 +890,11 @@ function numeroSeq(numero){
   var n=(numero||"").toString().trim().replace(/\s*[-\u2013]\s*[^\d].*$/,""); /* remove sufixo " - PEDRO" */
   var m=n.match(/(\d+\s*\/?\s*\d{0,4})\s*$/);
   return m?m[1].replace(/\s+/g,""):n;
+}
+/* Sequência numérica como inteiro (para ordenar por número do processo) */
+function numeroSeqInt(numero){
+  var m=String(numeroSeq(numero)).match(/\d+/);
+  return m?parseInt(m[0],10):0;
 }
 /* Primeiro nome do agente responsável */
 function primeiroNome(abrev){
@@ -900,6 +930,20 @@ function statusBadgeStyle(stId){
   var c=map[cor]||map.gray;
   return "background:"+c[0]+";color:"+c[1];
 }
+/* Tom de fundo bem sutil por status, para colorir levemente o card */
+var STATUS_TINT_BG={amber:"#fff8ec",red:"#fdf3f3",blue:"#f1f6fd",green:"#f1f9f3",purple:"#f7f2fb",gray:"#f6f8fb"};
+function statusTintBg(stId){ var s=resolveStatus(stId); var cor=s?s.cor:"gray"; return STATUS_TINT_BG[cor]||STATUS_TINT_BG.gray; }
+/* Em Andamento só "acende" (amarelo) a partir do dia da abertura; antes disso o
+   processo é futuro e fica branco — vale no calendário e nos próximos. */
+function isEmAndamentoFuturo(p){
+  if(!p||!p.dataLicit) return false;
+  var s=resolveStatus(p.status);
+  var nm=_normSt(s?s.id:p.status);
+  return nm==="emandamento" && p.dataLicit>hojeStr();
+}
+function tintBgCard(p){ return isEmAndamentoFuturo(p)?"#fff":statusTintBg(p.status); }
+function bordaCard(p){ return isEmAndamentoFuturo(p)?"#cdd5e3":_buscaBorda(p.status); }
+function corClasseEv(p){ return isEmAndamentoFuturo(p)?"ev-branco":statusCorClasse(p.status); }
 /* Resolução robusta de status (igual ao index): casa por id, id normalizado ou nome */
 function _normSt(str){
   return (str||"").toString().toLowerCase().trim()
@@ -926,71 +970,10 @@ function nomeCompletoResp(abrev){
   return a?(a.nomeCompleto||a.nomeAbrev):(abrev||"");
 }
 
-/* ── Badge de status clicável + popover rápido (em sincronia com o index) ────
-   Clicar numa tag de status abre um painel para trocar o status. Atualização
-   cirúrgica: grava só o campo "status" no Firestore (mesma coleção do index). */
-var STATUS_DOT={amber:"#ff9800",red:"#d32f2f",blue:"#1565c0",green:"#2e7d32",purple:"#6a1b9a",gray:"#546e7a"};
+/* ── Badge de status (somente visualização na agenda) ────────────────────── */
 function statusBadgeHtml(p, cls){
-  return '<span class="'+cls+' status-pop-trigger" style="'+statusBadgeStyle(p.status)+'" title="Clique para alterar o status" onclick="event.stopPropagation();abrirStatusPop(\''+escHtml(p.id)+'\',this)">'
-    +escHtml(statusNome(p.status))+'<span class="status-caret">&#9660;</span></span>';
+  return '<span class="'+cls+'" style="'+statusBadgeStyle(p.status)+'">'+escHtml(statusNome(p.status))+'</span>';
 }
-var _statusPopEl=null, _statusPopPid=null;
-function _statusPopEnsure(){
-  if(_statusPopEl) return _statusPopEl;
-  _statusPopEl=document.createElement("div");
-  _statusPopEl.className="status-pop";
-  document.body.appendChild(_statusPopEl);
-  return _statusPopEl;
-}
-function abrirStatusPop(pid, anchorEl){
-  var p=processos.find(function(x){return x.id===pid;}); if(!p) return;
-  if(_statusPopPid===pid && _statusPopEl && _statusPopEl.classList.contains("open")){ fecharStatusPop(); return; }
-  var pop=_statusPopEnsure();
-  _statusPopPid=pid;
-  var sAtual=resolveStatus(p.status); var atualId=sAtual?sAtual.id:null;
-  var html='<div class="status-pop-title">Alterar status</div>';
-  for(var i=0;i<statusList.length;i++){
-    var s=statusList[i];
-    var isCur=(s.id===atualId);
-    html+='<button class="status-pop-opt'+(isCur?" current":"")+'" data-stpick="'+escHtml(s.id)+'">'
-      +'<span class="status-pop-dot" style="background:'+(STATUS_DOT[s.cor]||STATUS_DOT.gray)+'"></span>'
-      +'<span>'+escHtml(s.nome||s.id)+'</span>'
-      +(isCur?'<span class="status-pop-check">&#10003;</span>':'')
-      +'</button>';
-  }
-  pop.innerHTML=html;
-  pop.classList.add("open");
-  var r=anchorEl.getBoundingClientRect();
-  var pw=pop.offsetWidth, ph=pop.offsetHeight;
-  var left=r.left, top=r.bottom+6;
-  if(left+pw>window.innerWidth-10) left=window.innerWidth-pw-10;
-  if(left<10) left=10;
-  if(top+ph>window.innerHeight-10) top=r.top-ph-6;
-  if(top<10) top=10;
-  pop.style.left=left+"px";
-  pop.style.top=top+"px";
-  pop.querySelectorAll("[data-stpick]").forEach(function(b){
-    b.addEventListener("click", function(){ mudarStatusRapido(_statusPopPid, b.dataset.stpick); });
-  });
-}
-function fecharStatusPop(){ if(_statusPopEl) _statusPopEl.classList.remove("open"); _statusPopPid=null; }
-function mudarStatusRapido(pid, statusId){
-  var p=processos.find(function(x){return x.id===pid;});
-  fecharStatusPop();
-  var atual=p?resolveStatus(p.status):null;
-  if(!p || (atual && atual.id===statusId)) return;
-  colRef.doc(pid).update({status:statusId, updatedAt:firebase.firestore.FieldValue.serverTimestamp()})
-    .then(function(){ toast("Status: "+statusNome(statusId)); })
-    .catch(function(e){ alert("Erro ao alterar status: "+e.message); });
-}
-document.addEventListener("click", function(e){
-  if(!_statusPopEl || !_statusPopEl.classList.contains("open")) return;
-  if(e.target.closest(".status-pop")) return;
-  if(e.target.closest(".status-pop-trigger")) return;
-  fecharStatusPop();
-});
-window.addEventListener("resize", fecharStatusPop);
-window.addEventListener("scroll", function(){ fecharStatusPop(); }, true);
 
 
 function toast(msg){
@@ -1013,7 +996,7 @@ var _viewAtual = "list";  /* view ativa: "list" ou "month" */
 var pontosFac   = {};      /* iso "YYYY-MM-DD" -> nome do ponto facultativo */
 var feriasList  = [];      /* { servidor, inicio, fim } */
 var anivList    = [];      /* { servidor, dia, mes } */
-var _mostrarFerias = false, _mostrarAniv = false;
+var _mostrarFerias = false, _mostrarAniv = true;
 var pfColRef, ferColRef, anivColRef;
 try { pfColRef   = db.collection("pontos_facultativos"); } catch(e){ pfColRef   = null; }
 try { ferColRef  = db.collection("ferias"); }             catch(e){ ferColRef  = null; }
@@ -1153,6 +1136,45 @@ function render(){
   renderProximos();
   popularFiltroAno();
   renderBusca();
+  aplicarModoFerias();
+  renderFeriasPanel();
+}
+/* Alterna o lado: no modo férias some Buscar/Próximos Processos e aparece Próximas Férias */
+function aplicarModoFerias(){
+  var on=!!_mostrarFerias;
+  var b=document.getElementById("buscaSection");   if(b) b.style.display=on?"none":"";
+  var p=document.getElementById("proximosSection");if(p) p.style.display=on?"none":"";
+  var f=document.getElementById("feriasSection");  if(f) f.style.display=on?"":"none";
+}
+function _feriasDuracaoDias(ini,fim){
+  var a=new Date(ini+"T12:00:00"), b=new Date((fim||ini)+"T12:00:00");
+  return Math.round((b-a)/86400000)+1;
+}
+function renderFeriasPanel(){
+  var box=document.getElementById("feriasLista"); if(!box) return;
+  var hoje=hojeStr();
+  var lista=feriasList.filter(function(f){ return f.inicio && (f.fim||f.inicio)>=hoje; })
+    .sort(function(a,b){ return (a.inicio||"").localeCompare(b.inicio||""); });
+  var cnt=document.getElementById("feriasCount");
+  if(cnt) cnt.textContent=lista.length?lista.length:"";
+  if(!lista.length){
+    box.innerHTML='<div class="fer-empty">Nenhuma férias futura cadastrada.<br>Cadastre pelo painel interno (engrenagem &#9881;).</div>';
+    return;
+  }
+  var html="";
+  lista.forEach(function(f){
+    var fim=f.fim||f.inicio;
+    var emCurso=(hoje>=f.inicio && hoje<=fim);
+    var quando=emCurso?"Em curso":(diasAte(f.inicio)||"A partir de "+fmtData(f.inicio));
+    var chip=emCurso?'<span class="fer-chip">agora</span>':'';
+    html+='<div class="fer-card">';
+    html+='<div class="fer-when">&#127958; '+escHtml(quando)+chip+'</div>';
+    html+='<div class="fer-nome">'+escHtml(f.servidor||"Servidor")+'</div>';
+    html+='<div class="fer-faixa">'+fmtData(f.inicio)+' a '+fmtData(fim)+'</div>';
+    html+='<div class="fer-dias">'+_feriasDuracaoDias(f.inicio,fim)+' dia(s)</div>';
+    html+='</div>';
+  });
+  box.innerHTML=html;
 }
 
 function renderCalendario(){
@@ -1214,11 +1236,13 @@ function renderCalendario(){
         html+='<div class="cal-ev cal-ev-aniv" title="Aniversário: '+escHtml(nm)+'">&#127874; '+escHtml(nm)+'</div>';
       });
       if(aberto) html+='<textarea class="cal-obs-edit" id="calobs_'+isoC+'" placeholder="observação…" onclick="event.stopPropagation()" oninput="onObsInput(\''+iso+'\',this)">'+escHtml(observacoes[iso]||"")+'</textarea>';
-      var evs=(porData[iso]||[]).slice().sort(function(a,b){ return (a.horarioAbertura||"99:99").localeCompare(b.horarioAbertura||"99:99"); });
-      evs.slice(0,3).forEach(function(p){
-        html+='<div class="cal-ev '+statusCorClasse(p.status)+'" onclick="abrirDetalhe(\''+escHtml(p.id)+'\')" title="'+escHtml((p.numero||"")+" — "+(p.objeto||""))+'">'+escHtml(rotuloAgenda(p))+'</div>';
-      });
-      if(evs.length>3){ html+='<span class="cal-more" onclick="abrirDetalhe(\''+escHtml(evs[3].id)+'\')">+'+(evs.length-3)+' mais</span>'; }
+      if(!_mostrarFerias){
+        var evs=(porData[iso]||[]).slice().sort(function(a,b){ return (a.horarioAbertura||"99:99").localeCompare(b.horarioAbertura||"99:99"); });
+        evs.slice(0,3).forEach(function(p){
+          html+='<div class="cal-ev '+corClasseEv(p)+'" onclick="abrirDetalhe(\''+escHtml(p.id)+'\')" title="'+escHtml((p.numero||"")+" — "+(p.objeto||""))+'">'+escHtml(rotuloAgenda(p))+'</div>';
+        });
+        if(evs.length>3){ html+='<span class="cal-more" onclick="abrirDetalhe(\''+escHtml(evs[3].id)+'\')">+'+(evs.length-3)+' mais</span>'; }
+      }
       html+='</div>';
     });
   });
@@ -1255,7 +1279,7 @@ function renderProximos(){
     var quando=ehHoje?"Hoje":diasAte(p.dataLicit);
     var tipo=tipoLicitacao(p.numero);
     var titulo=tipo?(tipo+" "+numeroSeq(p.numero)):(p.numero||"Sem número");
-    html+='<div class="'+cls+'" onclick="abrirDetalhe(\''+escHtml(p.id)+'\')">';
+    html+='<div class="'+cls+'" style="background:'+tintBgCard(p)+'" onclick="abrirDetalhe(\''+escHtml(p.id)+'\')">';
     html+='<div class="up-when"><span class="up-daychip">'+fmtDiaMes(p.dataLicit)+'</span> '+escHtml(quando)+(p.horarioAbertura?' · '+escHtml(p.horarioAbertura):'')+'</div>';
     html+='<div class="up-num">'+escHtml(titulo)+'</div>';
     if(p.objeto) html+='<div class="up-obj">'+escHtml(p.objeto)+'</div>';
@@ -1302,6 +1326,8 @@ function renderBusca(){
     }
     return true;
   }).sort(function(a,b){
+    /* ao filtrar por categoria, ordena por número (decrescente); senão por data */
+    if(fTipo!=="todos") return numeroSeqInt(b.numero)-numeroSeqInt(a.numero);
     return (b.dataLicit||"").localeCompare(a.dataLicit||"");
   });
 
@@ -1314,7 +1340,7 @@ function renderBusca(){
   achados.forEach(function(p){
     var tipo=tipoLicitacao(p.numero);
     var titulo=tipo?(tipo+" "+numeroSeq(p.numero)):(p.numero||"Sem número");
-    html+='<div class="mini-card" style="border-left-color:'+_buscaBorda(p.status)+'" onclick="abrirDetalhe(\''+escHtml(p.id)+'\')">';
+    html+='<div class="mini-card" style="border-left-color:'+bordaCard(p)+';background:'+tintBgCard(p)+'" onclick="abrirDetalhe(\''+escHtml(p.id)+'\')">';
     html+='<div class="mini-top"><span class="mini-num">'+escHtml(titulo)+'</span>';
     html+='<span class="mini-date">'+(p.dataLicit?escHtml(fmtData(p.dataLicit)):"sem data")+'</span></div>';
     if(p.objeto) html+='<div class="mini-obj">'+escHtml(p.objeto)+'</div>';
@@ -1393,11 +1419,13 @@ function renderLista(){
     return (a.horarioAbertura||"").localeCompare(b.horarioAbertura||"");
   });
 
-  /* agrupa processos por data */
+  /* agrupa processos por data (no modo férias, processos ficam ocultos) */
   var grupos={};
-  doMes.forEach(function(p){
-    (grupos[p.dataLicit]=grupos[p.dataLicit]||[]).push(p);
-  });
+  if(!_mostrarFerias){
+    doMes.forEach(function(p){
+      (grupos[p.dataLicit]=grupos[p.dataLicit]||[]).push(p);
+    });
+  }
 
   /* camadas opcionais: férias (ancoradas no início dentro do mês) e aniversários */
   var firstISO=ymd(new Date(ano,mes,1));
@@ -1429,7 +1457,7 @@ function renderLista(){
   var ordem=Object.keys(todasDatas).sort();
 
   if(!ordem.length){
-    box.innerHTML='<div class="list-empty">Nenhum processo agendado em '+MESES[mes]+'.<br>Toque em “+ Novo” para cadastrar.</div>';
+    box.innerHTML='<div class="list-empty">'+(_mostrarFerias?('Nenhuma férias em '+MESES[mes]+'.'):('Nenhum processo agendado em '+MESES[mes]+'.<br>Toque em “+ Novo” para cadastrar.'))+'</div>';
     return;
   }
 
@@ -1464,7 +1492,7 @@ function renderLista(){
     (grupos[iso]||[]).forEach(function(p){
       var tipo=tipoLicitacao(p.numero);
       var titulo=tipo?(tipo+" "+numeroSeq(p.numero)):(p.numero||"Sem número");
-      html+='<div class="list-card" style="border-left-color:'+_buscaBorda(p.status)+'" onclick="abrirDetalhe(\''+escHtml(p.id)+'\')">';
+      html+='<div class="list-card" style="border-left-color:'+bordaCard(p)+';background:'+tintBgCard(p)+'" onclick="abrirDetalhe(\''+escHtml(p.id)+'\')">';
       html+='<div class="list-card-top"><span class="list-card-num">'+escHtml(titulo)+'</span>';
       if(p.horarioAbertura) html+='<span class="list-card-time">'+escHtml(p.horarioAbertura)+'</span>';
       html+='</div>';
