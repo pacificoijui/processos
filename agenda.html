@@ -221,6 +221,30 @@
   .mini-tag { font-size: 10px; font-weight: 800; padding: 2px 8px; border-radius: 5px; }
   .search-hint { color: var(--muted); font-size: 12.5px; font-style: italic; padding: 16px 2px 2px; }
 
+  /* filtros separados (tipo / número / objeto / ano) — iguais ao index */
+  .ag-filtros { display: grid; grid-template-columns: 1fr 1fr; gap: 9px 10px; }
+  .ag-filtro-campo { display: flex; flex-direction: column; gap: 4px; }
+  .ag-filtro-campo.cf-full { grid-column: 1 / -1; }
+  .ag-filtro-label { font-size: 11px; font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: .3px; padding-left: 2px; }
+  .ag-filtro-input, .ag-filtro-select { width: 100%; padding: 10px 12px; border: 1.5px solid var(--border); border-radius: 10px; font-family: inherit; font-size: 13.5px; color: var(--text); background: #fff; outline: none; transition: border-color .14s, box-shadow .14s; }
+  .ag-filtro-input:focus, .ag-filtro-select:focus { border-color: var(--navy-light); box-shadow: 0 0 0 3px rgba(46,93,168,0.12); }
+  .ag-filtro-select { cursor: pointer; }
+  .btn-limpar-filtros { grid-column: 1 / -1; padding: 9px 12px; border-radius: 10px; border: 1.5px solid var(--border); background: #fff; color: var(--muted); font-family: inherit; font-size: 12.5px; font-weight: 800; cursor: pointer; transition: all .14s; }
+  .btn-limpar-filtros:hover { border-color: var(--red); color: var(--red); }
+
+  /* badges de status clicáveis + popover rápido (igual ao index) */
+  .status-pop-trigger { cursor: pointer; display: inline-flex; align-items: center; gap: 3px; transition: filter .12s, box-shadow .12s; }
+  .status-pop-trigger:hover { filter: brightness(0.97); box-shadow: 0 0 0 2px rgba(46,93,168,0.18); }
+  .status-pop-trigger .status-caret { font-size: 8px; opacity: .8; }
+  .status-pop { position: fixed; z-index: 9999; background: var(--card); border: 1.5px solid var(--border); border-radius: 12px; box-shadow: var(--shadow-lg); padding: 8px; min-width: 200px; max-width: 250px; display: none; }
+  .status-pop.open { display: block; }
+  .status-pop-title { font-size: 11px; font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: .4px; padding: 2px 4px 8px; }
+  .status-pop-opt { display: flex; align-items: center; gap: 9px; width: 100%; text-align: left; padding: 8px 9px; border: none; background: transparent; border-radius: 9px; cursor: pointer; font-family: inherit; font-size: 13.5px; font-weight: 700; color: var(--text); transition: background .12s; }
+  .status-pop-opt:hover { background: #eef2fb; }
+  .status-pop-opt.current { background: #e9eefb; }
+  .status-pop-dot { width: 13px; height: 13px; border-radius: 50%; flex-shrink: 0; box-shadow: 0 0 0 1px rgba(0,0,0,.12); }
+  .status-pop-opt .status-pop-check { margin-left: auto; color: var(--navy-light); font-weight: 900; }
+
   /* ── Modal (detalhe + cadastro) ─────────────────────────────────────────── */
   .overlay { display: none; position: fixed; inset: 0; background: rgba(8,18,45,0.58); z-index: 600; align-items: center; justify-content: center; backdrop-filter: blur(3px); padding: 20px; }
   .overlay.open { display: flex; }
@@ -541,13 +565,33 @@
       <h3>Buscar Processo</h3>
     </div>
     <div class="section-body">
-      <div class="search-wrap">
-        <span class="search-ico">&#128269;</span>
-        <input type="text" id="buscaInput" placeholder="Pesquisar por número ou nome do processo…" oninput="renderBusca(this.value)" autocomplete="off">
-        <button class="search-clear" id="buscaClear" onclick="limparBusca()" title="Limpar">&times;</button>
+      <div class="ag-filtros">
+        <div class="ag-filtro-campo">
+          <span class="ag-filtro-label">Tipo</span>
+          <select class="ag-filtro-select" id="bfTipo" onchange="renderBusca()">
+            <option value="todos">Todos</option>
+            <option value="Pregão">Pregão</option>
+            <option value="Concorrência">Concorrência</option>
+          </select>
+        </div>
+        <div class="ag-filtro-campo">
+          <span class="ag-filtro-label">Ano</span>
+          <select class="ag-filtro-select" id="bfAno" onchange="renderBusca()">
+            <option value="todos">Todos</option>
+          </select>
+        </div>
+        <div class="ag-filtro-campo cf-full">
+          <span class="ag-filtro-label">Número</span>
+          <input type="text" class="ag-filtro-input" id="bfNumero" placeholder="Ex: 75" oninput="renderBusca()" autocomplete="off">
+        </div>
+        <div class="ag-filtro-campo cf-full">
+          <span class="ag-filtro-label">Objeto</span>
+          <input type="text" class="ag-filtro-input" id="bfObjeto" placeholder="Buscar no objeto ou responsável..." oninput="renderBusca()" autocomplete="off">
+        </div>
+        <button class="btn-limpar-filtros" onclick="limparBusca()">&times; Limpar filtros</button>
       </div>
       <div class="search-results" id="buscaResultados"></div>
-      <div class="search-hint" id="buscaHint">Digite para localizar um processo cadastrado.</div>
+      <div class="search-hint" id="buscaHint">Use os filtros acima para localizar um processo cadastrado.</div>
     </div>
   </section>
 
@@ -882,6 +926,73 @@ function nomeCompletoResp(abrev){
   return a?(a.nomeCompleto||a.nomeAbrev):(abrev||"");
 }
 
+/* ── Badge de status clicável + popover rápido (em sincronia com o index) ────
+   Clicar numa tag de status abre um painel para trocar o status. Atualização
+   cirúrgica: grava só o campo "status" no Firestore (mesma coleção do index). */
+var STATUS_DOT={amber:"#ff9800",red:"#d32f2f",blue:"#1565c0",green:"#2e7d32",purple:"#6a1b9a",gray:"#546e7a"};
+function statusBadgeHtml(p, cls){
+  return '<span class="'+cls+' status-pop-trigger" style="'+statusBadgeStyle(p.status)+'" title="Clique para alterar o status" onclick="event.stopPropagation();abrirStatusPop(\''+escHtml(p.id)+'\',this)">'
+    +escHtml(statusNome(p.status))+'<span class="status-caret">&#9660;</span></span>';
+}
+var _statusPopEl=null, _statusPopPid=null;
+function _statusPopEnsure(){
+  if(_statusPopEl) return _statusPopEl;
+  _statusPopEl=document.createElement("div");
+  _statusPopEl.className="status-pop";
+  document.body.appendChild(_statusPopEl);
+  return _statusPopEl;
+}
+function abrirStatusPop(pid, anchorEl){
+  var p=processos.find(function(x){return x.id===pid;}); if(!p) return;
+  if(_statusPopPid===pid && _statusPopEl && _statusPopEl.classList.contains("open")){ fecharStatusPop(); return; }
+  var pop=_statusPopEnsure();
+  _statusPopPid=pid;
+  var sAtual=resolveStatus(p.status); var atualId=sAtual?sAtual.id:null;
+  var html='<div class="status-pop-title">Alterar status</div>';
+  for(var i=0;i<statusList.length;i++){
+    var s=statusList[i];
+    var isCur=(s.id===atualId);
+    html+='<button class="status-pop-opt'+(isCur?" current":"")+'" data-stpick="'+escHtml(s.id)+'">'
+      +'<span class="status-pop-dot" style="background:'+(STATUS_DOT[s.cor]||STATUS_DOT.gray)+'"></span>'
+      +'<span>'+escHtml(s.nome||s.id)+'</span>'
+      +(isCur?'<span class="status-pop-check">&#10003;</span>':'')
+      +'</button>';
+  }
+  pop.innerHTML=html;
+  pop.classList.add("open");
+  var r=anchorEl.getBoundingClientRect();
+  var pw=pop.offsetWidth, ph=pop.offsetHeight;
+  var left=r.left, top=r.bottom+6;
+  if(left+pw>window.innerWidth-10) left=window.innerWidth-pw-10;
+  if(left<10) left=10;
+  if(top+ph>window.innerHeight-10) top=r.top-ph-6;
+  if(top<10) top=10;
+  pop.style.left=left+"px";
+  pop.style.top=top+"px";
+  pop.querySelectorAll("[data-stpick]").forEach(function(b){
+    b.addEventListener("click", function(){ mudarStatusRapido(_statusPopPid, b.dataset.stpick); });
+  });
+}
+function fecharStatusPop(){ if(_statusPopEl) _statusPopEl.classList.remove("open"); _statusPopPid=null; }
+function mudarStatusRapido(pid, statusId){
+  var p=processos.find(function(x){return x.id===pid;});
+  fecharStatusPop();
+  var atual=p?resolveStatus(p.status):null;
+  if(!p || (atual && atual.id===statusId)) return;
+  colRef.doc(pid).update({status:statusId, updatedAt:firebase.firestore.FieldValue.serverTimestamp()})
+    .then(function(){ toast("Status: "+statusNome(statusId)); })
+    .catch(function(e){ alert("Erro ao alterar status: "+e.message); });
+}
+document.addEventListener("click", function(e){
+  if(!_statusPopEl || !_statusPopEl.classList.contains("open")) return;
+  if(e.target.closest(".status-pop")) return;
+  if(e.target.closest(".status-pop-trigger")) return;
+  fecharStatusPop();
+});
+window.addEventListener("resize", fecharStatusPop);
+window.addEventListener("scroll", function(){ fecharStatusPop(); }, true);
+
+
 function toast(msg){
   var t=document.getElementById("toast"); t.textContent=msg; t.classList.add("show");
   clearTimeout(t._t); t._t=setTimeout(function(){ t.classList.remove("show"); },2600);
@@ -941,6 +1052,10 @@ try{ agColRef.onSnapshot(function(snap){
 try{ colRef.onSnapshot(function(snap){
   processos = snap.docs.map(function(d){ return Object.assign({id:d.id},d.data()); });
   render();
+  /* mantém o detalhe aberto sincronizado (ex.: após troca rápida de status) */
+  if(detalheAtualId && document.getElementById("modalDetalhe").classList.contains("open")){
+    if(processos.find(function(x){return x.id===detalheAtualId;})) abrirDetalhe(detalheAtualId);
+  }
 }, function(err){ console.error("Processos:", err); }); }catch(e){ console.warn("processos onSnapshot:", e); }
 
 try{ if(obsColRef) obsColRef.onSnapshot(function(snap){
@@ -1036,7 +1151,8 @@ function popularStatusSelect(){
 function render(){
   if(_viewAtual==="list") renderLista(); else renderCalendario();
   renderProximos();
-  var bi=document.getElementById("buscaInput"); if(bi&&bi.value.trim()) renderBusca(bi.value);
+  popularFiltroAno();
+  renderBusca();
 }
 
 function renderCalendario(){
@@ -1144,7 +1260,7 @@ function renderProximos(){
     html+='<div class="up-num">'+escHtml(titulo)+'</div>';
     if(p.objeto) html+='<div class="up-obj">'+escHtml(p.objeto)+'</div>';
     html+='<div class="up-meta">';
-    html+='<span class="up-tag" style="'+statusBadgeStyle(p.status)+'">'+escHtml(statusNome(p.status))+'</span>';
+    html+=statusBadgeHtml(p,"up-tag");
     if(p.responsavel) html+='<span class="up-tag up-resp">'+escHtml(primeiroNome(p.responsavel))+'</span>';
     html+='</div></div>';
   });
@@ -1157,28 +1273,41 @@ function _buscaNorm(s){
     .replace(/[àáâãä]/g,"a").replace(/[èéêë]/g,"e").replace(/[ìíîï]/g,"i")
     .replace(/[òóôõö]/g,"o").replace(/[ùúûü]/g,"u").replace(/[ç]/g,"c");
 }
-function renderBusca(termo){
+function renderBusca(){
   var box=document.getElementById("buscaResultados");
   var hint=document.getElementById("buscaHint");
-  var clr=document.getElementById("buscaClear");
-  var t=_buscaNorm((termo||"").trim());
-  if(clr) clr.classList.toggle("show", !!t);
+  if(!box) return;
+  var fTipo=(document.getElementById("bfTipo")||{value:"todos"}).value;
+  var fNum=_buscaNorm(((document.getElementById("bfNumero")||{value:""}).value||"").trim());
+  var fObj=_buscaNorm(((document.getElementById("bfObjeto")||{value:""}).value||"").trim());
+  var fAno=(document.getElementById("bfAno")||{value:"todos"}).value;
+  var temFiltro=(fTipo!=="todos")||fNum||fObj;
 
-  if(!t){ box.innerHTML=""; if(hint){ hint.style.display="block"; hint.textContent="Digite para localizar um processo cadastrado."; } return; }
+  if(!temFiltro){
+    box.innerHTML="";
+    if(hint){ hint.style.display="block"; hint.textContent="Use os filtros acima para localizar um processo cadastrado."; }
+    return;
+  }
 
   var achados=processos.filter(function(p){
-    var tipo=tipoLicitacao(p.numero);
-    var rotulo=tipo?(tipo+" "+numeroSeq(p.numero)):"";
-    return _buscaNorm(p.numero).indexOf(t)>=0
-        || _buscaNorm(p.objeto).indexOf(t)>=0
-        || _buscaNorm(rotulo).indexOf(t)>=0;
+    if(fTipo!=="todos" && tipoLicitacao(p.numero)!==fTipo) return false;
+    if(fAno!=="todos"){ var ano=p.dataLicit?p.dataLicit.split("-")[0]:null; if(ano!==fAno) return false; }
+    if(fNum){
+      var numTxt=_buscaNorm((p.numero||"")+" "+numeroSeq(p.numero));
+      if(numTxt.indexOf(fNum)<0) return false;
+    }
+    if(fObj){
+      var objTxt=_buscaNorm((p.objeto||"")+" "+(p.responsavel||"")+" "+(p.contato||""));
+      if(objTxt.indexOf(fObj)<0) return false;
+    }
+    return true;
   }).sort(function(a,b){
     return (b.dataLicit||"").localeCompare(a.dataLicit||"");
   });
 
   if(hint){
     hint.style.display="block";
-    hint.textContent=achados.length?(achados.length+" processo(s) encontrado(s)"):"Nenhum processo encontrado para “"+termo.trim()+"”.";
+    hint.textContent=achados.length?(achados.length+" processo(s) encontrado(s)"):"Nenhum processo encontrado com esses filtros.";
   }
 
   var html="";
@@ -1190,11 +1319,31 @@ function renderBusca(termo){
     html+='<span class="mini-date">'+(p.dataLicit?escHtml(fmtData(p.dataLicit)):"sem data")+'</span></div>';
     if(p.objeto) html+='<div class="mini-obj">'+escHtml(p.objeto)+'</div>';
     html+='<div class="mini-meta">';
-    html+='<span class="mini-tag" style="'+statusBadgeStyle(p.status)+'">'+escHtml(statusNome(p.status))+'</span>';
+    html+=statusBadgeHtml(p,"mini-tag");
     if(p.responsavel) html+='<span class="mini-tag up-resp">'+escHtml(primeiroNome(p.responsavel))+'</span>';
     html+='</div></div>';
   });
   box.innerHTML=html;
+}
+/* popula o select de Ano com os anos presentes; auto-seleciona o ano atual na 1ª carga */
+function popularFiltroAno(){
+  var sel=document.getElementById("bfAno"); if(!sel) return;
+  var anos={};
+  processos.forEach(function(p){ if(p.dataLicit){ var a=p.dataLicit.split("-")[0]; if(a) anos[a]=true; } });
+  var lista=Object.keys(anos).sort();
+  var assinatura=lista.join(",");
+  if(sel.dataset.anos===assinatura) return;
+  var primeira=!sel.dataset.anos;
+  var atual=sel.value||"todos";
+  if(primeira){
+    var anoAtual=String(new Date().getFullYear());
+    atual=(lista.indexOf(anoAtual)>=0)?anoAtual:(lista.length?lista[lista.length-1]:"todos");
+  }
+  sel.dataset.anos=assinatura;
+  var h='<option value="todos">Todos</option>';
+  lista.forEach(function(a){ h+='<option value="'+a+'">'+a+'</option>'; });
+  sel.innerHTML=h;
+  sel.value=(atual==="todos"||lista.indexOf(atual)>=0)?atual:"todos";
 }
 function _buscaBorda(stId){
   var s=resolveStatus(stId);
@@ -1203,9 +1352,10 @@ function _buscaBorda(stId){
   return map[cor]||map.gray;
 }
 function limparBusca(){
-  var inp=document.getElementById("buscaInput");
-  if(inp){ inp.value=""; inp.focus(); }
-  renderBusca("");
+  var t=document.getElementById("bfTipo"); if(t) t.value="todos";
+  var n=document.getElementById("bfNumero"); if(n) n.value="";
+  var o=document.getElementById("bfObjeto"); if(o) o.value="";
+  renderBusca();
 }
 function diasAte(iso){
   var hoje=new Date(hojeStr()+"T12:00:00");
@@ -1320,7 +1470,7 @@ function renderLista(){
       html+='</div>';
       if(p.objeto) html+='<div class="list-card-obj">'+escHtml(p.objeto)+'</div>';
       html+='<div class="list-card-meta">';
-      html+='<span class="list-card-tag" style="'+statusBadgeStyle(p.status)+'">'+escHtml(statusNome(p.status))+'</span>';
+      html+=statusBadgeHtml(p,"list-card-tag");
       if(p.responsavel) html+='<span class="list-card-tag up-resp">'+escHtml(primeiroNome(p.responsavel))+'</span>';
       html+='</div>';
       if(p.observacao&&p.observacao.trim()){
@@ -1494,7 +1644,7 @@ function abrirDetalhe(id){
   h+='<div class="det-grid">';
   h+='<div class="det-item"><div class="k">Data da Licitação</div><div class="v">'+(p.dataLicit?escHtml(fmtData(p.dataLicit)):"—")+'</div></div>';
   h+='<div class="det-item"><div class="k">Horário de Abertura</div><div class="v">'+escHtml(p.horarioAbertura||"—")+'</div></div>';
-  h+='<div class="det-item"><div class="k">Status</div><div class="v"><span class="det-badge" style="'+statusBadgeStyle(p.status)+'">'+escHtml(statusNome(p.status))+'</span></div></div>';
+  h+='<div class="det-item"><div class="k">Status</div><div class="v">'+statusBadgeHtml(p,"det-badge")+'</div></div>';
   if(p.observacao&&p.observacao.trim()){
     h+='<div class="det-item det-full"><div class="list-card-procobs"><span class="lbl">Observação</span>'+escHtml(p.observacao)+'</div></div>';
   }

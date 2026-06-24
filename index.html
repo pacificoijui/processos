@@ -100,6 +100,18 @@
   .search-box input { width: 100%; padding: 11px 14px 11px 40px; border: 1.5px solid var(--border); border-radius: 9px; font-family: Arial, sans-serif; font-size: 14px; background: var(--card); color: var(--text); outline: none; transition: border 0.15s; }
   .search-box input:focus { border-color: var(--navy-light); }
   .search-icon { position: absolute; left: 13px; top: 50%; transform: translateY(-50%); color: var(--muted); font-size: 16px; }
+  /* Campos de filtro separados (tipo / número / objeto / ano) */
+  .filtros-wrap { display: flex; gap: 10px; flex-wrap: wrap; align-items: flex-end; width: 100%; }
+  .filtro-campo { display: flex; flex-direction: column; gap: 4px; }
+  .filtro-campo.cf-tipo { width: 170px; }
+  .filtro-campo.cf-num { width: 130px; }
+  .filtro-campo.cf-obj { flex: 1; min-width: 200px; }
+  .filtro-label { font-size: 11.5px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .3px; padding-left: 2px; }
+  .filtro-input, .filtro-select { width: 100%; padding: 10px 13px; border: 1.5px solid var(--border); border-radius: 9px; font-family: Arial, sans-serif; font-size: 14px; background: var(--card); color: var(--text); outline: none; transition: border .15s; }
+  .filtro-input:focus, .filtro-select:focus { border-color: var(--navy-light); }
+  .filtro-select { cursor: pointer; }
+  .btn-limpar-filtros { padding: 10px 14px; border-radius: 9px; border: 1.5px solid var(--border); background: var(--card); color: var(--muted); font-family: Arial, sans-serif; font-size: 13px; font-weight: 700; cursor: pointer; transition: all .15s; white-space: nowrap; }
+  .btn-limpar-filtros:hover { border-color: var(--red); color: var(--red); }
   .filter-group { display: flex; gap: 6px; flex-wrap: wrap; }
   .filter-btn { padding: 9px 15px; border-radius: 8px; border: 1.5px solid var(--border); background: var(--card); font-family: Arial, sans-serif; font-size: 13px; font-weight: 600; color: var(--muted); cursor: pointer; transition: all 0.15s; }
   .filter-btn:hover { border-color: var(--navy-light); color: var(--navy); }
@@ -120,6 +132,18 @@
   .badge-pedro { background: var(--blue-bg); color: var(--blue-text); }
   .badge-lucilda { background: #f0e8f8; color: #6a20b0; }
   .status-tag { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 700; }
+  .status-tag[data-action="status-pop"] { cursor: pointer; transition: filter .12s, box-shadow .12s; }
+  .status-tag[data-action="status-pop"]:hover { filter: brightness(1.08); box-shadow: 0 0 0 2px rgba(255,255,255,.45) inset, 0 1px 4px rgba(0,0,0,.25); }
+  .status-tag .status-caret { font-size: 9px; opacity: .85; margin-left: 1px; }
+  /* Popover rápido de alteração de status */
+  .status-pop { position: fixed; z-index: 9999; background: var(--card); border: 1.5px solid var(--border); border-radius: 11px; box-shadow: 0 10px 30px rgba(16,32,64,.28); padding: 8px; min-width: 200px; max-width: 250px; display: none; }
+  .status-pop.open { display: block; }
+  .status-pop-title { font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .4px; padding: 2px 4px 8px; }
+  .status-pop-opt { display: flex; align-items: center; gap: 9px; width: 100%; text-align: left; padding: 8px 9px; border: none; background: transparent; border-radius: 8px; cursor: pointer; font-family: Arial, sans-serif; font-size: 13.5px; font-weight: 600; color: var(--text); transition: background .12s; }
+  .status-pop-opt:hover { background: #eef2fb; }
+  .status-pop-opt.current { background: #e9eefb; }
+  .status-pop-dot { width: 13px; height: 13px; border-radius: 50%; flex-shrink: 0; box-shadow: 0 0 0 1px rgba(0,0,0,.12); }
+  .status-pop-opt .status-pop-check { margin-left: auto; color: var(--navy-light); font-weight: 800; }
   .status-em-andamento { background: #ff9800; color: #fff; }
   .status-concluido    { background: #2e7d32; color: #fff; }
   .status-suspenso     { background: #d32f2f; color: #fff; }
@@ -202,6 +226,9 @@
     .toolbar { flex-direction: column; gap: 10px; margin-bottom: 16px; }
     .toolbar > * { min-width: 0; max-width: 100%; }
     .search-box { min-width: unset; width: 100%; }
+    .filtros-wrap { flex-direction: column; gap: 9px; align-items: stretch; }
+    .filtro-campo, .filtro-campo.cf-tipo, .filtro-campo.cf-num, .filtro-campo.cf-obj { width: 100%; min-width: 0; }
+    .btn-limpar-filtros { width: 100%; }
     /* Filtros agora QUEBRAM em mais de uma linha — nada fica cortado fora da tela */
     .filter-group { overflow-x: visible; flex-wrap: wrap; }
     .filter-btn { white-space: nowrap; flex-shrink: 0; padding: 7px 12px; font-size: 12px; }
@@ -797,6 +824,11 @@
   .card-pin-btn.on { background: var(--gold); border-color: var(--gold); color: #fff; }
   .card-cfg-btn { background: none; border: 1.5px solid var(--border); border-radius: 7px; width: 34px; height: 34px; flex: none; flex-shrink: 0; cursor: pointer; font-size: 14px; line-height: 1; color: var(--muted); transition: all .15s; display: flex; align-items: center; justify-content: center; }
   .card-cfg-btn:hover { border-color: var(--navy); color: var(--navy); background: #eef1f8; }
+  .card-wa-btn { background: #25a657; border: 1.5px solid #1e8c49; border-radius: 7px; width: 34px; height: 34px; flex: none; flex-shrink: 0; cursor: pointer; font-size: 16px; line-height: 1; transition: all .15s; display: flex; align-items: center; justify-content: center; }
+  .card-wa-btn:hover { background: #1e8c49; }
+  .card-concluido-bar { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; padding: 11px 14px; border: none; border-top: 1px solid var(--border); background: var(--green-bg); color: #1b6e2a; font-family: Arial, sans-serif; font-size: 13px; font-weight: 800; cursor: pointer; transition: background .15s; }
+  .card-concluido-bar:hover { background: #d3edd8; }
+  .card-concluido-bar .ck { display: inline-flex; align-items: center; justify-content: center; width: 20px; height: 20px; border-radius: 50%; background: var(--green); color: #fff; font-size: 12px; font-weight: 900; }
 
   /* ── Observação específica do processo (aparece na agenda) ──────────────── */
   .card-obs-wrap { padding: 10px 19px; border-top: 1px solid var(--border); background: #fbfcff; }
@@ -1201,12 +1233,28 @@
 
 <main>
   <div class="toolbar">
-    <div class="search-box">
-      <span class="search-icon">&#128269;</span>
-      <input type="text" id="search" placeholder="Buscar por número, objeto ou responsável..." oninput="renderizar()">
-    </div>
-    <div style="display:flex;flex-direction:column;gap:8px;flex:1;min-width:0">
-      <!-- Linha 0: Ano + Ordenação -->
+    <div style="display:flex;flex-direction:column;gap:10px;width:100%">
+      <!-- Linha 0: Filtros de busca separados -->
+      <div class="filtros-wrap">
+        <div class="filtro-campo cf-tipo">
+          <span class="filtro-label">Tipo</span>
+          <select class="filtro-select" id="filtroTipoSel" onchange="renderizar()">
+            <option value="todos">Todos</option>
+            <option value="Pregão">Pregão</option>
+            <option value="Concorrência">Concorrência</option>
+          </select>
+        </div>
+        <div class="filtro-campo cf-num">
+          <span class="filtro-label">Número</span>
+          <input type="text" class="filtro-input" id="filtroNumero" placeholder="Ex: 75" oninput="renderizar()">
+        </div>
+        <div class="filtro-campo cf-obj">
+          <span class="filtro-label">Objeto</span>
+          <input type="text" class="filtro-input" id="filtroObjeto" placeholder="Buscar no objeto, responsável ou contato..." oninput="renderizar()">
+        </div>
+        <button class="btn-limpar-filtros" onclick="limparFiltrosBusca()" title="Limpar filtros de busca">&#10005; Limpar</button>
+      </div>
+      <!-- Linha 1: Ano -->
       <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
         <div style="display:flex;align-items:center;gap:6px">
           <span style="font-size:12.5px;font-weight:700;color:var(--muted)">Ano:</span>
@@ -1215,11 +1263,11 @@
           </div>
         </div>
       </div>
-      <!-- Camada 1: Agentes -->
+      <!-- Camada 2: Agentes -->
       <div class="filter-group" id="filtroAgentes">
         <button class="filter-btn active" data-filter-ag="todos" onclick="setFiltroAgente(this)">Todos</button>
       </div>
-      <!-- Camada 2: Status -->
+      <!-- Camada 3: Status -->
       <div class="filter-group" id="filtroStatus">
         <button class="filter-btn active" data-filter="todos" onclick="setFiltroStatus(this)">Todos os Status</button>
       </div>
@@ -2121,6 +2169,9 @@ document.addEventListener("click", function(e){
   if(!btn) return;
   var pid = btn.closest("[data-pid]") ? btn.closest("[data-pid]").dataset.pid : null;
   var action = btn.dataset.action;
+  if(action === "status-pop" && pid){ abrirStatusPop(pid, btn); return; }
+  if(action === "share-proc" && pid){ compartilharProcWhatsapp(pid); return; }
+  if(action === "share-concluido" && pid){ compartilharConcluidoWhatsapp(pid); return; }
   if(action === "atualizar" && pid) abrirModalUpdate(pid);
   if(action === "pin" && pid){ togglePin(pid); return; }
   if(action === "editar"    && pid) editarProcesso(pid);
@@ -2161,6 +2212,135 @@ document.addEventListener("click", function(e){
   if(action === "vencedores" && pid) abrirVencedores(pid);
   if(action === "habilitacao" && pid) abrirHabilitacao(pid);
 });
+
+/* ── Popover rápido para alterar status do processo ───────────────────────────
+   Clicar na tag de status de um card abre um pequeno painel para trocar o
+   status sem abrir o modal de edição. Atualização cirúrgica: grava só o campo
+   "status" no Firestore, preservando todo o resto do documento.               */
+var _statusPopEl=null, _statusPopPid=null;
+function _statusPopEnsure(){
+  if(_statusPopEl) return _statusPopEl;
+  _statusPopEl=document.createElement("div");
+  _statusPopEl.className="status-pop";
+  document.body.appendChild(_statusPopEl);
+  return _statusPopEl;
+}
+function abrirStatusPop(pid, anchorEl){
+  var p=processos.find(function(x){return x.id===pid;}); if(!p)return;
+  if(_statusPopPid===pid && _statusPopEl && _statusPopEl.classList.contains("open")){ fecharStatusPop(); return; }
+  var pop=_statusPopEnsure();
+  _statusPopPid=pid;
+  var atual=statusKey(p.status);
+  var html='<div class="status-pop-title">Alterar status</div>';
+  for(var i=0;i<statusList.length;i++){
+    var s=statusList[i];
+    var c=STATUS_COR_MAP[s.cor]||STATUS_COR_MAP.gray;
+    var isCur=(s.id===atual);
+    html+='<button class="status-pop-opt'+(isCur?" current":"")+'" data-stpick="'+escHtml(s.id)+'">'
+      +'<span class="status-pop-dot" style="background:'+c.bg+'"></span>'
+      +'<span>'+escHtml(s.nome||s.label||s.id)+'</span>'
+      +(isCur?'<span class="status-pop-check">&#10003;</span>':'')
+      +'</button>';
+  }
+  pop.innerHTML=html;
+  pop.classList.add("open");
+  /* posiciona logo abaixo da tag, mantendo dentro da janela */
+  var r=anchorEl.getBoundingClientRect();
+  var pw=pop.offsetWidth, ph=pop.offsetHeight;
+  var left=r.left, top=r.bottom+6;
+  if(left+pw>window.innerWidth-10) left=window.innerWidth-pw-10;
+  if(left<10) left=10;
+  if(top+ph>window.innerHeight-10) top=r.top-ph-6;
+  if(top<10) top=10;
+  pop.style.left=left+"px";
+  pop.style.top=top+"px";
+  pop.querySelectorAll("[data-stpick]").forEach(function(b){
+    b.addEventListener("click", function(){ mudarStatusRapido(_statusPopPid, b.dataset.stpick); });
+  });
+}
+function fecharStatusPop(){
+  if(_statusPopEl){ _statusPopEl.classList.remove("open"); }
+  _statusPopPid=null;
+}
+function mudarStatusRapido(pid, statusId){
+  var p=processos.find(function(x){return x.id===pid;});
+  fecharStatusPop();
+  if(!p || statusKey(p.status)===statusId) return;
+  colRef.doc(pid).update({status:statusId, updatedAt:firebase.firestore.FieldValue.serverTimestamp()})
+    .then(function(){ var st=getStatusCfg(statusId); toast("Status: "+(st.nome||st.label||statusId)); })
+    .catch(function(e){ alert("Erro ao alterar status: "+e.message); });
+}
+/* fecha o popover ao clicar fora ou ao rolar/redimensionar */
+document.addEventListener("click", function(e){
+  if(!_statusPopEl || !_statusPopEl.classList.contains("open")) return;
+  if(e.target.closest(".status-pop")) return;
+  if(e.target.closest('[data-action="status-pop"]')) return;
+  fecharStatusPop();
+});
+window.addEventListener("resize", fecharStatusPop);
+window.addEventListener("scroll", function(){ fecharStatusPop(); }, true);
+
+/* ── Compartilhar no WhatsApp ─────────────────────────────────────────────
+   Mesmo formato da agenda (tipo + número, objeto, abertura, link). O texto de
+   "processo concluído" lista as empresas vencedoras e os itens arrematados,
+   derivados do ranking em tempo real (procExtras[pid].rk).                    */
+function montarTextoProcWhatsapp(p){
+  var tipo=tipoLicitacao(p.numero);
+  var titulo=tipo?(tipo+" "+numeroSeq(p.numero)):(p.numero||"Processo");
+  var txt="*"+titulo+"*\n\n";
+  if(p.objeto) txt+=p.objeto+"\n\n";
+  var dataHora="";
+  if(p.dataLicit) dataHora+=formatarData(p.dataLicit);
+  if(p.horarioAbertura) dataHora+=(dataHora?" às ":"")+p.horarioAbertura;
+  if(dataHora) txt+="*Abertura: "+dataHora+"*\n\n";
+  if(p.link) txt+=p.link;
+  return txt.replace(/\n{3,}/g,"\n\n").trim();
+}
+function compartilharProcWhatsapp(pid){
+  var p=processos.find(function(x){return x.id===pid;}); if(!p)return;
+  copiarParaClipboard(montarTextoProcWhatsapp(p));
+}
+function montarTextoConcluido(p){
+  var tipo=tipoLicitacao(p.numero);
+  var titulo=tipo?(tipo+" "+numeroSeq(p.numero)):(p.numero||"Processo");
+  var txt="PROCESSO CONCLUÍDO \u2705\n";
+  txt+="*"+titulo+"*\n\n";
+  if(p.objeto) txt+=p.objeto+"\n\n";
+  var ex=procExtras[p.id]||{};
+  var rk=ex.rk||{};
+  var empresas=vencDerivarEmpresas(rk.itens||[], rk.estados||{});
+  if(empresas.length){
+    empresas.forEach(function(e){
+      var nums=e.itens.map(function(it){return it.num;}).filter(Boolean);
+      txt+="\uD83C\uDFC6 *"+e.nome+"*\n";
+      if(nums.length) txt+="Itens: "+nums.join(", ")+"\n";
+      txt+="\n";
+    });
+  }
+  if(p.link) txt+="Confira toda a documentação: "+p.link;
+  return txt.replace(/\n{3,}/g,"\n\n").trim();
+}
+function compartilharConcluidoWhatsapp(pid){
+  var p=processos.find(function(x){return x.id===pid;}); if(!p)return;
+  copiarParaClipboard(montarTextoConcluido(p));
+}
+function copiarParaClipboard(txt){
+  function ok(){ toast("Texto copiado! Cole no grupo do WhatsApp."); }
+  function falhou(){ toast("Não foi possível copiar automaticamente."); }
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(txt).then(ok).catch(function(){ copiarFallbackWa(txt,ok,falhou); });
+  } else { copiarFallbackWa(txt,ok,falhou); }
+}
+function copiarFallbackWa(txt,ok,falhou){
+  try{
+    var ta=document.createElement("textarea");
+    ta.value=txt; ta.style.position="fixed"; ta.style.top="-9999px"; ta.style.left="-9999px";
+    document.body.appendChild(ta); ta.focus(); ta.select();
+    var sucesso=document.execCommand("copy");
+    document.body.removeChild(ta);
+    if(sucesso) ok(); else falhou();
+  }catch(e){ falhou(); }
+}
 
 // ── Status config ─────────────────────────────────────────────────────────────
 function getStatusCfg(id){
@@ -2284,6 +2464,12 @@ function setFiltroAno(btn){
   filtroAno = btn.dataset.filterAno;
   renderizar();
 }
+function limparFiltrosBusca(){
+  var t=document.getElementById("filtroTipoSel"); if(t) t.value="todos";
+  var n=document.getElementById("filtroNumero"); if(n) n.value="";
+  var o=document.getElementById("filtroObjeto"); if(o) o.value="";
+  renderizar();
+}
 function renderFiltroAnos(){
   var el = document.getElementById("filtroAnos"); if(!el) return;
   var anos = {};
@@ -2295,8 +2481,11 @@ function renderFiltroAnos(){
   var curr = listaAnos.join(",");
   if(prev===curr) return;
   el.dataset.anos = curr;
-  /* na primeira carga (filtroAno ainda é "todos"), seleciona o ano mais recente */
-  if(filtroAno==="todos" && listaAnos.length){ filtroAno = listaAnos[listaAnos.length-1]; }
+  /* na primeira carga (filtroAno ainda é "todos"), seleciona o ano ATUAL se houver processos nele; senão o mais recente disponível */
+  if(filtroAno==="todos" && listaAnos.length){
+    var anoAtual=String(new Date().getFullYear());
+    filtroAno = (listaAnos.indexOf(anoAtual)>=0) ? anoAtual : listaAnos[listaAnos.length-1];
+  }
   var activePrev = filtroAno||"todos";
   var h = '<button class="filter-btn'+(activePrev==="todos"?" active":"")+'" data-filter-ano="todos" onclick="setFiltroAno(this)">Todos</button>';
   listaAnos.forEach(function(a){
@@ -2431,11 +2620,22 @@ function cardProgresso(ex){
 }
 
 function renderizar(){
-  var busca=document.getElementById("search").value.toLowerCase();
+  var fTipo=(document.getElementById("filtroTipoSel")||{value:"todos"}).value;
+  var fNum=((document.getElementById("filtroNumero")||{value:""}).value||"").toLowerCase().trim();
+  var fObj=((document.getElementById("filtroObjeto")||{value:""}).value||"").toLowerCase().trim();
+  /* "busca" = há algum filtro de texto ativo (mostra concluídos e aberturas futuras) */
+  var busca=(fTipo!=="todos")||fNum||fObj;
   renderFiltroAnos();
   var lista=processos.filter(function(p){
-    var txt=(p.numero+rotuloProcesso(p)+p.objeto+p.responsavel+(p.contato||"")).toLowerCase();
-    if(busca&&!txt.includes(busca))return false;
+    if(fTipo!=="todos" && tipoLicitacao(p.numero)!==fTipo)return false;
+    if(fNum){
+      var numTxt=((p.numero||"")+" "+numeroSeq(p.numero)).toLowerCase();
+      if(!numTxt.includes(fNum))return false;
+    }
+    if(fObj){
+      var objTxt=(p.objeto+" "+p.responsavel+" "+(p.contato||"")+" "+rotuloProcesso(p)).toLowerCase();
+      if(!objTxt.includes(fObj))return false;
+    }
     if(filtroAgente!=="todos"&&p.responsavel!==filtroAgente)return false;
     if(filtroStatus!=="todos"&&statusKey(p.status)!==statusKey(filtroStatus))return false;
     if(filtroStatus==="todos"&&!busca&&isConcluido(p.status))return false;
@@ -2492,10 +2692,11 @@ function renderizar(){
     html+='<div><div class="card-num">'+escHtml(rotuloProcesso(p))+'</div>';
     html+='<div class="card-obj">'+escHtml(p.objeto)+'</div></div>';
     html+='<div style="display:flex;align-items:center;gap:8px;flex-shrink:0">';
+    html+='<button class="card-wa-btn" data-action="share-proc" title="Compartilhar no WhatsApp">&#128242;</button>';
     html+='<button class="card-pin-btn'+(p.fixado?' on':'')+'" data-action="pin" title="'+(p.fixado?'Desafixar':'Fixar no topo')+'">&#128204;</button>';
     html+='</div>';
     html+='</div>';
-    html+='<div class="card-meta"><span class="status-tag" style="'+getStatusStyle(p.status)+'">'+escHtml((st.nome||st.label||p.status))+'</span>'+dataLabel+linkBtn+'</div>';
+    html+='<div class="card-meta"><span class="status-tag" data-action="status-pop" title="Clique para alterar o status" style="'+getStatusStyle(p.status)+'">'+escHtml((st.nome||st.label||p.status))+'<span class="status-caret">&#9660;</span></span>'+dataLabel+linkBtn+'</div>';
     html+=contatoHtml;
     html+='</div>';
     html+=progHtml;
@@ -2509,7 +2710,11 @@ function renderizar(){
     html+='<button class="btn-sm" data-action="habilitacao" style="background:#1E5F3A;color:#fff;border-color:#1E5F3A">&#9989; Habilitação</button>';
     html+='<button class="btn-sm" data-action="vencedores" style="background:#e8a020;color:#fff;border-color:#e8a020">&#127942; Vencedores</button>';
     html+='<button class="card-cfg-btn" data-action="editar" title="Editar processo">&#9881;&#65039;</button>';
-    html+='</div></div>';
+    html+='</div>';
+    if(isConcluido(p.status)){
+      html+='<button class="card-concluido-bar" data-action="share-concluido" title="Copiar anúncio de conclusão para o WhatsApp"><span class="ck">&#10003;</span> Processo concluído — copiar p/ WhatsApp</button>';
+    }
+    html+='</div>';
   }
   /* preserva foco e cursor da observação que está sendo digitada antes de reconstruir */
   var _foco=document.activeElement, _focoId=null, _selS=0, _selE=0;
@@ -3695,7 +3900,8 @@ function abrirRanking(pid){
   var proc=processos.find(function(p){ return p.id===pid; });
   if(!proc) return;
   rkProcessoAtual={id:pid,numero:proc.numero};
-  document.getElementById('rkPanelTitle').textContent='Ranking — '+proc.numero;
+  var _rkPg=primeiroNomeAgente(proc.responsavel);
+  document.getElementById('rkPanelTitle').textContent='Ranking — '+proc.numero+(_rkPg?' — '+_rkPg:'');
   var ph=document.getElementById('rkPrintHeaderTitle'); if(ph) ph.textContent='Ranking — '+proc.numero;
   var pl=document.getElementById('rkPrintLogo'); if(pl) pl.src=LOGO_B64_PDF;
   var pf=document.getElementById('rkPrintFooterLeft'); if(pf) pf.textContent='Município de Ijuí — Ranking '+proc.numero;
@@ -3883,7 +4089,7 @@ function abrirHabilitacao(pid){
   habDeclarados={}; habEventos=[];
   habConfig={tecnicaExige:false,tecnicaItens:[]};
   habRkItens=[]; habRkEstados={}; habLegacyEmpresas=[];
-  document.getElementById('habPanelTitle').textContent='Habilitação — '+p.numero;
+  document.getElementById('habPanelTitle').textContent='Habilitação — '+p.numero+(function(){var n=primeiroNomeAgente(p.responsavel);return n?' — '+n:'';})();
   document.getElementById('habPanel').classList.add('open');
   // Cancela listeners anteriores se existirem
   if(habUnsubscribe){ habUnsubscribe(); habUnsubscribe=null; }
@@ -4429,7 +4635,7 @@ function vencDerivarEmpresas(itens, estados){
     emp.itens.push({num:it.num, desc:it.desc||'', modelo:f.modelo||'', marca:f.marca||'', qtde:qtde, unidade:unidade, valorUnit:valorUnit, valorTotal:valorTotal});
   });
   var lista=ordem.map(function(k){ return map[k]; });
-  lista.sort(function(a,b){ return a.nome.localeCompare(b.nome,'pt-BR'); });
+  lista.sort(function(a,b){ return (a.nome||'').localeCompare((b.nome||''),'pt-BR',{sensitivity:'base'}); });
   return lista;
 }
 
@@ -4473,7 +4679,7 @@ function vencRenderLista(){
   document.getElementById('vencs-emp').textContent=vencEmpresas.length;
   document.getElementById('vencs-itens').textContent=totalItens;
   document.getElementById('vencs-total').textContent='R$ '+vencFmtBRL(totalGeral);
-  var lista=vencEmpresas;
+  var lista=vencEmpresas.slice().sort(function(a,b){ return (a.nome||'').localeCompare((b.nome||''),'pt-BR',{sensitivity:'base'}); });
   if(vencFiltro) lista=lista.filter(function(e){ return e.nome.toLowerCase().indexOf(vencFiltro)!==-1; });
   var html='';
   if(!lista.length){
