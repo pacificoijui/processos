@@ -297,6 +297,34 @@
   .anna-st-row button:hover { background:#eef2fb; color:var(--navy); }
   .anna-st-row button.del:hover { background:var(--red-bg); color:var(--red); }
   .anna-st-empty { color:var(--muted); font-size:13px; font-style:italic; text-align:center; padding:16px 6px; line-height:1.6; }
+  /* etapa atual e concluído no card */
+  .req-etapa { font-size:12.5px; color:var(--text); margin-top:8px; line-height:1.4; font-weight:600; }
+  .req-step-n { display:inline-block; background:#eef2fb; color:var(--navy); font-size:10.5px; font-weight:800; padding:2px 7px; border-radius:20px; margin-right:5px; }
+  .req-card.req-done { opacity:.86; }
+  .req-card.req-done .req-emp { color:#2e7d32; }
+  /* modal avançar */
+  .av-atual { background:#f3f6fc; border:1px solid var(--border); border-radius:10px; padding:11px 13px; font-size:13px; color:var(--navy); margin-bottom:14px; line-height:1.4; }
+  .av-atual b { font-size:14.5px; }
+  .av-next { background:#eef7f0; border:1px solid #cfe8d6; border-radius:10px; padding:11px 13px; font-size:13px; color:var(--navy); margin:6px 0 12px; line-height:1.45; }
+  .av-next b { font-size:14.5px; }
+  .av-prazo { color:#1b6e2a; font-weight:700; }
+  .av-dec-lbl { font-size:12px; font-weight:800; color:var(--muted); text-transform:uppercase; letter-spacing:.3px; margin:4px 0 8px; }
+  .av-decisoes { display:flex; flex-direction:column; gap:9px; }
+  .av-dec-btn { text-align:left; border:1.5px solid var(--border); background:#fff; border-radius:11px; padding:11px 14px; cursor:pointer; transition:all .14s; display:flex; flex-direction:column; gap:3px; font-family:inherit; }
+  .av-dec-btn:hover { border-color:var(--navy); background:#f3f6fc; transform:translateY(-1px); box-shadow:var(--shadow); }
+  .av-dec-btn span { font-size:14px; font-weight:800; color:var(--navy); }
+  .av-dec-btn small { font-size:11.5px; color:var(--muted); font-weight:600; }
+  /* visão dos trâmites */
+  .tv-tram { border:1px solid var(--border); border-radius:12px; overflow:hidden; margin-bottom:14px; }
+  .tv-tram-head { display:flex; align-items:center; gap:9px; padding:11px 14px; font-size:15px; font-weight:800; color:var(--navy); background:#f5f7fc; }
+  .tv-dot { width:14px; height:14px; border-radius:50%; box-shadow:0 0 0 1px rgba(0,0,0,.12); }
+  .tv-etapas { list-style:none; margin:0; padding:6px 14px 12px; }
+  .tv-etapas li { display:grid; grid-template-columns:14px 1fr auto; align-items:center; gap:9px; padding:7px 0; border-bottom:1px dashed var(--border); font-size:13px; }
+  .tv-etapas li:last-child { border-bottom:none; }
+  .tv-e-dot { width:11px; height:11px; border-radius:50%; box-shadow:0 0 0 1px rgba(0,0,0,.12); }
+  .tv-e-nome { color:var(--text); font-weight:600; }
+  .tv-e-prazo { font-size:11px; font-weight:800; color:var(--muted); white-space:nowrap; }
+  .tv-dec { grid-column:2/4; font-size:11.5px; color:#7e57c2; font-weight:700; padding:2px 0 2px 2px; line-height:1.5; }
 
   /* filtros separados (tipo / número / objeto / ano) — iguais ao index */
   .ag-filtros { display: grid; grid-template-columns: 1fr 1fr; gap: 9px 10px; }
@@ -1279,20 +1307,54 @@ function renderFeriasPanel(){
   box.innerHTML=html;
 }
 
-/* ═══ Modo Reequilíbrios (Anna) dentro da agenda ═══════════════════════════ */
-var REQ_PALETA=["#1565c0","#2e7d32","#d32f2f","#ff9800","#6a1b9a","#0097a7",
-                "#c2185b","#5d4037","#455a64","#f9a825","#7cb342","#00838f",
-                "#3949ab","#8d6e63","#e64a19","#546e7a"];
-var REQ_STATUS_PADRAO=[
-  {nome:"Recebido",cor:"#1565c0",ordem:0},{nome:"Em análise",cor:"#ff9800",ordem:1},
-  {nome:"Aguardando documentos",cor:"#6a1b9a",ordem:2},{nome:"Deferido",cor:"#2e7d32",ordem:3},
-  {nome:"Indeferido",cor:"#d32f2f",ordem:4}
+/* ═══ Modo Reequilíbrios/Aditivos (Anna) — fluxo guiado por TRÂMITES ════════
+   Cada pedido segue um trâmite pré-definido (Renovação, Revisão de Valor ou
+   Aditivo). As etapas têm prazo em DIAS ÚTEIS (pulam fim de semana e feriados)
+   e pontos de decisão (aceita/não aceita) que definem o caminho seguinte.
+   Trâmites e etapas (e suas cores) já vêm prontos por padrão.                */
+var TRAMITES=[
+  { id:"renovacao", nome:"Renovação", cor:"#1565c0", icone:"\u267B\uFE0F", etapas:[
+    {id:"r0", nome:"Interesse recebido (secretaria)",                 dias:0, cor:"#1565c0", proxima:"r1"},
+    {id:"r1", nome:"Consulta aos fornecedores (aceitam renovar?)",    dias:2, cor:"#0097a7", proxima:"r2"},
+    {id:"r2", nome:"Verificar resposta dos fornecedores",             dias:0, cor:"#f9a825", decisao:[
+        {label:"Aceitaram a renovação",  proxima:"r3"},
+        {label:"Não aceitaram",          proxima:"r6"}]},
+    {id:"r3", nome:"Renovar e enviar para assinatura",                dias:2, cor:"#7cb342", proxima:"r4"},
+    {id:"r4", nome:"Enviado ao Andrei (aguardar retorno)",            dias:3, cor:"#6a1b9a", proxima:"FIM"},
+    {id:"r6", nome:"Verificar itens e convocar demais licitantes",    dias:2, cor:"#e64a19", proxima:"r7"},
+    {id:"r7", nome:"Convocação, assinatura e prefeito assina",        dias:3, cor:"#2e7d32", proxima:"FIM"}
+  ]},
+  { id:"revisao", nome:"Revisão de Valor", cor:"#00838f", icone:"\uD83D\uDCB2", etapas:[
+    {id:"v0", nome:"Pedido de revisão recebido (empresa)",            dias:0, cor:"#00838f", proxima:"v1"},
+    {id:"v1", nome:"Análise: pedir NF (se faltar) e fazer cálculos",  dias:1, cor:"#ff9800", proxima:"v2"},
+    {id:"v2", nome:"Consultar demais colocados (nova cotação)",       dias:2, cor:"#0097a7", proxima:"v3"},
+    {id:"v3", nome:"Negociar com o 1º colocado",                      dias:0, cor:"#f9a825", decisao:[
+        {label:"1º colocado aceitou",            proxima:"v4"},
+        {label:"1º não aceitou (próximo colocado)", proxima:"v5"}]},
+    {id:"v4", nome:"Fazer a revisão de valor",                        dias:1, cor:"#7cb342", proxima:"v6"},
+    {id:"v5", nome:"Repassar ao próximo colocado",                    dias:1, cor:"#e64a19", proxima:"v6"},
+    {id:"v6", nome:"Assinatura (empresa + Andrei)",                   dias:2, cor:"#2e7d32", proxima:"FIM"}
+  ]},
+  { id:"aditivo", nome:"Aditivo", cor:"#6a1b9a", icone:"\uD83D\uDCCE", etapas:[
+    {id:"a0", nome:"Recebido do setor de contratos",                 dias:0, cor:"#6a1b9a", proxima:"a1"},
+    {id:"a1", nome:"Elaborar aditivo e devolver ao setor de contratos", dias:2, cor:"#2e7d32", proxima:"FIM"}
+  ]}
 ];
+function tramiteById(id){ for(var i=0;i<TRAMITES.length;i++){ if(TRAMITES[i].id===id) return TRAMITES[i]; } return null; }
+function etapaById(tid, eid){ var t=tramiteById(tid); if(!t) return null; for(var i=0;i<t.etapas.length;i++){ if(t.etapas[i].id===eid) return t.etapas[i]; } return null; }
+function tramiteIcone(tid){ var t=tramiteById(tid); return t&&t.icone?t.icone:"\u2696\uFE0F"; }
+
+/* datas / dias úteis (pula sábado, domingo e feriados/pontos facultativos) */
 function addDiasIso(iso,n){ var d=new Date((iso||hojeStr())+"T12:00:00"); d.setDate(d.getDate()+(parseInt(n,10)||0)); return ymd(new Date(d.getFullYear(),d.getMonth(),d.getDate())); }
 function diasEntreIso(a,b){ return Math.round((new Date(b+"T12:00:00")-new Date(a+"T12:00:00"))/86400000); }
-function reqStatusById(id){ for(var i=0;i<reqStatus.length;i++){ if(reqStatus[i].id===id) return reqStatus[i]; } return null; }
-function reqStatusCor(id){ var s=reqStatusById(id); return s?s.cor:"#546e7a"; }
-function reqStatusNome(id){ var s=reqStatusById(id); return s?s.nome:"Sem status"; }
+function ehDiaUtil(iso){ var dow=new Date(iso+"T12:00:00").getDay(); return dow!==0 && dow!==6 && !feriadoNome(iso); }
+function addDiasUteis(iso,n){
+  var base=iso||hojeStr(); n=parseInt(n,10)||0;
+  if(n<=0) return base;
+  var cur=base, c=0;
+  while(c<n){ cur=addDiasIso(cur,1); if(ehDiaUtil(cur)) c++; }
+  return cur;
+}
 function reqPrazoInfo(dl){
   if(!dl) return {cls:"rq-ok",txt:"sem prazo"};
   var d=diasEntreIso(hojeStr(),dl);
@@ -1302,7 +1364,7 @@ function reqPrazoInfo(dl){
   if(d<=3) return {cls:"rq-perto",txt:"vence em "+d+" dias"};
   return {cls:"rq-ok",txt:"vence em "+d+" dias"};
 }
-function reqNoDia(iso){ return reqPedidos.filter(function(p){ return p.dataLimite===iso; }); }
+function reqNoDia(iso){ return reqPedidos.filter(function(p){ return !p.concluido && p.dataLimite===iso; }); }
 
 function toggleModoAnna(){
   _modoAnna=!_modoAnna;
@@ -1310,52 +1372,49 @@ function toggleModoAnna(){
   render();
 }
 
-try{ reqStColRef.onSnapshot(function(snap){
-  reqStatus=snap.docs.map(function(d){ return Object.assign({id:d.id},d.data()); })
-    .sort(function(a,b){ var oa=(a.ordem==null?999:a.ordem), ob=(b.ordem==null?999:b.ordem); return oa-ob; });
-  reqPreencherSelects();
-  if(document.getElementById("annaOvStatus").classList.contains("open")) reqRenderStatusLista();
-  render();
-}, function(err){ console.error("req status:", err); }); }catch(e){ console.warn("reqStatus onSnapshot:", e); }
-
 try{ reqColRef.onSnapshot(function(snap){
   reqPedidos=snap.docs.map(function(d){ return Object.assign({id:d.id},d.data()); });
   render();
 }, function(err){ console.error("req pedidos:", err); }); }catch(e){ console.warn("reqPedidos onSnapshot:", e); }
 
+/* ── Painel lateral ──────────────────────────────────────────────────────── */
 function renderReqPanel(){
   var box=document.getElementById("reqLista"); if(!box) return;
-  if(!reqStatus.length){
-    box.innerHTML='<div class="fer-empty">Nenhum status criado.<br>Clique em &#9881;&#65039; para criar os status (ou usar os padrões).</div>';
-    return;
-  }
   var lista=reqPedidos.slice().sort(function(a,b){
+    if(!!a.concluido!==!!b.concluido) return a.concluido?1:-1;        /* concluídos no fim */
     return (a.dataLimite||"9999-99-99").localeCompare(b.dataLimite||"9999-99-99");
   });
   if(!lista.length){
-    box.innerHTML='<div class="fer-empty">Nenhum pedido cadastrado.<br>Clique em <b>+ Novo</b> para começar.</div>';
+    box.innerHTML='<div class="fer-empty">Nenhum pedido cadastrado.<br>Clique em <b>+ Novo</b> e escolha um trâmite.</div>';
     return;
   }
   var html="";
   lista.forEach(function(p){
-    var cor=reqStatusCor(p.statusId), pi=reqPrazoInfo(p.dataLimite), hist=(p.historico||[]);
-    var ic=(p.tipo==="Aditivo")?"📎":"⚖️";
-    html+='<div class="req-card" style="border-left-color:'+cor+'">';
-    html+='<div class="req-emp">'+ic+' '+escHtml(p.empresa||"Sem identificação")+'</div>';
-    html+='<div class="req-proc">'+escHtml(p.tipo||"Reequilíbrio")+(p.processo?' · '+escHtml(p.processo):'')+'</div>';
+    var t=tramiteById(p.tramiteId), et=etapaById(p.tramiteId,p.etapaId);
+    var cor=p.concluido?"#2e7d32":((et&&et.cor)||(t&&t.cor)||"#546e7a");
+    var hist=(p.historico||[]); var total=t?t.etapas.length:0;
+    html+='<div class="req-card'+(p.concluido?" req-done":"")+'" style="border-left-color:'+cor+'">';
+    html+='<div class="req-emp">'+escHtml(tramiteIcone(p.tramiteId))+' '+escHtml(p.empresa||"Sem identificação")+'</div>';
+    html+='<div class="req-proc">'+escHtml(t?t.nome:"—")+(p.processo?" · "+escHtml(p.processo):"")+'</div>';
     if(p.descricao) html+='<div class="req-desc">'+escHtml(p.descricao)+'</div>';
-    html+='<div class="req-row"><span class="req-status" style="background:'+cor+'">'+escHtml(reqStatusNome(p.statusId))+'</span>'
-        +'<span class="req-prazo '+pi.cls+'">'+pi.txt+'</span></div>';
-    html+='<div class="req-data">&#128197; '+fmtData(p.dataLimite)+(p.prazoDias!=null?' · fase de '+p.prazoDias+' dia(s)':'')+'</div>';
+    if(p.concluido){
+      html+='<div class="req-row"><span class="req-status" style="background:#2e7d32">&#10003; Concluído</span></div>';
+    } else if(et){
+      var pi=reqPrazoInfo(p.dataLimite);
+      html+='<div class="req-etapa"><span class="req-step-n">Fase '+(hist.length+1)+(total?"/"+total:"")+'</span> '+escHtml(et.nome)+'</div>';
+      html+='<div class="req-row"><span class="req-status" style="background:'+cor+'">'+(et.decisao?"&#9878;&#65039; decisão":"em andamento")+'</span>'
+          +'<span class="req-prazo '+pi.cls+'">'+pi.txt+'</span></div>';
+      html+='<div class="req-data">&#128197; '+fmtData(p.dataLimite)+'</div>';
+    }
     if(hist.length){
       html+='<div class="req-hist" id="reqhist_'+p.id+'">';
-      hist.forEach(function(h,i){
-        html+='<div class="hi"><span class="req-hdot" style="background:'+escHtml(h.cor||"#999")+'"></span><div><b>Fase '+(i+1)+': '+escHtml(h.statusNome||"")+'</b> — '+(h.prazoDias!=null?h.prazoDias+'d, ':'')+'até '+fmtData(h.dataLimite)+(h.nota?'<br><span>'+escHtml(h.nota)+'</span>':'')+'</div></div>';
+      hist.forEach(function(h){
+        html+='<div class="hi"><span class="req-hdot" style="background:'+escHtml(h.cor||"#999")+'"></span><div><b>'+escHtml(h.etapaNome||"")+'</b>'+(h.decisao?' <span>('+escHtml(h.decisao)+')</span>':"")+' &#8212; até '+fmtData(h.dataLimite)+(h.nota?'<br><span>'+escHtml(h.nota)+'</span>':"")+'</div></div>';
       });
       html+='</div>';
     }
     html+='<div class="req-acts">';
-    html+='<button class="rq-av" onclick="annaAbrirAvancar(\''+p.id+'\')">&#9193; Avançar</button>';
+    if(!p.concluido) html+='<button class="rq-av" onclick="annaAbrirAvancar(\''+p.id+'\')">&#9193; Avançar</button>';
     if(hist.length) html+='<button onclick="reqToggleHist(\''+p.id+'\')">&#128338; '+hist.length+'</button>';
     html+='<button onclick="annaAbrirPedido(\''+p.id+'\')">&#9998;</button>';
     html+='<button class="rq-del" onclick="annaExcluirPedido(\''+p.id+'\')">&#128465;</button>';
@@ -1365,50 +1424,48 @@ function renderReqPanel(){
 }
 function reqToggleHist(id){ var el=document.getElementById("reqhist_"+id); if(el) el.classList.toggle("open"); }
 
-function reqPreencherSelects(){
-  var opts=reqStatus.map(function(s){ return '<option value="'+s.id+'">'+escHtml(s.nome)+'</option>'; }).join("");
-  var a=document.getElementById("annaStatusSel"); if(a) a.innerHTML=opts;
-  var b=document.getElementById("annaAvStatus"); if(b) b.innerHTML=opts;
-}
-
-/* Novo / editar pedido */
+/* ── Novo / editar pedido (escolhe o trâmite) ────────────────────────────── */
 function annaAbrirPedido(id){
-  if(!reqStatus.length){ toast("Crie um status primeiro."); annaAbrirStatus(); return; }
   reqEditId=id||null;
   var p=id?reqPedidos.find(function(x){return x.id===id;}):null;
   document.getElementById("annaPedTit").textContent=p?"Editar pedido":"Novo pedido (reequilíbrio/aditivo)";
-  document.getElementById("annaTipo").value=p?(p.tipo||"Reequilíbrio"):"Reequilíbrio";
+  var sel=document.getElementById("annaTramiteSel");
+  sel.innerHTML=TRAMITES.map(function(t){ return '<option value="'+t.id+'">'+escHtml(t.nome)+'</option>'; }).join("");
+  sel.value=p?(p.tramiteId||TRAMITES[0].id):TRAMITES[0].id;
+  sel.disabled=!!p;
   document.getElementById("annaEmpresa").value=p?(p.empresa||""):"";
   document.getElementById("annaProcesso").value=p?(p.processo||""):"";
   document.getElementById("annaDescricao").value=p?(p.descricao||""):"";
-  document.getElementById("annaStatusSel").value=p?(p.statusId||reqStatus[0].id):reqStatus[0].id;
-  document.getElementById("annaPrazo").value=p&&p.prazoDias!=null?p.prazoDias:2;
-  annaPreviaPrazo();
+  annaTramitePrev();
   document.getElementById("annaOvPedido").classList.add("open");
 }
 function annaFecharPedido(){ document.getElementById("annaOvPedido").classList.remove("open"); reqEditId=null; }
-function annaPreviaPrazo(){
-  var dias=parseInt(document.getElementById("annaPrazo").value,10);
-  var prev=document.getElementById("annaPrazoPrev");
-  prev.textContent=isNaN(dias)?"":("Data-limite: "+fmtData(addDiasIso(hojeStr(),dias))+(dias===0?" (hoje)":""));
+function annaTramitePrev(){
+  var sel=document.getElementById("annaTramiteSel"); var prev=document.getElementById("annaTramitePrev");
+  if(!sel||!prev) return;
+  var t=tramiteById(sel.value); if(!t) return;
+  prev.innerHTML='Inicia em: <b>'+escHtml(t.etapas[0].nome)+'</b><br>'+t.etapas.length+' etapa(s) · prazos contados em dias úteis';
 }
 function annaSalvarPedido(){
   var empresa=document.getElementById("annaEmpresa").value.trim();
   if(!empresa){ toast("Informe a empresa / identificação."); return; }
-  var dias=parseInt(document.getElementById("annaPrazo").value,10); if(isNaN(dias)||dias<0) dias=0;
-  var dados={
-    empresa:empresa, tipo:document.getElementById("annaTipo").value, processo:document.getElementById("annaProcesso").value.trim(),
-    descricao:document.getElementById("annaDescricao").value.trim(),
-    statusId:document.getElementById("annaStatusSel").value, prazoDias:dias,
-    atualizadoEm:firebase.firestore.FieldValue.serverTimestamp()
-  };
   if(reqEditId){
-    var atual=reqPedidos.find(function(x){return x.id===reqEditId;})||{};
-    if(atual.prazoDias!==dias || !atual.dataLimite) dados.dataLimite=addDiasIso(hojeStr(),dias);
-    reqColRef.doc(reqEditId).update(dados).then(function(){ toast("Pedido atualizado."); annaFecharPedido(); }).catch(function(e){ toast("Erro: "+e.message); });
+    reqColRef.doc(reqEditId).update({
+      empresa:empresa, processo:document.getElementById("annaProcesso").value.trim(),
+      descricao:document.getElementById("annaDescricao").value.trim(),
+      atualizadoEm:firebase.firestore.FieldValue.serverTimestamp()
+    }).then(function(){ toast("Pedido atualizado."); annaFecharPedido(); }).catch(function(e){ toast("Erro: "+e.message); });
   } else {
-    dados.dataLimite=addDiasIso(hojeStr(),dias); dados.historico=[]; dados.criadoEm=firebase.firestore.FieldValue.serverTimestamp();
-    reqColRef.add(dados).then(function(){ toast("Pedido cadastrado."); annaFecharPedido(); }).catch(function(e){ toast("Erro: "+e.message); });
+    var t=tramiteById(document.getElementById("annaTramiteSel").value); var e0=t.etapas[0];
+    reqColRef.add({
+      empresa:empresa, tramiteId:t.id, etapaId:e0.id,
+      processo:document.getElementById("annaProcesso").value.trim(),
+      descricao:document.getElementById("annaDescricao").value.trim(),
+      dataLimite:addDiasUteis(hojeStr(), e0.dias), prazoDias:e0.dias,
+      concluido:false, historico:[],
+      criadoEm:firebase.firestore.FieldValue.serverTimestamp(),
+      atualizadoEm:firebase.firestore.FieldValue.serverTimestamp()
+    }).then(function(){ toast("Pedido criado no trâmite "+t.nome+"."); annaFecharPedido(); }).catch(function(e){ toast("Erro: "+e.message); });
   }
 }
 function annaExcluirPedido(id){
@@ -1417,88 +1474,75 @@ function annaExcluirPedido(id){
   reqColRef.doc(id).delete().then(function(){ toast("Pedido excluído."); }).catch(function(e){ toast("Erro: "+e.message); });
 }
 
-/* Avançar fase / prazo */
+/* ── Avançar etapa (com decisão quando houver) ───────────────────────────── */
 function annaAbrirAvancar(id){
-  reqAvancarId=id; var p=reqPedidos.find(function(x){return x.id===id;}); if(!p) return;
-  document.getElementById("annaAvStatus").value=p.statusId||(reqStatus[0]&&reqStatus[0].id);
-  document.getElementById("annaAvPrazo").value=p.prazoDias!=null?p.prazoDias:2;
-  document.getElementById("annaAvNota").value="";
-  annaPreviaAvancar();
+  reqAvancarId=id;
+  var p=reqPedidos.find(function(x){return x.id===id;}); if(!p) return;
+  var et=etapaById(p.tramiteId,p.etapaId);
+  var body=document.getElementById("annaAvBody");
+  if(!et){ body.innerHTML='<p style="color:var(--muted)">Etapa não encontrada.</p>'; document.getElementById("annaOvAvancar").classList.add("open"); return; }
+  var h='<div class="av-atual">Etapa atual<br><b>'+escHtml(et.nome)+'</b></div>';
+  h+='<div class="anna-c"><label>Observação desta etapa (opcional)</label><textarea id="annaAvNota" placeholder="Ex: aguardando NF para comparação"></textarea></div>';
+  if(et.decisao){
+    h+='<div class="av-dec-lbl">Qual foi o resultado?</div><div class="av-decisoes">';
+    et.decisao.forEach(function(op, idx){
+      var prox=etapaById(p.tramiteId, op.proxima);
+      var info=prox?(prox.dias>0?(prox.dias+"d úteis"):"sem prazo"):"concluir";
+      h+='<button class="av-dec-btn" onclick="reqAvancar(\''+p.id+'\',\''+op.proxima+'\','+idx+')"><span>'+escHtml(op.label)+'</span><small>&#8594; '+escHtml(prox?prox.nome:"Concluir")+' · '+info+'</small></button>';
+    });
+    h+='</div>';
+  } else if(et.proxima==="FIM" || !etapaById(p.tramiteId, et.proxima)){
+    h+='<div class="av-next">Esta é a última etapa do trâmite.</div>';
+    h+='<button class="anna-btn prim" style="width:100%" onclick="reqAvancar(\''+p.id+'\',\'FIM\',-1)">&#10003; Concluir trâmite</button>';
+  } else {
+    var prox=etapaById(p.tramiteId, et.proxima);
+    h+='<div class="av-next">Próxima etapa<br><b>'+escHtml(prox.nome)+'</b><br><span class="av-prazo">'+(prox.dias>0?("Novo prazo: "+prox.dias+" dia(s) útil(eis) &#8594; "+fmtData(addDiasUteis(hojeStr(),prox.dias))):"Sem prazo (hoje)")+'</span></div>';
+    h+='<button class="anna-btn prim" style="width:100%" onclick="reqAvancar(\''+p.id+'\',\''+et.proxima+'\',-1)">&#9193; Avançar etapa</button>';
+  }
+  body.innerHTML=h;
   document.getElementById("annaOvAvancar").classList.add("open");
 }
 function annaFecharAvancar(){ document.getElementById("annaOvAvancar").classList.remove("open"); reqAvancarId=null; }
-function annaPreviaAvancar(){
-  var dias=parseInt(document.getElementById("annaAvPrazo").value,10);
-  var prev=document.getElementById("annaAvPrev");
-  prev.textContent=isNaN(dias)?"":("Nova data-limite: "+fmtData(addDiasIso(hojeStr(),dias))+(dias===0?" (hoje)":""));
-}
-function annaConfirmarAvancar(){
-  var p=reqPedidos.find(function(x){return x.id===reqAvancarId;}); if(!p) return;
-  var dias=parseInt(document.getElementById("annaAvPrazo").value,10); if(isNaN(dias)||dias<0) dias=0;
-  var nota=document.getElementById("annaAvNota").value.trim();
+function reqAvancar(pid, proximaId, decIdx){
+  var p=reqPedidos.find(function(x){return x.id===pid;}); if(!p) return;
+  var et=etapaById(p.tramiteId,p.etapaId); if(!et) return;
+  var notaEl=document.getElementById("annaAvNota"); var nota=notaEl?notaEl.value.trim():"";
+  var decLabel="";
+  if(et.decisao && decIdx>=0 && et.decisao[decIdx]) decLabel=et.decisao[decIdx].label;
   var hist=(p.historico||[]).slice();
-  hist.push({ statusId:p.statusId, statusNome:reqStatusNome(p.statusId), cor:reqStatusCor(p.statusId),
-              prazoDias:(p.prazoDias!=null?p.prazoDias:null), dataLimite:p.dataLimite||null, nota:nota||"", em:Date.now() });
-  reqColRef.doc(p.id).update({
-    statusId:document.getElementById("annaAvStatus").value, prazoDias:dias,
-    dataLimite:addDiasIso(hojeStr(),dias), historico:hist,
-    atualizadoEm:firebase.firestore.FieldValue.serverTimestamp()
-  }).then(function(){ toast("Prazo avançado para "+fmtData(addDiasIso(hojeStr(),dias))+"."); annaFecharAvancar(); }).catch(function(e){ toast("Erro: "+e.message); });
+  hist.push({ etapaId:et.id, etapaNome:et.nome, cor:et.cor, dataLimite:p.dataLimite||null, decisao:decLabel, nota:nota||"", em:Date.now() });
+  var upd={ historico:hist, atualizadoEm:firebase.firestore.FieldValue.serverTimestamp() };
+  if(proximaId==="FIM"){
+    upd.concluido=true;
+  } else {
+    var prox=etapaById(p.tramiteId, proximaId);
+    if(!prox){ toast("Próxima etapa inválida."); return; }
+    upd.etapaId=prox.id; upd.prazoDias=prox.dias; upd.dataLimite=addDiasUteis(hojeStr(), prox.dias);
+  }
+  reqColRef.doc(p.id).update(upd)
+    .then(function(){ toast(proximaId==="FIM"?"Trâmite concluído!":"Etapa avançada."); annaFecharAvancar(); })
+    .catch(function(e){ toast("Erro: "+e.message); });
 }
 
-/* Gerenciar status + paleta */
-function annaAbrirStatus(){ reqRenderStatusLista(); reqRenderPaleta(); annaResetStatusForm(); document.getElementById("annaOvStatus").classList.add("open"); }
+/* ── Visão dos trâmites (somente leitura, abre pela engrenagem) ──────────── */
+function annaAbrirStatus(){
+  var box=document.getElementById("annaTramitesView"); if(!box){ return; }
+  var h="";
+  TRAMITES.forEach(function(t){
+    h+='<div class="tv-tram"><div class="tv-tram-head"><span class="tv-dot" style="background:'+t.cor+'"></span>'+escHtml(t.icone+" "+t.nome)+'</div><ol class="tv-etapas">';
+    t.etapas.forEach(function(e){
+      var pr=e.dias>0?(e.dias+" dia(s) útil(eis)"):"sem prazo";
+      h+='<li><span class="tv-e-dot" style="background:'+e.cor+'"></span><span class="tv-e-nome">'+escHtml(e.nome)+'</span><span class="tv-e-prazo">'+pr+'</span>';
+      if(e.decisao){ h+='<div class="tv-dec">'+e.decisao.map(function(o){ return "&#8627; "+escHtml(o.label); }).join("<br>")+'</div>'; }
+      h+='</li>';
+    });
+    h+='</ol></div>';
+  });
+  box.innerHTML=h;
+  document.getElementById("annaOvStatus").classList.add("open");
+}
 function annaFecharStatus(){ document.getElementById("annaOvStatus").classList.remove("open"); }
-function reqRenderPaleta(){
-  document.getElementById("annaStPaleta").innerHTML=REQ_PALETA.map(function(c){ return '<div class="anna-sw'+(c===reqCorSel?" sel":"")+'" style="background:'+c+'" onclick="reqSelecionarCor(\''+c+'\')"></div>'; }).join("");
-}
-function reqSelecionarCor(c){ reqCorSel=c; reqRenderPaleta(); }
-function reqRenderStatusLista(){
-  var box=document.getElementById("annaStLista");
-  if(!reqStatus.length){
-    box.innerHTML='<div class="anna-st-empty">Nenhum status ainda.<br><button class="anna-btn" style="margin-top:10px" onclick="reqCriarPadrao()">Criar status padrão</button></div>';
-    return;
-  }
-  box.innerHTML=reqStatus.map(function(s){
-    return '<div class="anna-st-row"><span class="anna-st-dot" style="background:'+s.cor+'"></span><span class="nm">'+escHtml(s.nome)+'</span>'
-      +'<button onclick="reqEditarStatus(\''+s.id+'\')">&#9998; Editar</button><button class="del" onclick="reqExcluirStatus(\''+s.id+'\')">&#128465;</button></div>';
-  }).join("");
-}
-function annaResetStatusForm(){
-  reqEditStId=null;
-  document.getElementById("annaStNome").value="";
-  document.getElementById("annaStFormLabel").textContent="Novo status";
-  document.getElementById("annaStSalvar").textContent="Adicionar status";
-  document.getElementById("annaStCancel").style.display="none";
-  reqCorSel=REQ_PALETA[0]; reqRenderPaleta();
-}
-function reqEditarStatus(id){
-  var s=reqStatusById(id); if(!s) return;
-  reqEditStId=id; document.getElementById("annaStNome").value=s.nome||"";
-  reqCorSel=s.cor||REQ_PALETA[0]; reqRenderPaleta();
-  document.getElementById("annaStFormLabel").textContent="Editando status";
-  document.getElementById("annaStSalvar").textContent="Salvar alterações";
-  document.getElementById("annaStCancel").style.display="";
-}
-function annaSalvarStatus(){
-  var nome=document.getElementById("annaStNome").value.trim();
-  if(!nome){ toast("Informe o nome do status."); return; }
-  if(reqEditStId){
-    reqStColRef.doc(reqEditStId).update({nome:nome, cor:reqCorSel}).then(function(){ toast("Status atualizado."); annaResetStatusForm(); }).catch(function(e){ toast("Erro: "+e.message); });
-  } else {
-    reqStColRef.add({nome:nome, cor:reqCorSel, ordem:reqStatus.length}).then(function(){ toast("Status criado."); annaResetStatusForm(); }).catch(function(e){ toast("Erro: "+e.message); });
-  }
-}
-function reqExcluirStatus(id){
-  if(reqPedidos.some(function(p){ return p.statusId===id; })){ toast("Há pedidos com este status. Altere-os antes."); return; }
-  if(!confirm("Excluir este status?")) return;
-  reqStColRef.doc(id).delete().then(function(){ toast("Status excluído."); }).catch(function(e){ toast("Erro: "+e.message); });
-}
-function reqCriarPadrao(){
-  var batch=db.batch();
-  REQ_STATUS_PADRAO.forEach(function(s){ batch.set(reqStColRef.doc(),{nome:s.nome,cor:s.cor,ordem:s.ordem}); });
-  batch.commit().then(function(){ toast("Status padrão criados."); }).catch(function(e){ toast("Erro: "+e.message); });
-}
+
 /* fecha modais Anna ao clicar no fundo */
 document.querySelectorAll(".anna-ov").forEach(function(ov){ ov.addEventListener("click", function(e){ if(e.target===ov) ov.classList.remove("open"); }); });
 
@@ -1557,12 +1601,12 @@ function renderCalendario(){
       if(_mostrarFerias) feriasNoDia(iso).forEach(function(nm){
         html+='<div class="cal-ev cal-ev-ferias" title="Férias: '+escHtml(nm)+'">&#127958; '+escHtml(nm)+'</div>';
       });
-      if(_mostrarAniv) anivCelula(iso).forEach(function(nm){
+      if(_mostrarAniv && !_modoAnna) anivCelula(iso).forEach(function(nm){
         html+='<div class="cal-ev cal-ev-aniv" title="Aniversário: '+escHtml(nm)+'">&#127874; '+escHtml(nm)+'</div>';
       });
       if(_modoAnna) reqNoDia(iso).forEach(function(rp){
-        var ric=(rp.tipo==="Aditivo")?"📎":"⚖️";
-        html+='<div class="cal-ev cal-ev-req" onclick="annaAbrirAvancar(\''+escHtml(rp.id)+'\')" title="'+escHtml((rp.tipo||"Reequilíbrio")+": "+(rp.empresa||"")+" — "+reqStatusNome(rp.statusId))+'">'+ric+' '+escHtml(rp.empresa||"Pedido")+'</div>';
+        var et=etapaById(rp.tramiteId,rp.etapaId);
+        html+='<div class="cal-ev cal-ev-req" onclick="annaAbrirAvancar(\''+escHtml(rp.id)+'\')" title="'+escHtml((tramiteById(rp.tramiteId)?tramiteById(rp.tramiteId).nome:"")+": "+(rp.empresa||"")+(et?" — "+et.nome:""))+'">'+escHtml(tramiteIcone(rp.tramiteId))+' '+escHtml(rp.empresa||"Pedido")+'</div>';
       });
       if(aberto) html+='<textarea class="cal-obs-edit" id="calobs_'+isoC+'" placeholder="observação…" onclick="event.stopPropagation()" oninput="onObsInput(\''+iso+'\',this)">'+escHtml(observacoes[iso]||"")+'</textarea>';
       if(!_mostrarFerias && !_modoAnna){
@@ -1775,7 +1819,7 @@ function renderLista(){
       (extraFerias[anchor]=extraFerias[anchor]||[]).push(f);
     });
   }
-  if(_mostrarAniv){
+  if(_mostrarAniv && !_modoAnna){
     anivList.forEach(function(a){
       if(parseInt(a.mes,10)!==mes+1) return;
       var dia=parseInt(a.dia,10); if(!dia) return;
@@ -1826,13 +1870,13 @@ function renderLista(){
       html+='<div class="list-card list-card-aniv list-card-extra"><span class="lc-ico">🎂</span><span class="lc-nome">Aniversário — '+escHtml(nm)+'</span></div>';
     });
     (extraReq[iso]||[]).forEach(function(rp){
-      var cor=reqStatusCor(rp.statusId);
-      var ic=(rp.tipo==="Aditivo")?"📎":"⚖️";
+      var t=tramiteById(rp.tramiteId), et=etapaById(rp.tramiteId,rp.etapaId);
+      var cor=rp.concluido?"#2e7d32":((et&&et.cor)||(t&&t.cor)||"#546e7a");
       html+='<div class="list-card" style="border-left-color:'+cor+'" onclick="annaAbrirAvancar(\''+escHtml(rp.id)+'\')">';
-      html+='<div class="list-card-top"><span class="list-card-num">'+ic+' '+escHtml(rp.empresa||"Pedido")+'</span>';
-      html+='<span class="list-card-time" style="background:'+cor+';color:#fff">'+escHtml(rp.tipo||"Reequilíbrio")+'</span></div>';
+      html+='<div class="list-card-top"><span class="list-card-num">'+escHtml(tramiteIcone(rp.tramiteId))+' '+escHtml(rp.empresa||"Pedido")+'</span>';
+      html+='<span class="list-card-time" style="background:'+cor+';color:#fff">'+escHtml(t?t.nome:"")+'</span></div>';
       if(rp.processo) html+='<div class="list-card-obj">'+escHtml(rp.processo)+(rp.descricao?' — '+escHtml(rp.descricao):'')+'</div>';
-      html+='<div class="list-card-meta"><span class="list-card-tag" style="background:'+cor+';color:#fff">'+escHtml(reqStatusNome(rp.statusId))+'</span></div>';
+      html+='<div class="list-card-meta"><span class="list-card-tag" style="background:'+cor+';color:#fff">'+escHtml(rp.concluido?"Concluído":(et?et.nome:""))+'</span></div>';
       html+='</div>';
     });
     (grupos[iso]||[]).forEach(function(p){
@@ -2416,16 +2460,12 @@ function pnDelAniv(id){
 <!-- ── Modais do modo Reequilíbrios (Anna) ─────────────────────────────────── -->
 <div class="anna-ov" id="annaOvPedido">
   <div class="anna-modal">
-    <div class="anna-mh"><h3 id="annaPedTit">Novo pedido de reequilíbrio</h3><button class="x" onclick="annaFecharPedido()">&times;</button></div>
+    <div class="anna-mh"><h3 id="annaPedTit">Novo pedido (reequilíbrio/aditivo)</h3><button class="x" onclick="annaFecharPedido()">&times;</button></div>
     <div class="anna-mb">
-      <div class="anna-2">
-        <div class="anna-c"><label>Tipo</label><select id="annaTipo"><option value="Reequilíbrio">Reequilíbrio</option><option value="Aditivo">Aditivo</option></select></div>
-        <div class="anna-c"><label>Status inicial</label><select id="annaStatusSel"></select></div>
-      </div>
+      <div class="anna-c"><label>Trâmite</label><select id="annaTramiteSel" onchange="annaTramitePrev()"></select><div class="hint" id="annaTramitePrev"></div></div>
       <div class="anna-c"><label>Empresa / Identificação *</label><input type="text" id="annaEmpresa" placeholder="Nome da empresa solicitante"></div>
       <div class="anna-c"><label>Processo</label><input type="text" id="annaProcesso" placeholder="Ex: PE 75/2026"></div>
       <div class="anna-c"><label>Descrição / Objeto</label><textarea id="annaDescricao" placeholder="Resumo do pedido (opcional)"></textarea></div>
-      <div class="anna-c"><label>Prazo desta fase (dias)</label><input type="number" id="annaPrazo" min="0" step="1" value="2" oninput="annaPreviaPrazo()"><div class="hint" id="annaPrazoPrev"></div></div>
     </div>
     <div class="anna-mf"><button class="anna-btn" onclick="annaFecharPedido()">Cancelar</button><button class="anna-btn prim" onclick="annaSalvarPedido()">Salvar</button></div>
   </div>
@@ -2433,27 +2473,17 @@ function pnDelAniv(id){
 
 <div class="anna-ov" id="annaOvAvancar">
   <div class="anna-modal">
-    <div class="anna-mh"><h3>Avançar fase / prazo</h3><button class="x" onclick="annaFecharAvancar()">&times;</button></div>
-    <div class="anna-mb">
-      <div class="anna-c"><label>Novo status</label><select id="annaAvStatus"></select></div>
-      <div class="anna-c"><label>Novo prazo (dias a partir de hoje)</label><input type="number" id="annaAvPrazo" min="0" step="1" value="2" oninput="annaPreviaAvancar()"><div class="hint" id="annaAvPrev"></div></div>
-      <div class="anna-c"><label>Observação da fase (opcional)</label><textarea id="annaAvNota" placeholder="Ex: aguardando notas fiscais para comparação"></textarea></div>
-    </div>
-    <div class="anna-mf"><button class="anna-btn" onclick="annaFecharAvancar()">Cancelar</button><button class="anna-btn prim" onclick="annaConfirmarAvancar()">Avançar prazo</button></div>
+    <div class="anna-mh"><h3>Avançar etapa</h3><button class="x" onclick="annaFecharAvancar()">&times;</button></div>
+    <div class="anna-mb" id="annaAvBody"></div>
+    <div class="anna-mf"><button class="anna-btn" onclick="annaFecharAvancar()">Fechar</button></div>
   </div>
 </div>
 
 <div class="anna-ov" id="annaOvStatus">
   <div class="anna-modal">
-    <div class="anna-mh"><h3>Status dos pedidos</h3><button class="x" onclick="annaFecharStatus()">&times;</button></div>
-    <div class="anna-mb">
-      <div class="anna-stl" id="annaStLista"></div>
-      <div style="border-top:1px solid var(--border); padding-top:15px">
-        <div class="anna-c"><label id="annaStFormLabel">Novo status</label><input type="text" id="annaStNome" placeholder="Nome do status"></div>
-        <div class="anna-c"><label>Cor</label><div class="anna-paleta" id="annaStPaleta"></div></div>
-      </div>
-    </div>
-    <div class="anna-mf"><button class="anna-btn" id="annaStCancel" onclick="annaResetStatusForm()" style="display:none">Cancelar edição</button><button class="anna-btn prim" id="annaStSalvar" onclick="annaSalvarStatus()">Adicionar status</button></div>
+    <div class="anna-mh"><h3>Trâmites do sistema</h3><button class="x" onclick="annaFecharStatus()">&times;</button></div>
+    <div class="anna-mb"><div id="annaTramitesView"></div></div>
+    <div class="anna-mf"><button class="anna-btn prim" onclick="annaFecharStatus()">Fechar</button></div>
   </div>
 </div>
 
