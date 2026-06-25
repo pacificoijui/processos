@@ -25,6 +25,8 @@
   });
   const db        = firebase.firestore();
   const colRef    = db.collection("processos");
+  const reqColRef   = db.collection("reequilibrios");
+  const reqStColRef = db.collection("reequilibrio_status");
   const agColRef  = db.collection("agentes");
 </script>
 
@@ -231,6 +233,70 @@
   .fer-faixa { font-size:12.5px; color:var(--text); margin-top:3px; font-weight:600; }
   .fer-dias { font-size:11.5px; color:var(--muted); font-weight:700; margin-top:4px; }
   .fer-empty { color:var(--muted); font-size:13px; font-style:italic; padding:22px 6px; text-align:center; line-height:1.5; }
+
+  /* ── Modo Reequilíbrios (Anna) ──────────────────────────────────────────── */
+  .cal-ev-req { background:#ede7f6; color:#4527a0; border-color:#7e57c2; font-weight:700; }
+  .anna-head-actions { display:flex; gap:6px; margin-left:auto; flex-shrink:0; }
+  #annaSection .section-head { flex-wrap:wrap; gap:8px; padding:13px 14px; }
+  #annaSection .section-head h3 { font-size:12px; letter-spacing:0.2px; flex:1; min-width:0; }
+  .anna-mini-btn { border:1px solid var(--border); background:#fff; color:var(--navy); border-radius:8px; padding:6px 9px; font-family:inherit; font-size:11.5px; font-weight:800; cursor:pointer; transition:all .14s; white-space:nowrap; }
+  .anna-mini-btn:hover { border-color:var(--navy-light); background:#eef2fb; }
+  .anna-mini-btn.prim { background:var(--navy); border-color:var(--navy); color:#fff; }
+  .anna-mini-btn.prim:hover { background:var(--navy-mid); }
+  .req-card { background:#fff; border:1px solid var(--border); border-left:4px solid var(--navy); border-radius:12px; padding:12px 13px; box-shadow:var(--shadow); }
+  .req-card + .req-card { margin-top:11px; }
+  .req-emp { font-size:14px; font-weight:800; color:var(--navy); line-height:1.25; }
+  .req-proc { font-size:11.5px; color:var(--muted); font-weight:700; margin-top:2px; }
+  .req-desc { font-size:12px; color:var(--text); margin-top:5px; line-height:1.4; }
+  .req-row { display:flex; align-items:center; gap:7px; flex-wrap:wrap; margin-top:9px; }
+  .req-status { padding:3px 9px; border-radius:6px; font-size:11px; font-weight:800; color:#fff; }
+  .req-prazo { margin-left:auto; font-size:10.5px; font-weight:800; padding:3px 9px; border-radius:20px; }
+  .rq-vencido { background:var(--red-bg); color:var(--red); } .rq-hoje { background:#ffe9d6; color:#b85000; }
+  .rq-perto { background:var(--amber-bg); color:var(--amber); } .rq-ok { background:var(--green-bg); color:var(--green); }
+  .req-data { font-size:11.5px; color:var(--text); font-weight:700; margin-top:7px; }
+  .req-acts { display:flex; gap:6px; margin-top:10px; }
+  .req-acts button { flex:1; border:1px solid var(--border); background:#fff; color:var(--navy); border-radius:8px; padding:7px 4px; font-family:inherit; font-size:11px; font-weight:800; cursor:pointer; transition:all .14s; }
+  .req-acts button:hover { background:#eef2fb; }
+  .req-acts .rq-av { background:var(--navy); border-color:var(--navy); color:#fff; }
+  .req-acts .rq-av:hover { background:var(--navy-mid); }
+  .req-acts .rq-del:hover { background:var(--red-bg); border-color:var(--red); color:var(--red); }
+  .req-hist { margin-top:9px; border-top:1px dashed var(--border); padding-top:8px; display:none; }
+  .req-hist.open { display:block; }
+  .req-hist .hi { display:flex; gap:7px; padding:5px 0; font-size:11px; }
+  .req-hist .hi b { color:var(--navy); } .req-hist .hi span { color:var(--muted); }
+  .req-hdot { width:9px; height:9px; border-radius:50%; flex-shrink:0; margin-top:2px; box-shadow:0 0 0 1px rgba(0,0,0,.12); }
+
+  /* Modais Anna (reaproveita overlay; estilos próprios) */
+  .anna-ov { position:fixed; inset:0; background:rgba(15,28,55,0.55); display:none; align-items:flex-start; justify-content:center; padding:40px 16px; z-index:1200; overflow-y:auto; }
+  .anna-ov.open { display:flex; }
+  .anna-modal { background:#fff; border-radius:18px; box-shadow:var(--shadow-lg); width:100%; max-width:520px; overflow:hidden; }
+  .anna-mh { background:linear-gradient(120deg,var(--navy-dark),var(--navy)); color:#fff; padding:15px 22px; display:flex; align-items:center; justify-content:space-between; }
+  .anna-mh h3 { font-size:16px; font-weight:800; }
+  .anna-mh .x { background:rgba(255,255,255,0.15); border:none; color:#fff; width:30px; height:30px; border-radius:8px; cursor:pointer; font-size:16px; }
+  .anna-mb { padding:19px 22px; }
+  .anna-c { margin-bottom:14px; }
+  .anna-c label { display:block; font-size:11.5px; font-weight:800; color:var(--muted); text-transform:uppercase; letter-spacing:.3px; margin-bottom:6px; }
+  .anna-c input, .anna-c select, .anna-c textarea { width:100%; padding:10px 13px; border:1.5px solid var(--border); border-radius:10px; font-family:inherit; font-size:14px; color:var(--text); background:#fff; outline:none; }
+  .anna-c input:focus, .anna-c select:focus, .anna-c textarea:focus { border-color:var(--navy-light); }
+  .anna-c textarea { resize:vertical; min-height:62px; }
+  .anna-c .hint { font-size:11.5px; color:var(--muted); margin-top:5px; }
+  .anna-2 { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; }
+  .anna-mf { display:flex; gap:10px; justify-content:flex-end; padding:15px 22px; border-top:1px solid var(--border); background:#f7f9fd; }
+  .anna-btn { padding:10px 18px; border-radius:10px; border:1.5px solid var(--border); background:#fff; color:var(--muted); font-family:inherit; font-size:13px; font-weight:800; cursor:pointer; }
+  .anna-btn:hover { border-color:var(--navy-light); color:var(--navy); }
+  .anna-btn.prim { background:var(--navy); border-color:var(--navy); color:#fff; }
+  .anna-btn.prim:hover { background:var(--navy-mid); color:#fff; }
+  .anna-paleta { display:flex; flex-wrap:wrap; gap:9px; }
+  .anna-sw { width:30px; height:30px; border-radius:9px; cursor:pointer; border:3px solid transparent; }
+  .anna-sw.sel { border-color:#1c2433; box-shadow:0 0 0 2px #fff inset; }
+  .anna-stl { display:flex; flex-direction:column; gap:8px; margin-bottom:15px; }
+  .anna-st-row { display:flex; align-items:center; gap:10px; padding:9px 11px; border:1px solid var(--border); border-radius:10px; }
+  .anna-st-dot { width:16px; height:16px; border-radius:50%; box-shadow:0 0 0 1px rgba(0,0,0,.12); flex-shrink:0; }
+  .anna-st-row .nm { flex:1; font-size:13.5px; font-weight:700; }
+  .anna-st-row button { border:none; background:transparent; cursor:pointer; color:var(--muted); font-size:12px; font-weight:800; padding:4px 7px; border-radius:6px; }
+  .anna-st-row button:hover { background:#eef2fb; color:var(--navy); }
+  .anna-st-row button.del:hover { background:var(--red-bg); color:var(--red); }
+  .anna-st-empty { color:var(--muted); font-size:13px; font-style:italic; text-align:center; padding:16px 6px; line-height:1.6; }
 
   /* filtros separados (tipo / número / objeto / ano) — iguais ao index */
   .ag-filtros { display: grid; grid-template-columns: 1fr 1fr; gap: 9px 10px; }
@@ -527,6 +593,7 @@
       <div class="cal-nav">
         <div class="layer-toggle-mini-group">
           <button class="layer-pill-text" data-tipo="ferias" onclick="toggleCamada('ferias')" title="Mostrar/ocultar férias dos servidores">&#127958; Visualizar férias</button>
+          <button class="layer-pill-text" id="btnModoAnna" onclick="toggleModoAnna()" title="Reequilíbrios e Aditivos">&#9878;&#65039; Reequilíbrios/Aditivos</button>
         </div>
         <button class="btn-primary cal-novo" onclick="abrirCadastro()">&#43; Novo Processo</button>
         <button class="hoje-btn" onclick="irHoje()">Hoje</button>
@@ -550,6 +617,7 @@
       <div class="list-nav">
         <div class="layer-toggle-mini-group">
           <button class="layer-pill-text" data-tipo="ferias" onclick="toggleCamada('ferias')" title="Mostrar/ocultar férias dos servidores">&#127958; Visualizar férias</button>
+          <button class="layer-pill-text" id="btnModoAnna" onclick="toggleModoAnna()" title="Reequilíbrios e Aditivos">&#9878;&#65039; Reequilíbrios/Aditivos</button>
         </div>
         <button class="btn-primary cal-novo" onclick="abrirCadastro()" style="height:36px;padding:0 14px">&#43; Novo</button>
         <button class="hoje-btn" onclick="irHojeList()">Hoje</button>
@@ -631,6 +699,21 @@
     </div>
     <div class="section-body">
       <div id="feriasLista"><div class="fer-empty">Carregando…</div></div>
+    </div>
+  </section>
+
+  <!-- Reequilíbrios (modo Anna dentro da agenda) -->
+  <section class="section" id="annaSection" style="display:none">
+    <div class="section-head">
+      <span class="ico">&#9878;&#65039;</span>
+      <h3>Reequilíbrios/Aditivos</h3>
+      <div class="anna-head-actions">
+        <button class="anna-mini-btn" onclick="annaAbrirStatus()" title="Gerenciar status">&#9881;&#65039;</button>
+        <button class="anna-mini-btn prim" onclick="annaAbrirPedido()">&#43; Novo</button>
+      </div>
+    </div>
+    <div class="section-body">
+      <div id="reqLista"><div class="fer-empty">Carregando…</div></div>
     </div>
   </section>
   </aside>
@@ -867,9 +950,21 @@ function aniversariosNoDia(iso){
   });
   return out;
 }
+/* aniversários para a célula do calendário: os do próprio dia + (nas sextas) os
+   do sábado e domingo seguintes, rotulados "Nome (Sáb)" / "Nome (Dom)", já que
+   o calendário não mostra fim de semana */
+function anivCelula(iso){
+  var out=[];
+  aniversariosNoDia(iso).forEach(function(nm){ out.push(nm); });
+  if(new Date(iso+"T12:00:00").getDay()===5){
+    aniversariosNoDia(addDiasIso(iso,1)).forEach(function(nm){ out.push(nm+" (Sáb)"); });
+    aniversariosNoDia(addDiasIso(iso,2)).forEach(function(nm){ out.push(nm+" (Dom)"); });
+  }
+  return out;
+}
 function toggleCamada(tipo){
   var ativo;
-  if(tipo==="ferias"){ _mostrarFerias=!_mostrarFerias; ativo=_mostrarFerias; }
+  if(tipo==="ferias"){ _mostrarFerias=!_mostrarFerias; ativo=_mostrarFerias; if(_mostrarFerias) _modoAnna=false; }
   else { _mostrarAniv=!_mostrarAniv; ativo=_mostrarAniv; }
   document.querySelectorAll('[data-tipo="'+tipo+'"]').forEach(function(b){
     b.classList.toggle("on", ativo);
@@ -997,6 +1092,9 @@ var pontosFac   = {};      /* iso "YYYY-MM-DD" -> nome do ponto facultativo */
 var feriasList  = [];      /* { servidor, inicio, fim } */
 var anivList    = [];      /* { servidor, dia, mes } */
 var _mostrarFerias = false, _mostrarAniv = true;
+var _modoAnna = false;
+var reqPedidos = [], reqStatus = [];
+var reqEditId=null, reqAvancarId=null, reqEditStId=null, reqCorSel="#1565c0";
 var pfColRef, ferColRef, anivColRef;
 try { pfColRef   = db.collection("pontos_facultativos"); } catch(e){ pfColRef   = null; }
 try { ferColRef  = db.collection("ferias"); }             catch(e){ ferColRef  = null; }
@@ -1136,15 +1234,19 @@ function render(){
   renderProximos();
   popularFiltroAno();
   renderBusca();
-  aplicarModoFerias();
+  aplicarModos();
   renderFeriasPanel();
+  renderReqPanel();
 }
-/* Alterna o lado: no modo férias some Buscar/Próximos Processos e aparece Próximas Férias */
-function aplicarModoFerias(){
-  var on=!!_mostrarFerias;
-  var b=document.getElementById("buscaSection");   if(b) b.style.display=on?"none":"";
-  var p=document.getElementById("proximosSection");if(p) p.style.display=on?"none":"";
-  var f=document.getElementById("feriasSection");  if(f) f.style.display=on?"":"none";
+/* Mostra no lado o painel do modo ativo (normal / férias / reequilíbrios) */
+function aplicarModos(){
+  var fer=!!_mostrarFerias, anna=!!_modoAnna;
+  var b=document.getElementById("buscaSection");    if(b) b.style.display=(fer||anna)?"none":"";
+  var p=document.getElementById("proximosSection"); if(p) p.style.display=(fer||anna)?"none":"";
+  var f=document.getElementById("feriasSection");   if(f) f.style.display=fer?"":"none";
+  var a=document.getElementById("annaSection");     if(a) a.style.display=anna?"":"none";
+  var bm=document.getElementById("btnModoAnna");
+  if(bm) document.querySelectorAll('#btnModoAnna').forEach(function(x){ x.classList.toggle("on", anna); });
 }
 function _feriasDuracaoDias(ini,fim){
   var a=new Date(ini+"T12:00:00"), b=new Date((fim||ini)+"T12:00:00");
@@ -1176,6 +1278,229 @@ function renderFeriasPanel(){
   });
   box.innerHTML=html;
 }
+
+/* ═══ Modo Reequilíbrios (Anna) dentro da agenda ═══════════════════════════ */
+var REQ_PALETA=["#1565c0","#2e7d32","#d32f2f","#ff9800","#6a1b9a","#0097a7",
+                "#c2185b","#5d4037","#455a64","#f9a825","#7cb342","#00838f",
+                "#3949ab","#8d6e63","#e64a19","#546e7a"];
+var REQ_STATUS_PADRAO=[
+  {nome:"Recebido",cor:"#1565c0",ordem:0},{nome:"Em análise",cor:"#ff9800",ordem:1},
+  {nome:"Aguardando documentos",cor:"#6a1b9a",ordem:2},{nome:"Deferido",cor:"#2e7d32",ordem:3},
+  {nome:"Indeferido",cor:"#d32f2f",ordem:4}
+];
+function addDiasIso(iso,n){ var d=new Date((iso||hojeStr())+"T12:00:00"); d.setDate(d.getDate()+(parseInt(n,10)||0)); return ymd(new Date(d.getFullYear(),d.getMonth(),d.getDate())); }
+function diasEntreIso(a,b){ return Math.round((new Date(b+"T12:00:00")-new Date(a+"T12:00:00"))/86400000); }
+function reqStatusById(id){ for(var i=0;i<reqStatus.length;i++){ if(reqStatus[i].id===id) return reqStatus[i]; } return null; }
+function reqStatusCor(id){ var s=reqStatusById(id); return s?s.cor:"#546e7a"; }
+function reqStatusNome(id){ var s=reqStatusById(id); return s?s.nome:"Sem status"; }
+function reqPrazoInfo(dl){
+  if(!dl) return {cls:"rq-ok",txt:"sem prazo"};
+  var d=diasEntreIso(hojeStr(),dl);
+  if(d<0) return {cls:"rq-vencido",txt:"vencido há "+Math.abs(d)+(Math.abs(d)===1?" dia":" dias")};
+  if(d===0) return {cls:"rq-hoje",txt:"vence hoje"};
+  if(d===1) return {cls:"rq-perto",txt:"vence amanhã"};
+  if(d<=3) return {cls:"rq-perto",txt:"vence em "+d+" dias"};
+  return {cls:"rq-ok",txt:"vence em "+d+" dias"};
+}
+function reqNoDia(iso){ return reqPedidos.filter(function(p){ return p.dataLimite===iso; }); }
+
+function toggleModoAnna(){
+  _modoAnna=!_modoAnna;
+  if(_modoAnna){ _mostrarFerias=false; document.querySelectorAll('[data-tipo="ferias"]').forEach(function(b){ b.classList.remove("on"); }); }
+  render();
+}
+
+try{ reqStColRef.onSnapshot(function(snap){
+  reqStatus=snap.docs.map(function(d){ return Object.assign({id:d.id},d.data()); })
+    .sort(function(a,b){ var oa=(a.ordem==null?999:a.ordem), ob=(b.ordem==null?999:b.ordem); return oa-ob; });
+  reqPreencherSelects();
+  if(document.getElementById("annaOvStatus").classList.contains("open")) reqRenderStatusLista();
+  render();
+}, function(err){ console.error("req status:", err); }); }catch(e){ console.warn("reqStatus onSnapshot:", e); }
+
+try{ reqColRef.onSnapshot(function(snap){
+  reqPedidos=snap.docs.map(function(d){ return Object.assign({id:d.id},d.data()); });
+  render();
+}, function(err){ console.error("req pedidos:", err); }); }catch(e){ console.warn("reqPedidos onSnapshot:", e); }
+
+function renderReqPanel(){
+  var box=document.getElementById("reqLista"); if(!box) return;
+  if(!reqStatus.length){
+    box.innerHTML='<div class="fer-empty">Nenhum status criado.<br>Clique em &#9881;&#65039; para criar os status (ou usar os padrões).</div>';
+    return;
+  }
+  var lista=reqPedidos.slice().sort(function(a,b){
+    return (a.dataLimite||"9999-99-99").localeCompare(b.dataLimite||"9999-99-99");
+  });
+  if(!lista.length){
+    box.innerHTML='<div class="fer-empty">Nenhum pedido cadastrado.<br>Clique em <b>+ Novo</b> para começar.</div>';
+    return;
+  }
+  var html="";
+  lista.forEach(function(p){
+    var cor=reqStatusCor(p.statusId), pi=reqPrazoInfo(p.dataLimite), hist=(p.historico||[]);
+    var ic=(p.tipo==="Aditivo")?"📎":"⚖️";
+    html+='<div class="req-card" style="border-left-color:'+cor+'">';
+    html+='<div class="req-emp">'+ic+' '+escHtml(p.empresa||"Sem identificação")+'</div>';
+    html+='<div class="req-proc">'+escHtml(p.tipo||"Reequilíbrio")+(p.processo?' · '+escHtml(p.processo):'')+'</div>';
+    if(p.descricao) html+='<div class="req-desc">'+escHtml(p.descricao)+'</div>';
+    html+='<div class="req-row"><span class="req-status" style="background:'+cor+'">'+escHtml(reqStatusNome(p.statusId))+'</span>'
+        +'<span class="req-prazo '+pi.cls+'">'+pi.txt+'</span></div>';
+    html+='<div class="req-data">&#128197; '+fmtData(p.dataLimite)+(p.prazoDias!=null?' · fase de '+p.prazoDias+' dia(s)':'')+'</div>';
+    if(hist.length){
+      html+='<div class="req-hist" id="reqhist_'+p.id+'">';
+      hist.forEach(function(h,i){
+        html+='<div class="hi"><span class="req-hdot" style="background:'+escHtml(h.cor||"#999")+'"></span><div><b>Fase '+(i+1)+': '+escHtml(h.statusNome||"")+'</b> — '+(h.prazoDias!=null?h.prazoDias+'d, ':'')+'até '+fmtData(h.dataLimite)+(h.nota?'<br><span>'+escHtml(h.nota)+'</span>':'')+'</div></div>';
+      });
+      html+='</div>';
+    }
+    html+='<div class="req-acts">';
+    html+='<button class="rq-av" onclick="annaAbrirAvancar(\''+p.id+'\')">&#9193; Avançar</button>';
+    if(hist.length) html+='<button onclick="reqToggleHist(\''+p.id+'\')">&#128338; '+hist.length+'</button>';
+    html+='<button onclick="annaAbrirPedido(\''+p.id+'\')">&#9998;</button>';
+    html+='<button class="rq-del" onclick="annaExcluirPedido(\''+p.id+'\')">&#128465;</button>';
+    html+='</div></div>';
+  });
+  box.innerHTML=html;
+}
+function reqToggleHist(id){ var el=document.getElementById("reqhist_"+id); if(el) el.classList.toggle("open"); }
+
+function reqPreencherSelects(){
+  var opts=reqStatus.map(function(s){ return '<option value="'+s.id+'">'+escHtml(s.nome)+'</option>'; }).join("");
+  var a=document.getElementById("annaStatusSel"); if(a) a.innerHTML=opts;
+  var b=document.getElementById("annaAvStatus"); if(b) b.innerHTML=opts;
+}
+
+/* Novo / editar pedido */
+function annaAbrirPedido(id){
+  if(!reqStatus.length){ toast("Crie um status primeiro."); annaAbrirStatus(); return; }
+  reqEditId=id||null;
+  var p=id?reqPedidos.find(function(x){return x.id===id;}):null;
+  document.getElementById("annaPedTit").textContent=p?"Editar pedido":"Novo pedido (reequilíbrio/aditivo)";
+  document.getElementById("annaTipo").value=p?(p.tipo||"Reequilíbrio"):"Reequilíbrio";
+  document.getElementById("annaEmpresa").value=p?(p.empresa||""):"";
+  document.getElementById("annaProcesso").value=p?(p.processo||""):"";
+  document.getElementById("annaDescricao").value=p?(p.descricao||""):"";
+  document.getElementById("annaStatusSel").value=p?(p.statusId||reqStatus[0].id):reqStatus[0].id;
+  document.getElementById("annaPrazo").value=p&&p.prazoDias!=null?p.prazoDias:2;
+  annaPreviaPrazo();
+  document.getElementById("annaOvPedido").classList.add("open");
+}
+function annaFecharPedido(){ document.getElementById("annaOvPedido").classList.remove("open"); reqEditId=null; }
+function annaPreviaPrazo(){
+  var dias=parseInt(document.getElementById("annaPrazo").value,10);
+  var prev=document.getElementById("annaPrazoPrev");
+  prev.textContent=isNaN(dias)?"":("Data-limite: "+fmtData(addDiasIso(hojeStr(),dias))+(dias===0?" (hoje)":""));
+}
+function annaSalvarPedido(){
+  var empresa=document.getElementById("annaEmpresa").value.trim();
+  if(!empresa){ toast("Informe a empresa / identificação."); return; }
+  var dias=parseInt(document.getElementById("annaPrazo").value,10); if(isNaN(dias)||dias<0) dias=0;
+  var dados={
+    empresa:empresa, tipo:document.getElementById("annaTipo").value, processo:document.getElementById("annaProcesso").value.trim(),
+    descricao:document.getElementById("annaDescricao").value.trim(),
+    statusId:document.getElementById("annaStatusSel").value, prazoDias:dias,
+    atualizadoEm:firebase.firestore.FieldValue.serverTimestamp()
+  };
+  if(reqEditId){
+    var atual=reqPedidos.find(function(x){return x.id===reqEditId;})||{};
+    if(atual.prazoDias!==dias || !atual.dataLimite) dados.dataLimite=addDiasIso(hojeStr(),dias);
+    reqColRef.doc(reqEditId).update(dados).then(function(){ toast("Pedido atualizado."); annaFecharPedido(); }).catch(function(e){ toast("Erro: "+e.message); });
+  } else {
+    dados.dataLimite=addDiasIso(hojeStr(),dias); dados.historico=[]; dados.criadoEm=firebase.firestore.FieldValue.serverTimestamp();
+    reqColRef.add(dados).then(function(){ toast("Pedido cadastrado."); annaFecharPedido(); }).catch(function(e){ toast("Erro: "+e.message); });
+  }
+}
+function annaExcluirPedido(id){
+  var p=reqPedidos.find(function(x){return x.id===id;});
+  if(!confirm("Excluir o pedido de \""+((p&&p.empresa)||"")+"\"?")) return;
+  reqColRef.doc(id).delete().then(function(){ toast("Pedido excluído."); }).catch(function(e){ toast("Erro: "+e.message); });
+}
+
+/* Avançar fase / prazo */
+function annaAbrirAvancar(id){
+  reqAvancarId=id; var p=reqPedidos.find(function(x){return x.id===id;}); if(!p) return;
+  document.getElementById("annaAvStatus").value=p.statusId||(reqStatus[0]&&reqStatus[0].id);
+  document.getElementById("annaAvPrazo").value=p.prazoDias!=null?p.prazoDias:2;
+  document.getElementById("annaAvNota").value="";
+  annaPreviaAvancar();
+  document.getElementById("annaOvAvancar").classList.add("open");
+}
+function annaFecharAvancar(){ document.getElementById("annaOvAvancar").classList.remove("open"); reqAvancarId=null; }
+function annaPreviaAvancar(){
+  var dias=parseInt(document.getElementById("annaAvPrazo").value,10);
+  var prev=document.getElementById("annaAvPrev");
+  prev.textContent=isNaN(dias)?"":("Nova data-limite: "+fmtData(addDiasIso(hojeStr(),dias))+(dias===0?" (hoje)":""));
+}
+function annaConfirmarAvancar(){
+  var p=reqPedidos.find(function(x){return x.id===reqAvancarId;}); if(!p) return;
+  var dias=parseInt(document.getElementById("annaAvPrazo").value,10); if(isNaN(dias)||dias<0) dias=0;
+  var nota=document.getElementById("annaAvNota").value.trim();
+  var hist=(p.historico||[]).slice();
+  hist.push({ statusId:p.statusId, statusNome:reqStatusNome(p.statusId), cor:reqStatusCor(p.statusId),
+              prazoDias:(p.prazoDias!=null?p.prazoDias:null), dataLimite:p.dataLimite||null, nota:nota||"", em:Date.now() });
+  reqColRef.doc(p.id).update({
+    statusId:document.getElementById("annaAvStatus").value, prazoDias:dias,
+    dataLimite:addDiasIso(hojeStr(),dias), historico:hist,
+    atualizadoEm:firebase.firestore.FieldValue.serverTimestamp()
+  }).then(function(){ toast("Prazo avançado para "+fmtData(addDiasIso(hojeStr(),dias))+"."); annaFecharAvancar(); }).catch(function(e){ toast("Erro: "+e.message); });
+}
+
+/* Gerenciar status + paleta */
+function annaAbrirStatus(){ reqRenderStatusLista(); reqRenderPaleta(); annaResetStatusForm(); document.getElementById("annaOvStatus").classList.add("open"); }
+function annaFecharStatus(){ document.getElementById("annaOvStatus").classList.remove("open"); }
+function reqRenderPaleta(){
+  document.getElementById("annaStPaleta").innerHTML=REQ_PALETA.map(function(c){ return '<div class="anna-sw'+(c===reqCorSel?" sel":"")+'" style="background:'+c+'" onclick="reqSelecionarCor(\''+c+'\')"></div>'; }).join("");
+}
+function reqSelecionarCor(c){ reqCorSel=c; reqRenderPaleta(); }
+function reqRenderStatusLista(){
+  var box=document.getElementById("annaStLista");
+  if(!reqStatus.length){
+    box.innerHTML='<div class="anna-st-empty">Nenhum status ainda.<br><button class="anna-btn" style="margin-top:10px" onclick="reqCriarPadrao()">Criar status padrão</button></div>';
+    return;
+  }
+  box.innerHTML=reqStatus.map(function(s){
+    return '<div class="anna-st-row"><span class="anna-st-dot" style="background:'+s.cor+'"></span><span class="nm">'+escHtml(s.nome)+'</span>'
+      +'<button onclick="reqEditarStatus(\''+s.id+'\')">&#9998; Editar</button><button class="del" onclick="reqExcluirStatus(\''+s.id+'\')">&#128465;</button></div>';
+  }).join("");
+}
+function annaResetStatusForm(){
+  reqEditStId=null;
+  document.getElementById("annaStNome").value="";
+  document.getElementById("annaStFormLabel").textContent="Novo status";
+  document.getElementById("annaStSalvar").textContent="Adicionar status";
+  document.getElementById("annaStCancel").style.display="none";
+  reqCorSel=REQ_PALETA[0]; reqRenderPaleta();
+}
+function reqEditarStatus(id){
+  var s=reqStatusById(id); if(!s) return;
+  reqEditStId=id; document.getElementById("annaStNome").value=s.nome||"";
+  reqCorSel=s.cor||REQ_PALETA[0]; reqRenderPaleta();
+  document.getElementById("annaStFormLabel").textContent="Editando status";
+  document.getElementById("annaStSalvar").textContent="Salvar alterações";
+  document.getElementById("annaStCancel").style.display="";
+}
+function annaSalvarStatus(){
+  var nome=document.getElementById("annaStNome").value.trim();
+  if(!nome){ toast("Informe o nome do status."); return; }
+  if(reqEditStId){
+    reqStColRef.doc(reqEditStId).update({nome:nome, cor:reqCorSel}).then(function(){ toast("Status atualizado."); annaResetStatusForm(); }).catch(function(e){ toast("Erro: "+e.message); });
+  } else {
+    reqStColRef.add({nome:nome, cor:reqCorSel, ordem:reqStatus.length}).then(function(){ toast("Status criado."); annaResetStatusForm(); }).catch(function(e){ toast("Erro: "+e.message); });
+  }
+}
+function reqExcluirStatus(id){
+  if(reqPedidos.some(function(p){ return p.statusId===id; })){ toast("Há pedidos com este status. Altere-os antes."); return; }
+  if(!confirm("Excluir este status?")) return;
+  reqStColRef.doc(id).delete().then(function(){ toast("Status excluído."); }).catch(function(e){ toast("Erro: "+e.message); });
+}
+function reqCriarPadrao(){
+  var batch=db.batch();
+  REQ_STATUS_PADRAO.forEach(function(s){ batch.set(reqStColRef.doc(),{nome:s.nome,cor:s.cor,ordem:s.ordem}); });
+  batch.commit().then(function(){ toast("Status padrão criados."); }).catch(function(e){ toast("Erro: "+e.message); });
+}
+/* fecha modais Anna ao clicar no fundo */
+document.querySelectorAll(".anna-ov").forEach(function(ov){ ov.addEventListener("click", function(e){ if(e.target===ov) ov.classList.remove("open"); }); });
 
 function renderCalendario(){
   var grid=document.getElementById("calGrid");
@@ -1232,11 +1557,15 @@ function renderCalendario(){
       if(_mostrarFerias) feriasNoDia(iso).forEach(function(nm){
         html+='<div class="cal-ev cal-ev-ferias" title="Férias: '+escHtml(nm)+'">&#127958; '+escHtml(nm)+'</div>';
       });
-      if(_mostrarAniv) aniversariosNoDia(iso).forEach(function(nm){
+      if(_mostrarAniv) anivCelula(iso).forEach(function(nm){
         html+='<div class="cal-ev cal-ev-aniv" title="Aniversário: '+escHtml(nm)+'">&#127874; '+escHtml(nm)+'</div>';
       });
+      if(_modoAnna) reqNoDia(iso).forEach(function(rp){
+        var ric=(rp.tipo==="Aditivo")?"📎":"⚖️";
+        html+='<div class="cal-ev cal-ev-req" onclick="annaAbrirAvancar(\''+escHtml(rp.id)+'\')" title="'+escHtml((rp.tipo||"Reequilíbrio")+": "+(rp.empresa||"")+" — "+reqStatusNome(rp.statusId))+'">'+ric+' '+escHtml(rp.empresa||"Pedido")+'</div>';
+      });
       if(aberto) html+='<textarea class="cal-obs-edit" id="calobs_'+isoC+'" placeholder="observação…" onclick="event.stopPropagation()" oninput="onObsInput(\''+iso+'\',this)">'+escHtml(observacoes[iso]||"")+'</textarea>';
-      if(!_mostrarFerias){
+      if(!_mostrarFerias && !_modoAnna){
         var evs=(porData[iso]||[]).slice().sort(function(a,b){ return (a.horarioAbertura||"99:99").localeCompare(b.horarioAbertura||"99:99"); });
         evs.slice(0,3).forEach(function(p){
           html+='<div class="cal-ev '+corClasseEv(p)+'" onclick="abrirDetalhe(\''+escHtml(p.id)+'\')" title="'+escHtml((p.numero||"")+" — "+(p.objeto||""))+'">'+escHtml(rotuloAgenda(p))+'</div>';
@@ -1419,9 +1748,9 @@ function renderLista(){
     return (a.horarioAbertura||"").localeCompare(b.horarioAbertura||"");
   });
 
-  /* agrupa processos por data (no modo férias, processos ficam ocultos) */
+  /* agrupa processos por data (ocultos nos modos férias e reequilíbrios) */
   var grupos={};
-  if(!_mostrarFerias){
+  if(!_mostrarFerias && !_modoAnna){
     doMes.forEach(function(p){
       (grupos[p.dataLicit]=grupos[p.dataLicit]||[]).push(p);
     });
@@ -1430,7 +1759,13 @@ function renderLista(){
   /* camadas opcionais: férias (ancoradas no início dentro do mês) e aniversários */
   var firstISO=ymd(new Date(ano,mes,1));
   var lastISO=ymd(new Date(ano,mes+1,0));
-  var extraFerias={}, extraAniv={};
+  var extraFerias={}, extraAniv={}, extraReq={};
+  if(_modoAnna){
+    reqPedidos.forEach(function(rp){
+      if(!rp.dataLimite || rp.dataLimite<firstISO || rp.dataLimite>lastISO) return;
+      (extraReq[rp.dataLimite]=extraReq[rp.dataLimite]||[]).push(rp);
+    });
+  }
   if(_mostrarFerias){
     feriasList.forEach(function(f){
       if(!f.inicio) return;
@@ -1454,10 +1789,11 @@ function renderLista(){
   Object.keys(grupos).forEach(function(k){ todasDatas[k]=true; });
   Object.keys(extraFerias).forEach(function(k){ todasDatas[k]=true; });
   Object.keys(extraAniv).forEach(function(k){ todasDatas[k]=true; });
+  Object.keys(extraReq).forEach(function(k){ todasDatas[k]=true; });
   var ordem=Object.keys(todasDatas).sort();
 
   if(!ordem.length){
-    box.innerHTML='<div class="list-empty">'+(_mostrarFerias?('Nenhuma férias em '+MESES[mes]+'.'):('Nenhum processo agendado em '+MESES[mes]+'.<br>Toque em “+ Novo” para cadastrar.'))+'</div>';
+    box.innerHTML='<div class="list-empty">'+(_modoAnna?('Nenhum reequilíbrio/aditivo com prazo em '+MESES[mes]+'.<br>Use <b>+ Novo</b> no painel ao lado.'):(_mostrarFerias?('Nenhuma férias em '+MESES[mes]+'.'):('Nenhum processo agendado em '+MESES[mes]+'.<br>Toque em “+ Novo” para cadastrar.')))+'</div>';
     return;
   }
 
@@ -1488,6 +1824,16 @@ function renderLista(){
     });
     (extraAniv[iso]||[]).forEach(function(nm){
       html+='<div class="list-card list-card-aniv list-card-extra"><span class="lc-ico">🎂</span><span class="lc-nome">Aniversário — '+escHtml(nm)+'</span></div>';
+    });
+    (extraReq[iso]||[]).forEach(function(rp){
+      var cor=reqStatusCor(rp.statusId);
+      var ic=(rp.tipo==="Aditivo")?"📎":"⚖️";
+      html+='<div class="list-card" style="border-left-color:'+cor+'" onclick="annaAbrirAvancar(\''+escHtml(rp.id)+'\')">';
+      html+='<div class="list-card-top"><span class="list-card-num">'+ic+' '+escHtml(rp.empresa||"Pedido")+'</span>';
+      html+='<span class="list-card-time" style="background:'+cor+';color:#fff">'+escHtml(rp.tipo||"Reequilíbrio")+'</span></div>';
+      if(rp.processo) html+='<div class="list-card-obj">'+escHtml(rp.processo)+(rp.descricao?' — '+escHtml(rp.descricao):'')+'</div>';
+      html+='<div class="list-card-meta"><span class="list-card-tag" style="background:'+cor+';color:#fff">'+escHtml(reqStatusNome(rp.statusId))+'</span></div>';
+      html+='</div>';
     });
     (grupos[iso]||[]).forEach(function(p){
       var tipo=tipoLicitacao(p.numero);
@@ -2067,5 +2413,49 @@ function pnDelAniv(id){
   document.getElementById(id).addEventListener("click", function(e){ if(e.target===this) this.classList.remove("open"); });
 });
 </script>
+<!-- ── Modais do modo Reequilíbrios (Anna) ─────────────────────────────────── -->
+<div class="anna-ov" id="annaOvPedido">
+  <div class="anna-modal">
+    <div class="anna-mh"><h3 id="annaPedTit">Novo pedido de reequilíbrio</h3><button class="x" onclick="annaFecharPedido()">&times;</button></div>
+    <div class="anna-mb">
+      <div class="anna-2">
+        <div class="anna-c"><label>Tipo</label><select id="annaTipo"><option value="Reequilíbrio">Reequilíbrio</option><option value="Aditivo">Aditivo</option></select></div>
+        <div class="anna-c"><label>Status inicial</label><select id="annaStatusSel"></select></div>
+      </div>
+      <div class="anna-c"><label>Empresa / Identificação *</label><input type="text" id="annaEmpresa" placeholder="Nome da empresa solicitante"></div>
+      <div class="anna-c"><label>Processo</label><input type="text" id="annaProcesso" placeholder="Ex: PE 75/2026"></div>
+      <div class="anna-c"><label>Descrição / Objeto</label><textarea id="annaDescricao" placeholder="Resumo do pedido (opcional)"></textarea></div>
+      <div class="anna-c"><label>Prazo desta fase (dias)</label><input type="number" id="annaPrazo" min="0" step="1" value="2" oninput="annaPreviaPrazo()"><div class="hint" id="annaPrazoPrev"></div></div>
+    </div>
+    <div class="anna-mf"><button class="anna-btn" onclick="annaFecharPedido()">Cancelar</button><button class="anna-btn prim" onclick="annaSalvarPedido()">Salvar</button></div>
+  </div>
+</div>
+
+<div class="anna-ov" id="annaOvAvancar">
+  <div class="anna-modal">
+    <div class="anna-mh"><h3>Avançar fase / prazo</h3><button class="x" onclick="annaFecharAvancar()">&times;</button></div>
+    <div class="anna-mb">
+      <div class="anna-c"><label>Novo status</label><select id="annaAvStatus"></select></div>
+      <div class="anna-c"><label>Novo prazo (dias a partir de hoje)</label><input type="number" id="annaAvPrazo" min="0" step="1" value="2" oninput="annaPreviaAvancar()"><div class="hint" id="annaAvPrev"></div></div>
+      <div class="anna-c"><label>Observação da fase (opcional)</label><textarea id="annaAvNota" placeholder="Ex: aguardando notas fiscais para comparação"></textarea></div>
+    </div>
+    <div class="anna-mf"><button class="anna-btn" onclick="annaFecharAvancar()">Cancelar</button><button class="anna-btn prim" onclick="annaConfirmarAvancar()">Avançar prazo</button></div>
+  </div>
+</div>
+
+<div class="anna-ov" id="annaOvStatus">
+  <div class="anna-modal">
+    <div class="anna-mh"><h3>Status dos pedidos</h3><button class="x" onclick="annaFecharStatus()">&times;</button></div>
+    <div class="anna-mb">
+      <div class="anna-stl" id="annaStLista"></div>
+      <div style="border-top:1px solid var(--border); padding-top:15px">
+        <div class="anna-c"><label id="annaStFormLabel">Novo status</label><input type="text" id="annaStNome" placeholder="Nome do status"></div>
+        <div class="anna-c"><label>Cor</label><div class="anna-paleta" id="annaStPaleta"></div></div>
+      </div>
+    </div>
+    <div class="anna-mf"><button class="anna-btn" id="annaStCancel" onclick="annaResetStatusForm()" style="display:none">Cancelar edição</button><button class="anna-btn prim" id="annaStSalvar" onclick="annaSalvarStatus()">Adicionar status</button></div>
+  </div>
+</div>
+
 </body>
 </html>

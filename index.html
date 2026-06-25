@@ -1942,7 +1942,7 @@
       <h2 class="rk-panel-title" id="vencPanelTitle">Vencedores</h2>
     </div>
     <div class="rk-topbar-actions">
-      <button class="rk-btn rk-btn-pdf" style="background:#25a657" onclick="vencCompartilharWhatsapp()">&#128242; WhatsApp</button>
+      <button class="rk-btn rk-btn-pdf" style="background:#25a657" onclick="vencCompartilharWhatsapp()">&#128203; Copiar p/ WhatsApp</button>
       <button class="rk-btn rk-btn-pdf" style="background:#1a3a6b" onclick="vencGerarWord()">&#128196; Baixar Word</button>
       <button class="rk-btn rk-btn-close" onclick="fecharVencedores()">&#10005;</button>
     </div>
@@ -2330,19 +2330,15 @@ function vencCompartilharWhatsapp(){
   if(!vencProcessoAtual){ toast("Abra um processo primeiro."); return; }
   var empresas=(vencEmpresas||[]).slice().sort(function(a,b){ return (a.nome||"").localeCompare((b.nome||""),"pt-BR",{sensitivity:"base"}); });
   if(!empresas.length){ toast("Nenhuma empresa vencedora ainda."); return; }
-  abrirWhatsapp(montarTextoVencedores(vencProcessoAtual, empresas));
-}
-/* Abre o WhatsApp com a mensagem já preenchida (escolhe-se a conversa no app) */
-function abrirWhatsapp(txt){
-  window.open("https://wa.me/?text="+encodeURIComponent(txt), "_blank");
+  copiarParaClipboard(montarTextoVencedores(vencProcessoAtual, empresas));
 }
 /* Clique na barra "Processo concluído": monta o texto (vencedores acima do
-   objeto, a partir do ranking do card) e abre o WhatsApp. */
+   objeto, a partir do ranking do card) e copia para a área de transferência. */
 function abrirWhatsappConcluido(pid){
   var p=processos.find(function(x){return x.id===pid;}); if(!p)return;
   var ex=procExtras[p.id]||{}; var rk=ex.rk||{};
   var empresas=vencDerivarEmpresas(rk.itens||[], rk.estados||{});
-  abrirWhatsapp(montarTextoVencedores(p, empresas));
+  copiarParaClipboard(montarTextoVencedores(p, empresas));
 }
 function copiarParaClipboard(txt){
   function ok(){ toast("Texto copiado! Cole no grupo do WhatsApp."); }
@@ -2759,7 +2755,7 @@ function renderizar(){
     html+='<button class="card-cfg-btn" data-action="editar" title="Editar processo">&#9881;&#65039;</button>';
     html+='</div>';
     if(isConcluido(p.status)){
-      html+='<button class="card-concluido-bar" data-action="share-concluido" title="Abrir no WhatsApp"><span class="ck">&#10003;</span> Processo concluído</button>';
+      html+='<button class="card-concluido-bar" data-action="share-concluido" title="Copiar texto para o WhatsApp"><span class="ck">&#10003;</span> Processo concluído</button>';
     }
     html+='</div>';
   }
