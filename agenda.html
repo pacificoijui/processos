@@ -27,6 +27,7 @@
   const colRef    = db.collection("processos");
   const reqColRef   = db.collection("reequilibrios");
   const reqStColRef = db.collection("reequilibrio_status");
+  const reqTramColRef = db.collection("reequilibrio_tramites");
   const agColRef  = db.collection("agentes");
 </script>
 
@@ -325,6 +326,54 @@
   .tv-e-nome { color:var(--text); font-weight:600; }
   .tv-e-prazo { font-size:11px; font-weight:800; color:var(--muted); white-space:nowrap; }
   .tv-dec { grid-column:2/4; font-size:11.5px; color:#7e57c2; font-weight:700; padding:2px 0 2px 2px; line-height:1.5; }
+  /* gerenciador de trâmites */
+  .tm-top { display:flex; gap:10px; flex-wrap:wrap; margin-bottom:14px; }
+  .tm-row { display:flex; align-items:center; gap:10px; padding:11px 13px; border:1px solid var(--border); border-radius:11px; margin-bottom:9px; }
+  .tm-nome { font-size:14.5px; font-weight:800; color:var(--navy); }
+  .tm-meta { font-size:11.5px; color:var(--muted); font-weight:700; margin-left:auto; }
+  .tm-row button { border:none; background:transparent; cursor:pointer; color:var(--muted); font-size:12.5px; font-weight:800; padding:5px 8px; border-radius:7px; }
+  .tm-row button:hover { background:#eef2fb; color:var(--navy); }
+  .tm-row button.del:hover { background:var(--red-bg); color:var(--red); }
+  /* editor de trâmite */
+  .tr-cab { display:flex; gap:12px; align-items:flex-end; }
+  .tr-corsw { width:100%; height:42px; border-radius:10px; border:1.5px solid var(--border); cursor:pointer; }
+  .tr-etapas-lbl { font-size:12px; font-weight:800; color:var(--muted); text-transform:uppercase; letter-spacing:.3px; margin:18px 0 10px; }
+  .et-card { border:1px solid var(--border); border-left:4px solid var(--navy); border-radius:11px; padding:11px 12px; margin-bottom:11px; background:#fbfcff; }
+  .et-l1 { display:flex; align-items:center; gap:9px; }
+  .et-num { width:24px; height:24px; flex-shrink:0; border-radius:50%; background:var(--navy); color:#fff; font-size:12px; font-weight:800; display:flex; align-items:center; justify-content:center; }
+  .et-nome { flex:1; padding:8px 11px; border:1.5px solid var(--border); border-radius:9px; font-family:inherit; font-size:13.5px; outline:none; }
+  .et-nome:focus { border-color:var(--navy-light); }
+  .et-sw { width:34px; height:34px; flex-shrink:0; border-radius:9px; border:1.5px solid var(--border); cursor:pointer; }
+  .et-l2 { display:flex; align-items:center; gap:14px; margin-top:9px; flex-wrap:wrap; }
+  .et-l2 label { font-size:11.5px; font-weight:700; color:var(--muted); display:flex; align-items:center; gap:6px; }
+  .et-dias { width:64px; padding:6px 9px; border:1.5px solid var(--border); border-radius:8px; font-family:inherit; font-size:13px; outline:none; }
+  .et-chk { cursor:pointer; }
+  .et-chk input { width:15px; height:15px; }
+  .et-prox { margin-top:9px; display:flex; align-items:center; gap:9px; }
+  .et-prox label { font-size:11.5px; font-weight:800; color:var(--muted); text-transform:uppercase; }
+  .et-prox select, .et-op-prox { flex:1; padding:7px 9px; border:1.5px solid var(--border); border-radius:8px; font-family:inherit; font-size:13px; background:#fff; outline:none; }
+  .et-dec { margin-top:10px; background:#f4f0fb; border:1px solid #e0d4f5; border-radius:9px; padding:9px; }
+  .et-op { display:flex; align-items:center; gap:7px; margin-bottom:7px; }
+  .et-op-label { flex:1; padding:6px 9px; border:1.5px solid var(--border); border-radius:8px; font-family:inherit; font-size:13px; outline:none; }
+  .et-op-prox { flex:1; }
+  .et-op span { color:var(--muted); font-weight:800; }
+  .et-op-del { border:none; background:#fff; border:1px solid var(--border); color:var(--red); width:28px; height:28px; border-radius:8px; cursor:pointer; font-size:15px; font-weight:800; flex-shrink:0; }
+  .et-mini { border:1px dashed var(--navy-light); background:#fff; color:var(--navy); border-radius:8px; padding:6px 11px; font-family:inherit; font-size:12px; font-weight:800; cursor:pointer; }
+  .et-acts { display:flex; gap:7px; margin-top:10px; }
+  .et-acts button { border:1px solid var(--border); background:#fff; border-radius:8px; padding:5px 11px; font-family:inherit; font-size:12.5px; font-weight:800; color:var(--navy); cursor:pointer; }
+  .et-acts button[disabled] { opacity:.35; cursor:default; }
+  .et-acts button:not([disabled]):hover { background:#eef2fb; }
+  .et-acts .del { color:var(--red); margin-left:auto; }
+  .et-acts .del:hover { background:var(--red-bg); }
+  /* paleta */
+  .pal-grid { display:grid; grid-template-columns:repeat(10,minmax(0,1fr)); gap:6px; }
+  .pal-sw { width:100%; aspect-ratio:1; border-radius:7px; cursor:pointer; border:3px solid transparent; transition:transform .1s; }
+  .pal-sw:hover { transform:scale(1.18); }
+  .pal-sw.sel { border-color:#1c2433; box-shadow:0 0 0 2px #fff inset; }
+  .pal-custom { display:flex; align-items:center; gap:10px; margin-top:16px; border-top:1px solid var(--border); padding-top:14px; }
+  .pal-custom label { font-size:12px; font-weight:800; color:var(--muted); }
+  .pal-custom input[type=color] { width:46px; height:38px; border:1px solid var(--border); border-radius:8px; cursor:pointer; background:#fff; padding:2px; }
+  .pal-custom .anna-btn { margin-left:auto; }
 
   /* filtros separados (tipo / número / objeto / ano) — iguais ao index */
   .ag-filtros { display: grid; grid-template-columns: 1fr 1fr; gap: 9px 10px; }
@@ -1312,8 +1361,9 @@ function renderFeriasPanel(){
    Aditivo). As etapas têm prazo em DIAS ÚTEIS (pulam fim de semana e feriados)
    e pontos de decisão (aceita/não aceita) que definem o caminho seguinte.
    Trâmites e etapas (e suas cores) já vêm prontos por padrão.                */
-var TRAMITES=[
-  { id:"renovacao", nome:"Renovação", cor:"#1565c0", icone:"\u267B\uFE0F", etapas:[
+/* Trâmites PADRÃO (usados só para semear na 1ª vez; depois são editáveis) */
+var TRAMITES_PADRAO=[
+  { id:"renovacao", nome:"Renovação", cor:"#1565c0", icone:"\u267B\uFE0F", ordem:0, etapas:[
     {id:"r0", nome:"Interesse recebido (secretaria)",                 dias:0, cor:"#1565c0", proxima:"r1"},
     {id:"r1", nome:"Consulta aos fornecedores (aceitam renovar?)",    dias:2, cor:"#0097a7", proxima:"r2"},
     {id:"r2", nome:"Verificar resposta dos fornecedores",             dias:0, cor:"#f9a825", decisao:[
@@ -1324,7 +1374,7 @@ var TRAMITES=[
     {id:"r6", nome:"Verificar itens e convocar demais licitantes",    dias:2, cor:"#e64a19", proxima:"r7"},
     {id:"r7", nome:"Convocação, assinatura e prefeito assina",        dias:3, cor:"#2e7d32", proxima:"FIM"}
   ]},
-  { id:"revisao", nome:"Revisão de Valor", cor:"#00838f", icone:"\uD83D\uDCB2", etapas:[
+  { id:"revisao", nome:"Revisão de Valor", cor:"#00838f", icone:"\uD83D\uDCB2", ordem:1, etapas:[
     {id:"v0", nome:"Pedido de revisão recebido (empresa)",            dias:0, cor:"#00838f", proxima:"v1"},
     {id:"v1", nome:"Análise: pedir NF (se faltar) e fazer cálculos",  dias:1, cor:"#ff9800", proxima:"v2"},
     {id:"v2", nome:"Consultar demais colocados (nova cotação)",       dias:2, cor:"#0097a7", proxima:"v3"},
@@ -1335,10 +1385,26 @@ var TRAMITES=[
     {id:"v5", nome:"Repassar ao próximo colocado",                    dias:1, cor:"#e64a19", proxima:"v6"},
     {id:"v6", nome:"Assinatura (empresa + Andrei)",                   dias:2, cor:"#2e7d32", proxima:"FIM"}
   ]},
-  { id:"aditivo", nome:"Aditivo", cor:"#6a1b9a", icone:"\uD83D\uDCCE", etapas:[
+  { id:"aditivo", nome:"Aditivo", cor:"#6a1b9a", icone:"\uD83D\uDCCE", ordem:2, etapas:[
     {id:"a0", nome:"Recebido do setor de contratos",                 dias:0, cor:"#6a1b9a", proxima:"a1"},
     {id:"a1", nome:"Elaborar aditivo e devolver ao setor de contratos", dias:2, cor:"#2e7d32", proxima:"FIM"}
   ]}
+];
+var TRAMITES=[];   /* carregado do Firestore (editável) */
+/* Paleta rica: 12 matizes × 5 tons + cor personalizada no editor */
+var REQ_PALETA=[
+  "#0d47a1","#1565c0","#1e88e5","#64b5f6","#bbdefb",
+  "#006064","#00838f","#00acc1","#4dd0e1","#b2ebf2",
+  "#1b5e20","#2e7d32","#43a047","#81c784","#c8e6c9",
+  "#558b2f","#7cb342","#9ccc65","#c5e1a5","#dcedc8",
+  "#f57f17","#f9a825","#fbc02d","#fff176","#fff9c4",
+  "#e65100","#ef6c00","#fb8c00","#ffb74d","#ffe0b2",
+  "#bf360c","#e64a19","#ff7043","#ff8a65","#ffccbc",
+  "#b71c1c","#d32f2f","#ef5350","#e57373","#ffcdd2",
+  "#880e4f","#c2185b","#ec407a","#f06292","#f8bbd0",
+  "#4a148c","#6a1b9a","#8e24aa","#ba68c8","#e1bee7",
+  "#311b92","#4527a0","#5e35b1","#9575cd","#d1c4e9",
+  "#263238","#455a64","#607d8b","#90a4ae","#cfd8dc"
 ];
 function tramiteById(id){ for(var i=0;i<TRAMITES.length;i++){ if(TRAMITES[i].id===id) return TRAMITES[i]; } return null; }
 function etapaById(tid, eid){ var t=tramiteById(tid); if(!t) return null; for(var i=0;i<t.etapas.length;i++){ if(t.etapas[i].id===eid) return t.etapas[i]; } return null; }
@@ -1377,6 +1443,13 @@ try{ reqColRef.onSnapshot(function(snap){
   render();
 }, function(err){ console.error("req pedidos:", err); }); }catch(e){ console.warn("reqPedidos onSnapshot:", e); }
 
+try{ reqTramColRef.onSnapshot(function(snap){
+  TRAMITES=snap.docs.map(function(d){ var x=d.data()||{}; return {id:d.id, nome:x.nome||"Trâmite", cor:x.cor||"#546e7a", icone:x.icone||"\u2696\uFE0F", ordem:(x.ordem==null?999:x.ordem), etapas:(x.etapas||[])}; })
+    .sort(function(a,b){ return a.ordem-b.ordem; });
+  if(document.getElementById("annaOvStatus").classList.contains("open")) renderTramManager();
+  render();
+}, function(err){ console.error("trâmites:", err); }); }catch(e){ console.warn("trâmites onSnapshot:", e); }
+
 /* ── Painel lateral ──────────────────────────────────────────────────────── */
 function renderReqPanel(){
   var box=document.getElementById("reqLista"); if(!box) return;
@@ -1385,7 +1458,11 @@ function renderReqPanel(){
     return (a.dataLimite||"9999-99-99").localeCompare(b.dataLimite||"9999-99-99");
   });
   if(!lista.length){
-    box.innerHTML='<div class="fer-empty">Nenhum pedido cadastrado.<br>Clique em <b>+ Novo</b> e escolha um trâmite.</div>';
+    if(!TRAMITES.length){
+      box.innerHTML='<div class="fer-empty">Nenhum trâmite criado ainda.<br>Clique em &#9881;&#65039; para criar/editar os fluxos (Renovação, Revisão de Valor, Aditivo) ou montar o seu.</div>';
+    } else {
+      box.innerHTML='<div class="fer-empty">Nenhum pedido cadastrado.<br>Clique em <b>+ Novo</b> e escolha um trâmite.</div>';
+    }
     return;
   }
   var html="";
@@ -1426,6 +1503,7 @@ function reqToggleHist(id){ var el=document.getElementById("reqhist_"+id); if(el
 
 /* ── Novo / editar pedido (escolhe o trâmite) ────────────────────────────── */
 function annaAbrirPedido(id){
+  if(!TRAMITES.length){ toast("Crie um trâmite primeiro."); annaAbrirStatus(); return; }
   reqEditId=id||null;
   var p=id?reqPedidos.find(function(x){return x.id===id;}):null;
   document.getElementById("annaPedTit").textContent=p?"Editar pedido":"Novo pedido (reequilíbrio/aditivo)";
@@ -1524,24 +1602,157 @@ function reqAvancar(pid, proximaId, decIdx){
     .catch(function(e){ toast("Erro: "+e.message); });
 }
 
-/* ── Visão dos trâmites (somente leitura, abre pela engrenagem) ──────────── */
-function annaAbrirStatus(){
-  var box=document.getElementById("annaTramitesView"); if(!box){ return; }
-  var h="";
-  TRAMITES.forEach(function(t){
-    h+='<div class="tv-tram"><div class="tv-tram-head"><span class="tv-dot" style="background:'+t.cor+'"></span>'+escHtml(t.icone+" "+t.nome)+'</div><ol class="tv-etapas">';
-    t.etapas.forEach(function(e){
-      var pr=e.dias>0?(e.dias+" dia(s) útil(eis)"):"sem prazo";
-      h+='<li><span class="tv-e-dot" style="background:'+e.cor+'"></span><span class="tv-e-nome">'+escHtml(e.nome)+'</span><span class="tv-e-prazo">'+pr+'</span>';
-      if(e.decisao){ h+='<div class="tv-dec">'+e.decisao.map(function(o){ return "&#8627; "+escHtml(o.label); }).join("<br>")+'</div>'; }
-      h+='</li>';
+/* ── Gerenciador de TRÂMITES (editável) ─────────────────────────────────── */
+function annaAbrirStatus(){ renderTramManager(); document.getElementById("annaOvStatus").classList.add("open"); }
+function annaFecharStatus(){ document.getElementById("annaOvStatus").classList.remove("open"); }
+
+function renderTramManager(){
+  var box=document.getElementById("annaTramitesView"); if(!box) return;
+  var h='<div class="tm-top"><button class="anna-btn prim" onclick="tramNovo()">&#43; Novo trâmite</button>';
+  if(!TRAMITES.length) h+='<button class="anna-btn" onclick="criarTramitesPadrao()">Criar trâmites padrão</button>';
+  h+='</div>';
+  if(!TRAMITES.length){
+    h+='<div class="anna-st-empty">Nenhum trâmite ainda.<br>Crie um do zero ou use os 3 padrões (Renovação, Revisão de Valor, Aditivo) e personalize.</div>';
+  } else {
+    TRAMITES.forEach(function(t){
+      var usados=reqPedidos.filter(function(p){return p.tramiteId===t.id;}).length;
+      h+='<div class="tm-row"><span class="tv-dot" style="background:'+t.cor+'"></span>'
+        +'<span class="tm-nome">'+escHtml((t.icone||"")+" "+t.nome)+'</span>'
+        +'<span class="tm-meta">'+t.etapas.length+' etapa(s)'+(usados?' · '+usados+' pedido(s)':'')+'</span>'
+        +'<button onclick="tramEditar(\''+t.id+'\')">&#9998; Editar</button>'
+        +'<button class="del" onclick="tramExcluir(\''+t.id+'\')">&#128465;</button></div>';
     });
-    h+='</ol></div>';
+  }
+  box.innerHTML=h;
+}
+function criarTramitesPadrao(){
+  var batch=db.batch();
+  TRAMITES_PADRAO.forEach(function(t){ batch.set(reqTramColRef.doc(t.id), {nome:t.nome, cor:t.cor, icone:t.icone, ordem:t.ordem, etapas:t.etapas}); });
+  batch.commit().then(function(){ toast("Trâmites padrão criados."); }).catch(function(e){ toast("Erro: "+e.message); });
+}
+function tramExcluir(id){
+  var usados=reqPedidos.filter(function(p){return p.tramiteId===id;}).length;
+  var t=tramiteById(id);
+  if(!confirm("Excluir o trâmite \""+((t&&t.nome)||"")+"\"?"+(usados?("\n\nAtenção: "+usados+" pedido(s) usam este trâmite e podem ficar sem fluxo."):""))) return;
+  reqTramColRef.doc(id).delete().then(function(){ toast("Trâmite excluído."); }).catch(function(e){ toast("Erro: "+e.message); });
+}
+
+/* ── Editor de um trâmite (working copy) ────────────────────────────────── */
+var tramEdit=null, tramEditId=null;
+function _novoId(){ return "e"+Date.now().toString(36)+Math.floor(Math.random()*1000); }
+function tramNovo(){
+  tramEditId=null;
+  tramEdit={ nome:"", cor:"#1565c0", icone:"\u2696\uFE0F", ordem:TRAMITES.length, etapas:[
+    {id:_novoId(), nome:"Recebido", dias:0, cor:"#1565c0", proxima:"FIM"}
+  ]};
+  renderTramEditor(); document.getElementById("annaOvTramite").classList.add("open");
+}
+function tramEditar(id){
+  var t=tramiteById(id); if(!t) return;
+  tramEditId=id;
+  tramEdit=JSON.parse(JSON.stringify({ nome:t.nome, cor:t.cor, icone:t.icone||"\u2696\uFE0F", ordem:(t.ordem==null?TRAMITES.length:t.ordem), etapas:t.etapas }));
+  renderTramEditor(); document.getElementById("annaOvTramite").classList.add("open");
+}
+function tramFecharEditor(){ document.getElementById("annaOvTramite").classList.remove("open"); tramEdit=null; tramEditId=null; }
+
+function _opcoesEtapas(selfId, sel){
+  var o='';
+  tramEdit.etapas.forEach(function(e){
+    if(e.id===selfId) return;
+    o+='<option value="'+e.id+'"'+(sel===e.id?" selected":"")+'>'+escHtml(e.nome||"(sem nome)")+'</option>';
+  });
+  o+='<option value="FIM"'+(sel==="FIM"?" selected":"")+'>FIM (concluir)</option>';
+  return o;
+}
+function renderTramEditor(){
+  if(!tramEdit) return;
+  document.getElementById("trEdTit").textContent=tramEditId?"Editar trâmite":"Novo trâmite";
+  /* cabeçalho do trâmite */
+  document.getElementById("trEdNome").value=tramEdit.nome||"";
+  document.getElementById("trEdIcone").value=tramEdit.icone||"";
+  document.getElementById("trEdCorSw").style.background=tramEdit.cor;
+  /* etapas */
+  var box=document.getElementById("trEdEtapas"), h="";
+  tramEdit.etapas.forEach(function(e, idx){
+    var ehDec=!!(e.decisao && e.decisao.length);
+    h+='<div class="et-card" style="border-left-color:'+e.cor+'">';
+    h+='<div class="et-l1"><span class="et-num">'+(idx+1)+'</span>'
+      +'<input class="et-nome" value="'+escHtml(e.nome||"")+'" placeholder="Nome da etapa" oninput="tramSetEtapa('+idx+',\'nome\',this.value)">'
+      +'<button class="et-sw" style="background:'+e.cor+'" title="Cor" onclick="tramPickCorEtapa('+idx+')"></button></div>';
+    h+='<div class="et-l2"><label>Prazo (dias úteis)</label><input type="number" min="0" step="1" class="et-dias" value="'+(e.dias==null?0:e.dias)+'" oninput="tramSetEtapa('+idx+',\'dias\',this.value)">';
+    h+='<label class="et-chk"><input type="checkbox" '+(ehDec?"checked":"")+' onchange="tramToggleDecisao('+idx+',this.checked)"> Decisão (vários caminhos)</label></div>';
+    if(ehDec){
+      h+='<div class="et-dec">';
+      e.decisao.forEach(function(op, oi){
+        h+='<div class="et-op"><input class="et-op-label" value="'+escHtml(op.label||"")+'" placeholder="Ex: Aceitaram" oninput="tramSetOpcao('+idx+','+oi+',\'label\',this.value)">'
+          +'<span>&#8594;</span><select class="et-op-prox" onchange="tramSetOpcao('+idx+','+oi+',\'proxima\',this.value)">'+_opcoesEtapas(e.id, op.proxima)+'</select>'
+          +'<button class="et-op-del" onclick="tramDelOpcao('+idx+','+oi+')">&times;</button></div>';
+      });
+      h+='<button class="et-mini" onclick="tramAddOpcao('+idx+')">&#43; opção</button></div>';
+    } else {
+      h+='<div class="et-prox"><label>Avança para</label><select onchange="tramSetEtapa('+idx+',\'proxima\',this.value)">'+_opcoesEtapas(e.id, e.proxima||"FIM")+'</select></div>';
+    }
+    h+='<div class="et-acts"><button onclick="tramMoveEtapa('+idx+',-1)" '+(idx===0?"disabled":"")+'>&#8593;</button>'
+      +'<button onclick="tramMoveEtapa('+idx+',1)" '+(idx===tramEdit.etapas.length-1?"disabled":"")+'>&#8595;</button>'
+      +'<button class="del" onclick="tramDelEtapa('+idx+')">&#128465; etapa</button></div>';
+    h+='</div>';
   });
   box.innerHTML=h;
-  document.getElementById("annaOvStatus").classList.add("open");
 }
-function annaFecharStatus(){ document.getElementById("annaOvStatus").classList.remove("open"); }
+function tramSetCab(campo, val){ if(tramEdit) tramEdit[campo]=val; }
+function tramSetEtapa(idx, campo, val){
+  if(!tramEdit||!tramEdit.etapas[idx]) return;
+  tramEdit.etapas[idx][campo]=(campo==="dias")?(parseInt(val,10)||0):val;
+}
+function tramAddEtapa(){
+  if(!tramEdit) return;
+  tramEdit.etapas.push({id:_novoId(), nome:"", dias:0, cor:REQ_PALETA[10], proxima:"FIM"});
+  renderTramEditor();
+}
+function tramDelEtapa(idx){
+  if(!tramEdit) return;
+  if(tramEdit.etapas.length<=1){ toast("O trâmite precisa de pelo menos 1 etapa."); return; }
+  tramEdit.etapas.splice(idx,1); renderTramEditor();
+}
+function tramMoveEtapa(idx, dir){
+  if(!tramEdit) return; var j=idx+dir;
+  if(j<0||j>=tramEdit.etapas.length) return;
+  var tmp=tramEdit.etapas[idx]; tramEdit.etapas[idx]=tramEdit.etapas[j]; tramEdit.etapas[j]=tmp;
+  renderTramEditor();
+}
+function tramToggleDecisao(idx, on){
+  var e=tramEdit.etapas[idx]; if(!e) return;
+  if(on){ e.decisao=[{label:"Sim", proxima:"FIM"},{label:"Não", proxima:"FIM"}]; }
+  else { delete e.decisao; if(!e.proxima) e.proxima="FIM"; }
+  renderTramEditor();
+}
+function tramAddOpcao(idx){ var e=tramEdit.etapas[idx]; if(!e)return; e.decisao=e.decisao||[]; e.decisao.push({label:"", proxima:"FIM"}); renderTramEditor(); }
+function tramDelOpcao(idx, oi){ var e=tramEdit.etapas[idx]; if(!e||!e.decisao)return; e.decisao.splice(oi,1); if(!e.decisao.length){ delete e.decisao; if(!e.proxima)e.proxima="FIM"; } renderTramEditor(); }
+function tramSetOpcao(idx, oi, campo, val){ var e=tramEdit.etapas[idx]; if(!e||!e.decisao||!e.decisao[oi])return; e.decisao[oi][campo]=val; }
+function tramSalvar(){
+  if(!tramEdit) return;
+  tramEdit.nome=(document.getElementById("trEdNome").value||"").trim();
+  tramEdit.icone=(document.getElementById("trEdIcone").value||"").trim()||"\u2696\uFE0F";
+  if(!tramEdit.nome){ toast("Dê um nome ao trâmite."); return; }
+  for(var i=0;i<tramEdit.etapas.length;i++){ if(!(tramEdit.etapas[i].nome||"").trim()){ toast("A etapa "+(i+1)+" está sem nome."); return; } }
+  var dados={ nome:tramEdit.nome, cor:tramEdit.cor, icone:tramEdit.icone, ordem:(tramEdit.ordem==null?TRAMITES.length:tramEdit.ordem), etapas:tramEdit.etapas };
+  var p = tramEditId ? reqTramColRef.doc(tramEditId).set(dados) : reqTramColRef.add(dados);
+  p.then(function(){ toast("Trâmite salvo."); tramFecharEditor(); }).catch(function(e){ toast("Erro: "+e.message); });
+}
+
+/* ── Paleta de cores (reutilizável: trâmite e etapas) ───────────────────── */
+var _paletaCb=null;
+function abrirPaleta(cb, atual){
+  _paletaCb=cb;
+  var grid=document.getElementById("paletaGrid");
+  grid.innerHTML=REQ_PALETA.map(function(c){ return '<div class="pal-sw'+(c===atual?" sel":"")+'" style="background:'+c+'" onclick="paletaPick(\''+c+'\')"></div>'; }).join("");
+  var ci=document.getElementById("paletaCustom"); if(ci) ci.value=(/^#[0-9a-fA-F]{6}$/.test(atual||"")?atual:"#1565c0");
+  document.getElementById("annaOvPaleta").classList.add("open");
+}
+function paletaPick(c){ if(_paletaCb) _paletaCb(c); document.getElementById("annaOvPaleta").classList.remove("open"); _paletaCb=null; }
+function paletaUsarCustom(){ var v=document.getElementById("paletaCustom").value; paletaPick(v); }
+function tramPickCorTramite(){ abrirPaleta(function(c){ tramEdit.cor=c; document.getElementById("trEdCorSw").style.background=c; }, tramEdit&&tramEdit.cor); }
+function tramPickCorEtapa(idx){ abrirPaleta(function(c){ tramEdit.etapas[idx].cor=c; renderTramEditor(); }, tramEdit&&tramEdit.etapas[idx]&&tramEdit.etapas[idx].cor); }
 
 /* fecha modais Anna ao clicar no fundo */
 document.querySelectorAll(".anna-ov").forEach(function(ov){ ov.addEventListener("click", function(e){ if(e.target===ov) ov.classList.remove("open"); }); });
@@ -2481,9 +2692,38 @@ function pnDelAniv(id){
 
 <div class="anna-ov" id="annaOvStatus">
   <div class="anna-modal">
-    <div class="anna-mh"><h3>Trâmites do sistema</h3><button class="x" onclick="annaFecharStatus()">&times;</button></div>
+    <div class="anna-mh"><h3>Trâmites e fluxos</h3><button class="x" onclick="annaFecharStatus()">&times;</button></div>
     <div class="anna-mb"><div id="annaTramitesView"></div></div>
     <div class="anna-mf"><button class="anna-btn prim" onclick="annaFecharStatus()">Fechar</button></div>
+  </div>
+</div>
+
+<!-- Editor de um trâmite -->
+<div class="anna-ov" id="annaOvTramite">
+  <div class="anna-modal" style="max-width:600px">
+    <div class="anna-mh"><h3 id="trEdTit">Editar trâmite</h3><button class="x" onclick="tramFecharEditor()">&times;</button></div>
+    <div class="anna-mb">
+      <div class="tr-cab">
+        <div class="anna-c" style="flex:1"><label>Nome do trâmite</label><input type="text" id="trEdNome" placeholder="Ex: Renovação" oninput="tramSetCab('nome',this.value)"></div>
+        <div class="anna-c" style="width:84px"><label>Ícone</label><input type="text" id="trEdIcone" maxlength="4" placeholder="⚖️" oninput="tramSetCab('icone',this.value)"></div>
+        <div class="anna-c" style="width:64px"><label>Cor</label><button class="tr-corsw" id="trEdCorSw" onclick="tramPickCorTramite()"></button></div>
+      </div>
+      <div class="tr-etapas-lbl">Etapas do fluxo</div>
+      <div id="trEdEtapas"></div>
+      <button class="anna-btn" style="width:100%;margin-top:10px" onclick="tramAddEtapa()">&#43; Adicionar etapa</button>
+    </div>
+    <div class="anna-mf"><button class="anna-btn" onclick="tramFecharEditor()">Cancelar</button><button class="anna-btn prim" onclick="tramSalvar()">Salvar trâmite</button></div>
+  </div>
+</div>
+
+<!-- Paleta de cores -->
+<div class="anna-ov" id="annaOvPaleta" style="z-index:1300">
+  <div class="anna-modal" style="max-width:380px">
+    <div class="anna-mh"><h3>Escolher cor</h3><button class="x" onclick="document.getElementById('annaOvPaleta').classList.remove('open')">&times;</button></div>
+    <div class="anna-mb">
+      <div class="pal-grid" id="paletaGrid"></div>
+      <div class="pal-custom"><label>Cor personalizada</label><input type="color" id="paletaCustom" value="#1565c0"><button class="anna-btn prim" onclick="paletaUsarCustom()">Usar esta cor</button></div>
+    </div>
   </div>
 </div>
 
