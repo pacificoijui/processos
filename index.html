@@ -27,7 +27,6 @@
   const db         = firebase.firestore();
   const colRef     = db.collection("processos");
   const agColRef   = db.collection("agentes");
-  const impColRef  = db.collection("impugnacoes");
   const habColRef  = db.collection("habilitacoes");
   const decColRef  = db.collection("decisoes");
   const dilColRef  = db.collection("diligencias");
@@ -116,6 +115,9 @@
   .filter-btn { padding: 9px 15px; border-radius: 8px; border: 1.5px solid var(--border); background: var(--card); font-family: Arial, sans-serif; font-size: 13px; font-weight: 600; color: var(--muted); cursor: pointer; transition: all 0.15s; }
   .filter-btn:hover { border-color: var(--navy-light); color: var(--navy); }
   .filter-btn.active { background: var(--navy); color: #fff; border-color: var(--navy); }
+  /* ── Filtros recolhíveis (aparecem só em telas estreitas / celular) ─────── */
+  .filtros-toggle-btn { display: none; }
+  .filtros-colapsavel { display: flex; flex-direction: column; gap: 10px; width: 100%; }
 
   .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(440px, 1fr)); gap: 20px; }
 
@@ -154,21 +156,6 @@
   .link-btn { display: inline-flex; align-items: center; gap: 5px; background: var(--navy); color: #fff; border: none; padding: 5px 13px; border-radius: 6px; font-family: Arial, sans-serif; font-size: 12px; font-weight: 700; cursor: pointer; text-decoration: none; transition: background 0.15s; white-space: nowrap; }
   .link-btn:hover { background: var(--navy-light); }
   .link-btn-disabled { background: #dde2ee; color: #99a; cursor: default; }
-
-  /* Por padrão a área NÃO captura a rolagem (mouse/dedo passa direto pra página);
-     vira rolável só depois de um clique/toque dentro dela (classe scroll-active). */
-  .updates-area { padding: 14px 19px; flex: 1; display: flex; flex-direction: column; gap: 10px; max-height: 210px; overflow: hidden; position: relative; cursor: default; }
-  .updates-area.has-overflow { cursor: pointer; }
-  .updates-area.has-overflow::after { content: "\25BC role para ver mais"; position: absolute; left: 0; right: 0; bottom: 0; text-align: center; font-size: 10.5px; font-weight: 700; color: var(--navy-light); padding: 6px 0 3px; background: linear-gradient(to top, var(--card) 55%, rgba(255,255,255,0)); pointer-events: none; }
-  .updates-area.scroll-active { overflow-y: auto; overscroll-behavior: contain; box-shadow: inset 0 0 0 1.5px var(--navy-light); border-radius: 8px; }
-  .updates-area.scroll-active::after { display: none; }
-  .updates-area::-webkit-scrollbar { width: 4px; }
-  .updates-area::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
-  .update-item { display: flex; gap: 10px; align-items: flex-start; }
-  .update-dot { width: 9px; height: 9px; border-radius: 50%; background: var(--navy-light); margin-top: 5px; flex-shrink: 0; }
-  .update-text { font-size: 14px; color: var(--text); line-height: 1.5; }
-  .update-meta { font-size: 12px; color: var(--muted); margin-top: 2px; font-weight: 600; }
-  .no-updates { text-align: center; color: var(--muted); font-size: 13px; padding: 16px 0; font-style: italic; }
 
   .card-footer { padding: 11px 19px; border-top: 1px solid var(--border); display: flex; gap: 8px; background: #f7f9fd; }
   .btn-sm { flex: 1; padding: 8px 8px; border-radius: 7px; border: 1.5px solid var(--border); background: #fff; font-family: Arial, sans-serif; font-size: 12.5px; font-weight: 700; color: var(--text); cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 4px; transition: all 0.15s; }
@@ -229,6 +216,18 @@
     .filtros-wrap { flex-direction: column; gap: 9px; align-items: stretch; }
     .filtro-campo, .filtro-campo.cf-tipo, .filtro-campo.cf-num, .filtro-campo.cf-obj { width: 100%; min-width: 0; }
     .btn-limpar-filtros { width: 100%; }
+    /* Em telas estreitas os filtros ficam recolhidos atrás do botão "Buscar
+       processos" e abrem só quando o usuário toca nele (por padrão fechado). */
+    .filtros-toggle-btn {
+      display: flex; align-items: center; justify-content: space-between; gap: 10px;
+      width: 100%; padding: 12px 16px; border: 1.5px solid var(--border); border-radius: 11px;
+      background: var(--card); color: var(--navy); font-family: Arial, sans-serif;
+      font-size: 14px; font-weight: 700; cursor: pointer; box-shadow: var(--shadow);
+    }
+    .filtros-toggle-btn:active { transform: scale(.995); }
+    .filtros-toggle-caret { font-size: 12px; color: var(--muted); transition: transform .15s; }
+    .filtros-colapsavel { display: none; }
+    .filtros-colapsavel.aberto { display: flex; }
     /* Filtros agora QUEBRAM em mais de uma linha — nada fica cortado fora da tela */
     .filter-group { overflow-x: visible; flex-wrap: wrap; }
     .filter-btn { white-space: nowrap; flex-shrink: 0; padding: 7px 12px; font-size: 12px; }
@@ -240,7 +239,6 @@
     .card-meta { gap: 6px; }
     .card-footer { gap: 6px; padding: 10px 14px; flex-wrap: wrap; }
     .btn-sm { font-size: 12px; padding: 8px 6px; min-width: 0; }
-    .updates-area { max-height: 180px; padding: 12px 14px; }
 
     .modal { margin: 0; border-radius: 16px 16px 0 0; max-width: 100%; width: 100%; position: fixed; bottom: 0; max-height: 92vh; }
     .overlay { align-items: flex-end; }
@@ -269,34 +267,9 @@
     main   { padding-left: max(14px, env(safe-area-inset-left)); padding-right: max(14px, env(safe-area-inset-right)); }
   }
 
-
-  /* ── IMPUGNAÇÕES + ABERTURAS DE HOJE lado a lado ───────────────────────────── */
-  .top-row { max-width: 1440px; margin: 0 auto; padding: 20px 32px 0; display: flex; gap: 20px; align-items: stretch; }
-  .top-row > .imp-section, .top-row > .hoje-section { flex: 1 1 380px; min-width: 0; margin-bottom: 0; display: flex; flex-direction: column; }
-  @media (max-width: 900px) {
-    .top-row { flex-direction: column; padding: 14px 14px 0; gap: 14px; }
-    /* em coluna o flex-basis de 380px virava ALTURA mínima e criava um vão enorme */
-    .top-row > .imp-section, .top-row > .hoje-section { flex: 0 0 auto; }
-    /* em tela reduzida/celular, oculta a coluna "Aberturas de Hoje" (override do display inline) */
-    .hoje-section { display: none !important; }
-  }
-
-  /* ── IMPUGNAÇÕES ─────────────────────────────────────────────────────────── */
-  .imp-section { background: var(--card); border-radius: 14px; box-shadow: var(--shadow); border: 1.5px solid var(--border); margin-bottom: 24px; overflow: hidden; }
-  .imp-section-header { background: linear-gradient(135deg, var(--navy-dark), var(--navy)); padding: 13px 20px; min-height: 46px; box-sizing: border-box; display: flex; align-items: center; justify-content: space-between; cursor: pointer; user-select: none; }
-  .imp-section-header h3 { color: #fff; font-size: 14px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
-  .imp-section-header .imp-badge { background: rgba(255,255,255,0.2); color: #fff; border-radius: 20px; padding: 2px 10px; font-size: 12px; font-weight: 700; }
-  .imp-section-body { padding: 14px 16px; flex: 1; display: flex; flex-direction: column; }
-  .imp-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; align-content: start; flex: 1; }
-  .imp-card { background: #f8fafd; border: 1.5px solid var(--border); border-radius: 10px; border-left: 4px solid var(--navy); padding: 12px 14px; display: flex; flex-direction: column; gap: 7px; transition: box-shadow 0.15s; }
-  .imp-card:hover { box-shadow: var(--shadow); }
-  .imp-card-title { font-size: 13.5px; font-weight: 700; color: var(--navy); line-height: 1.3; }
-  .imp-card-meta { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
-  .imp-tag { font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 5px; }
-  .imp-tag-proc { background: var(--blue-bg); color: var(--blue-text); }
-  .imp-tag-date { background: var(--navy); color: #fff; }
-  .imp-tag-tipo { background: #fff3e0; color: #e65100; }
-  .imp-card-footer { display: flex; gap: 6px; margin-top: 2px; }
+  /* .imp-badge e .imp-btn seguem em uso pelos painéis de Decisões do Pregoeiro
+     e Pedidos de Diligência (badges de contagem e botões editar/PDF). */
+  .imp-badge { background: rgba(255,255,255,0.2); color: #fff; border-radius: 20px; padding: 2px 10px; font-size: 12px; font-weight: 700; }
   .imp-btn { flex: 1; padding: 5px 8px; border-radius: 6px; border: 1.5px solid var(--border); background: #fff; font-family: Arial, sans-serif; font-size: 11.5px; font-weight: 700; color: var(--text); cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 4px; transition: all 0.15s; }
   .imp-btn:hover { background: var(--navy); color: #fff; border-color: var(--navy); }
   .imp-btn.danger:hover { background: var(--red); color: #fff; border-color: var(--red); }
@@ -560,14 +533,6 @@
   .proc-progress-track{height:7px;background:#e8edf5;border-radius:5px;overflow:hidden}
   .proc-progress-fill{height:100%;background:linear-gradient(90deg,#1a3a6b,#2e6fd0);border-radius:5px;transition:width .3s}
   .proc-progress-fill.done{background:linear-gradient(90deg,#1E5F3A,#2e9e63)}
-  .evt-item{display:flex;gap:8px;padding:5px 0;border-bottom:1px dashed #eef1f6;align-items:flex-start}
-  .evt-item:last-child{border-bottom:none}
-  .evt-dot{width:7px;height:7px;border-radius:50%;background:#2e6fd0;margin-top:5px;flex-shrink:0}
-  .evt-dot.ap{background:#1E5F3A}.evt-dot.rec{background:#A32D2D}.evt-dot.hab{background:#1E5F3A}.evt-dot.inab{background:#A32D2D}
-  .evt-text{font-size:12px;color:#333;line-height:1.45;flex:1}
-  .evt-time{font-size:10.5px;font-weight:700;color:#1a3a6b;white-space:nowrap}
-  .evt-del{background:none;border:none;color:#ccc;font-size:13px;cursor:pointer;padding:0 2px;line-height:1;flex-shrink:0}
-  .evt-del:hover{color:#A32D2D}
   /* Confirmação inline dos botões de ranking no painel COPAM */
   .rk-confirm-inline{margin-top:6px;background:#fffbea;border:1.5px solid #f0c040;border-radius:9px;padding:9px 12px;display:flex;flex-direction:column;gap:7px}
   .rk-confirm-inline-label{font-size:12px;font-weight:700;color:#6b4a00}
@@ -763,6 +728,13 @@
   .rks-coloc-nome-rep{font-weight:700;color:#6b4a4a}
   .rks-coloc-tag-rep{margin-left:auto;font-size:11px;font-weight:700;color:#A32D2D;text-transform:uppercase;letter-spacing:.3px}
   .rks-coloc-motivo-rep{margin-top:5px;font-size:11.5px;color:#9a7b7b;line-height:1.45;font-style:italic;white-space:pre-wrap}
+  /* ── Painel interno de Propostas (cards estilo secretaria) ─────────────── */
+  #rkRanking .rk-inline-card{margin-bottom:14px}
+  #rkRanking .rk-inline-card:last-child{margin-bottom:0}
+  .rks-coloc-motivo-edit{width:100%;margin-top:6px;border:1.5px solid #f0dada;background:#fffdfd;border-radius:8px;padding:7px 10px;font-family:Arial,sans-serif;font-size:12.5px;color:#7a4a4a;line-height:1.45;resize:vertical;min-height:38px;outline:none;box-sizing:border-box}
+  .rks-coloc-motivo-edit:focus{border-color:#e0b0b0;background:#fff}
+  .rks-coloc-undo{margin-left:6px;background:#fff;border:1px solid #e6c9c9;color:#A32D2D;border-radius:6px;width:26px;height:23px;font-size:14px;line-height:1;cursor:pointer;flex-shrink:0;padding:0}
+  .rks-coloc-undo:hover{background:#fdeeee;border-color:#d9b0b0}
   .rks-coloc-atual{padding:2px 0}
   .rks-coloc-atual.dilig{background:#eef4ff;border:1px solid #cfe0ff;border-radius:11px;padding:11px 13px}
   .rks-coloc-atual-pos{display:inline-block;font-size:11px;font-weight:700;color:#1a3a6b;background:#e8eefb;border:1px solid #c9d6f0;border-radius:7px;padding:2px 9px;margin-bottom:8px}
@@ -839,20 +811,6 @@
   .card-obs-input { width: 100%; font-family: Arial, sans-serif; font-size: 13px; color: var(--text); background: #fff; border: 1.5px solid var(--border); border-radius: 8px; resize: none; outline: none; padding: 8px 10px; line-height: 1.45; min-height: 38px; max-height: 140px; overflow-y: auto; transition: border-color .15s; }
   .card-obs-input:focus { border-color: var(--navy-light); box-shadow: 0 0 0 3px rgba(46,93,168,0.10); }
   .card-obs-input::placeholder { color: #aab4cc; font-style: italic; }
-
-  /* ── Seção "Aberturas de Hoje" ──────────────────────────────────────────── */
-  .hoje-card { background: linear-gradient(135deg,#12294d,#1e4a8a); border-radius: 14px; box-shadow: var(--shadow-lg); overflow: hidden; flex: 1; display: flex; flex-direction: column; }
-  .hoje-head { display: flex; align-items: center; gap: 8px; padding: 13px 20px; min-height: 46px; box-sizing: border-box; color: #fff; }
-  .hoje-head h3 { font-size: 14px; font-weight: 700; letter-spacing: 0.4px; }
-  .hoje-head .hoje-count { margin-left: auto; background: var(--gold); color: #1a2233; font-size: 12px; font-weight: 700; padding: 2px 10px; border-radius: 20px; }
-  .hoje-body { padding: 4px 14px 16px; display: grid; grid-template-columns: repeat(auto-fill,minmax(260px,1fr)); gap: 12px; align-content: start; flex: 1; }
-  .hoje-item { background: #fff; border-radius: 11px; padding: 12px 14px; cursor: pointer; transition: transform .12s, box-shadow .12s; border-left: 4px solid var(--gold); }
-  .hoje-item:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0,0,0,0.22); }
-  .hoje-item-num { font-size: 15px; font-weight: 800; color: var(--navy); }
-  .hoje-item-obj { font-size: 12.5px; color: var(--text); line-height: 1.4; margin: 4px 0 8px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-  .hoje-item-meta { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
-  .hoje-item-tag { font-size: 10.5px; font-weight: 800; padding: 3px 9px; border-radius: 6px; }
-  .hoje-item-obs { margin-top: 8px; font-size: 11.5px; font-weight: 700; color: var(--navy); background: var(--blue-bg); border-radius: 6px; padding: 5px 9px; line-height: 1.4; }
 
   /* ── Sistema de Assinaturas: editor (nos modais) ── */
   .asg-box{display:flex;flex-direction:column;gap:10px}
@@ -1127,36 +1085,6 @@
   </div>
 </div>
 
-
-<!-- SEÇÃO IMPUGNAÇÕES E ESCLARECIMENTOS + ABERTURAS DE HOJE (lado a lado) -->
-<div class="top-row">
-  <div class="imp-section">
-    <div class="imp-section-header" onclick="toggleImpSection()">
-      <h3>&#9888; Impugnações e Esclarecimentos <span class="imp-badge" id="impBadge">0</span></h3>
-      <span id="impToggleIcon" style="color:#fff;font-size:16px">&#9660;</span>
-    </div>
-    <div class="imp-section-body" id="impSectionBody">
-      <div style="display:flex;justify-content:flex-end;margin-bottom:12px">
-        <button class="btn-primary" style="font-size:13px;padding:8px 18px" onclick="abrirModalImp()">&#43; Nova Impugnação / Esclarecimento</button>
-      </div>
-      <div class="imp-grid" id="impGrid">
-        <div style="grid-column:1/-1;text-align:center;color:var(--muted);font-size:13px;padding:20px;font-style:italic">Nenhuma impugnação ou esclarecimento cadastrado.</div>
-      </div>
-    </div>
-  </div>
-  <!-- Aberturas do dia (integração com a Agenda) -->
-  <section class="hoje-section" id="hojeSection" style="display:none">
-    <div class="hoje-card">
-      <div class="hoje-head">
-        <span style="font-size:16px">&#128276;</span>
-        <h3>Aberturas de Hoje</h3>
-        <span class="hoje-count" id="hojeCount">0</span>
-      </div>
-      <div class="hoje-body" id="hojeBody"></div>
-    </div>
-  </section>
-</div>
-
 <!-- PAINEL DECISÕES DO PREGOEIRO -->
 <div class="panel-overlay" id="painelDec">
   <div class="panel-topbar">
@@ -1236,6 +1164,12 @@
 <main>
   <div class="toolbar">
     <div style="display:flex;flex-direction:column;gap:10px;width:100%">
+      <!-- Botão que recolhe/expande os filtros (só aparece em telas estreitas) -->
+      <button type="button" class="filtros-toggle-btn" id="filtrosToggleBtn" onclick="toggleFiltros()">
+        <span>&#128269; Buscar processos</span>
+        <span class="filtros-toggle-caret" id="filtrosToggleCaret">&#9660;</span>
+      </button>
+      <div class="filtros-colapsavel" id="filtrosBody">
       <!-- Linha 0: Filtros de busca separados -->
       <div class="filtros-wrap">
         <div class="filtro-campo cf-tipo">
@@ -1273,6 +1207,7 @@
       <div class="filter-group" id="filtroStatus">
         <button class="filter-btn active" data-filter="todos" onclick="setFiltroStatus(this)">Todos os Status</button>
       </div>
+      </div><!-- /#filtrosBody -->
     </div>
   </div>
   <div class="grid" id="grid"></div>
@@ -1330,41 +1265,6 @@
     </div>
   </div>
 </div>
-
-<!-- MODAL NOVA ATUALIZAÇÃO -->
-<div class="overlay" id="modalUpdate">
-  <div class="modal">
-    <div class="modal-header">
-      <h2>Nova Atualização</h2>
-      <button class="modal-close" onclick="fecharModalUpdate()">&#10005;</button>
-    </div>
-    <div class="modal-body">
-      <div class="field">
-        <label>Processo</label>
-        <input type="text" id="updateProcessoNome" disabled style="background:#f0f2f7;color:var(--muted)">
-      </div>
-      <div class="row">
-        <div class="field">
-          <label>Novo Status</label>
-          <select id="updateStatus"><option value="">Carregando...</option></select>
-        </div>
-        <div class="field">
-          <label>Data da Atualização</label>
-          <input type="date" id="updateData">
-        </div>
-      </div>
-      <div class="field">
-        <label>Descrição da Atualização</label>
-        <textarea id="updateTexto" placeholder="Descreva o andamento..." style="min-height:100px"></textarea>
-      </div>
-    </div>
-    <div class="modal-footer">
-      <button class="btn-cancel" onclick="fecharModalUpdate()">Cancelar</button>
-      <button class="btn-save" id="btnSalvarUpdate" onclick="salvarUpdate()">Registrar Atualização</button>
-    </div>
-  </div>
-</div>
-
 
 <!-- MODAL GERENCIAR AGENTES -->
 <div class="overlay" id="modalAgentes">
@@ -1450,112 +1350,6 @@
   </div>
 </div>
 
-
-<!-- MODAL ANDAMENTO DO PORTAL -->
-
-
-<!-- MODAL EDITAR ATUALIZAÇÃO -->
-<div class="overlay" id="modalEditUpdate">
-  <div class="modal" style="max-width:560px">
-    <div class="modal-header">
-      <h2>Editar Atualização</h2>
-      <button class="modal-close" onclick="fecharModalEditUpdate()">&#10005;</button>
-    </div>
-    <div class="modal-body">
-      <div class="field">
-        <label>Processo</label>
-        <input type="text" id="editUpdateProcessoNome" disabled style="background:#f0f2f7;color:var(--muted)">
-      </div>
-      <div class="row">
-        <div class="field">
-          <label>Data da Atualização</label>
-          <input type="date" id="editUpdateData">
-        </div>
-        <div class="field">
-          <label>Status do Processo</label>
-          <select id="editUpdateStatus"><option value="">Carregando...</option></select>
-        </div>
-      </div>
-      <div class="field">
-        <label>Descrição</label>
-        <textarea id="editUpdateTexto" style="min-height:100px"></textarea>
-      </div>
-    </div>
-    <div class="modal-footer" style="justify-content:space-between">
-      <button class="btn-cancel" id="btnExcluirUpdate" style="color:var(--red);border-color:var(--red)" onclick="excluirUpdate()">&#128465; Excluir</button>
-      <div style="display:flex;gap:10px">
-        <button class="btn-cancel" onclick="fecharModalEditUpdate()">Cancelar</button>
-        <button class="btn-save" id="btnSalvarEditUpdate" onclick="salvarEditUpdate()">Salvar</button>
-      </div>
-    </div>
-  </div>
-</div>
-
-
-<!-- MODAL NOVA IMPUGNAÇÃO/ESCLARECIMENTO -->
-<div class="overlay" id="modalImp">
-  <div class="modal" style="max-width:580px">
-    <div class="modal-header">
-      <h2 id="modalImpTitulo">Nova Impugnação / Esclarecimento</h2>
-      <button class="modal-close" onclick="fecharModalImp()">&#10005;</button>
-    </div>
-    <div class="modal-body">
-      <div class="row">
-        <div class="field">
-          <label>Tipo</label>
-          <select id="impTipo">
-            <option value="impugnacao">Impugnação</option>
-            <option value="esclarecimento">Esclarecimento</option>
-            <option value="recurso">Recurso</option>
-          </select>
-        </div>
-        <div class="field">
-          <label>Data de Abertura do Certame</label>
-          <input type="date" id="impDataAbertura">
-        </div>
-      </div>
-      <div class="field">
-        <label>Descrição / Título</label>
-        <input type="text" id="impDescricao" placeholder="Ex: Impugnação ao Edital PE 45/2026">
-      </div>
-      <div class="field">
-        <label>Número do Processo</label>
-        <input type="text" id="impNumeroProcesso" placeholder="Ex: PE 45/2026">
-      </div>
-      <div class="field">
-        <label>Agente Vinculado</label>
-        <select id="impAgente">
-          <option value="">-- Selecione o agente --</option>
-        </select>
-      </div>
-      <div class="field">
-        <label>Anexar PDF <span style="font-weight:400;font-size:11.5px;color:var(--muted)">(máx. 5MB — opcional se usar texto abaixo)</span></label>
-        <input type="file" id="impArquivo" accept=".pdf" style="padding:8px;background:#f8fafd;border:1.5px solid var(--border);border-radius:8px;font-family:Arial,sans-serif;font-size:13px;width:100%">
-        <div id="impUploadStatus" style="font-size:12px;color:var(--muted);margin-top:4px"></div>
-      </div>
-      <div class="field">
-        <label style="display:flex;align-items:center;gap:8px;cursor:pointer">
-          <input type="checkbox" id="impUsarTexto" onchange="toggleTextoImp()" style="width:16px;height:16px;cursor:pointer">
-          <span>Enviado por texto <span style="font-weight:400;font-size:11.5px;color:var(--muted)">(gera PDF timbrado automaticamente)</span></span>
-        </label>
-        <div id="impTextoArea" style="display:none;margin-top:8px">
-          <textarea id="impTexto" placeholder="Digite aqui o conteúdo da impugnação ou esclarecimento enviado por texto..." style="width:100%;min-height:160px;font-size:13.5px;line-height:1.6;padding:11px 14px;border:1.5px solid var(--border);border-radius:8px;font-family:Arial,sans-serif;outline:none;resize:vertical"></textarea>
-        </div>
-      </div>
-      <div class="field">
-        <label>Observações</label>
-        <textarea id="impObs" placeholder="Informações adicionais..." style="min-height:70px"></textarea>
-      </div>
-    </div>
-    <div class="modal-footer" style="justify-content:space-between">
-      <button class="btn-cancel" id="btnExcluirImp" onclick="excluirImp()" style="color:var(--red);border-color:var(--red);display:none">&#128465; Excluir</button>
-      <div style="display:flex;gap:10px">
-        <button class="btn-cancel" onclick="fecharModalImp()">Cancelar</button>
-        <button class="btn-save" id="btnSalvarImp" onclick="salvarImp()">Salvar</button>
-      </div>
-    </div>
-  </div>
-</div>
 
 <!-- MODAL DECISÃO DO PREGOEIRO -->
 <div class="overlay" id="modalDec">
@@ -1857,8 +1651,7 @@
     <div class="rk-topbar-title"><span>&#128202;</span><span id="rkPanelTitle">Análise de Ranking</span></div>
     <div class="rk-topbar-actions">
       <button class="rk-btn rk-btn-import" onclick="rkCopiarLink()" title="Copiar link para preencher análise">&#128279; Compartilhar</button>
-      <button class="rk-btn rk-btn-import" id="rkBtnToggleOculto" onclick="rkToggleModoOculto()" title="Alterna entre mostrar só os fornecedores relevantes ou todos">&#128065; Mostrar Todos</button>
-      <button class="rk-btn rk-btn-import" id="rkBtnOcultarRep" onclick="rkToggleOcultarReprovados()" title="Mostra só o fornecedor atual de cada item (aprovado ou pendente), ocultando os reprovados">&#128683; Ocultar Reprovados</button>
+      <button class="rk-btn rk-btn-import" id="rkBtnOcultarRep" onclick="rkToggleOcultarReprovados()" title="Mostra só a empresa atualmente arrematante de cada item, ocultando as reprovadas">&#128683; Ocultar Reprovados</button>
       <label class="rk-btn rk-btn-import" style="cursor:pointer">
         &#128196; Importar JSON
         <input type="file" id="rkFileInput" accept=".json" style="display:none">
@@ -1880,7 +1673,7 @@
         <div class="rk-stat sfrac" id="rkBtnFrac" onclick="rkSetFiltro('fracassado')"><div class="n" id="rks-frac">0</div><div class="l">Fracassados</div></div>
         <div class="rk-stat spe" id="rkBtnPe" onclick="rkSetFiltro('pendente')"><div class="n" id="rks-pe">0</div><div class="l">Itens Pendentes</div></div>
       </div>
-      <p class="rk-hint">Clique num fornecedor: Aprovado → Reprovado → Diligência → Neutro &nbsp;|&nbsp; Clique nos filtros para filtrar</p>
+      <p class="rk-hint">Cada item mostra os reprovados e a colocação atual. Clique em Reprovado / Aprovado / Diligência na colocação atual — o motivo é salvo sozinho ao digitar. &nbsp;|&nbsp; Use os filtros acima para filtrar.</p>
       <div class="rk-filters-wrap">
         <div class="rk-filter-field" style="max-width:110px">
           <label>Nº do Item</label>
@@ -2014,6 +1807,11 @@ var STATUS_DEFAULT=[
   {id:"finalizacao",        nome:"Finalização",         cor:"blue",  ordem:2},
   {id:"concluido",          nome:"Concluído",            cor:"green", ordem:3}
 ];
+/* Inicia as listas com os status padrão para evitar "status fantasma": sem
+   isso, um card renderizado antes do snapshot de status caía no fallback cinza
+   com nome inventado até o Firestore responder. */
+statusList=STATUS_DEFAULT.slice();
+statusListAll=STATUS_DEFAULT.slice();
 
 /* ── Resolução robusta de status ───────────────────────────────────────────
    Corrige badges "cinza" e filtros que não pegam processos quando o banco tem
@@ -2118,6 +1916,10 @@ db.collection("status").onSnapshot(function(snap){
         return (oa-ob) || (a.nome||"").localeCompare(b.nome||"");
       });
     statusList = statusListAll
+      .filter(function(s){
+        /* descarta status "fantasma" sem nome legível (id/nome em branco) */
+        return ((s.nome||s.id||"").toString().trim())!=="";
+      })
       .filter(function(s, i, arr){
         /* Lista EXIBIDA: remove duplicatas por nome normalizado, preferindo a
            entrada cujo id é o "slug" canônico do nome (ex.: id "finalizacao").
@@ -2145,29 +1947,8 @@ db.collection("status").onSnapshot(function(snap){
   if(processos.length) renderizar();
 }, function(err){ console.error("Status:", err); statusList=STATUS_DEFAULT.slice(); statusListAll=STATUS_DEFAULT.slice(); renderSelectStatus(); });
 
-/* ── Rolagem da área de atualizações só depois de clicar/tocar nela ──────────
-   Assim girar o mouse ou deslizar o dedo rola a PÁGINA; a lista interna só
-   rola quando o usuário clica em cima dela primeiro. */
-document.addEventListener("click", function(e){
-  var area = e.target.closest(".updates-area");
-  document.querySelectorAll(".updates-area.scroll-active").forEach(function(a){
-    if(a!==area) a.classList.remove("scroll-active");
-  });
-  if(area && area.classList.contains("has-overflow")) area.classList.add("scroll-active");
-});
-/* Marca quais áreas têm conteúdo além do visível (mostra a dica "role para ver mais") */
-function marcarUpdatesOverflow(){
-  document.querySelectorAll(".updates-area").forEach(function(a){
-    if(a.scrollHeight > a.clientHeight + 2) a.classList.add("has-overflow");
-    else { a.classList.remove("has-overflow"); a.classList.remove("scroll-active"); }
-  });
-}
-
 // ── Delegação de eventos nos cards ────────────────────────────────────────────
 document.addEventListener("click", function(e){
-  // Botão de excluir evento do feed (classe evt-del, não data-action)
-  var delEvt=e.target.closest(".evt-del");
-  if(delEvt){ excluirEvento(delEvt.dataset.pid, delEvt.dataset.evt); return; }
   var btn = e.target.closest("[data-action]");
   if(!btn) return;
   var pid = btn.closest("[data-pid]") ? btn.closest("[data-pid]").dataset.pid : null;
@@ -2175,7 +1956,6 @@ document.addEventListener("click", function(e){
   if(action === "status-pop" && pid){ abrirStatusPop(pid, btn); return; }
   if(action === "share-proc" && pid){ compartilharProcWhatsapp(pid); return; }
   if(action === "share-concluido" && pid){ abrirWhatsappConcluido(pid); return; }
-  if(action === "atualizar" && pid) abrirModalUpdate(pid);
   if(action === "pin" && pid){ togglePin(pid); return; }
   if(action === "editar"    && pid) editarProcesso(pid);
   if(action === "excluir"   && pid) excluirProcesso(pid);
@@ -2183,33 +1963,6 @@ document.addEventListener("click", function(e){
   if(action === "excluir-ag") excluirAgente(btn.dataset.agid);
   if(action === "editar-st")  editarStatus(btn.dataset.stid);
   if(action === "excluir-st") excluirStatus(btn.dataset.stid);
-  if(action === "editar-upd")  abrirModalEditUpdate(btn.dataset.pid, btn.dataset.ts);
-  if(action === "excluir-upd") confirmarExcluirUpdate(btn.dataset.pid, btn.dataset.ts);
-  if(action === "ver-pdf"){
-    var impId = btn.dataset.impid;
-    var impItem = impugnacoes.find(function(x){return x.id===impId;});
-    if(impItem && impItem.pdfBase64){
-      // Convert base64 dataURL to blob and open
-      var arr = impItem.pdfBase64.split(",");
-      var mime = (arr[0].match(/:(.*?);/)||["","application/pdf"])[1];
-      var bstr = atob(arr[1]);
-      var n = bstr.length;
-      var u8arr = new Uint8Array(n);
-      while(n--){ u8arr[n]=bstr.charCodeAt(n); }
-      var blob = new Blob([u8arr],{type:mime});
-      var blobUrl = URL.createObjectURL(blob);
-      window.open(blobUrl,"_blank");
-    }
-  }
-  if(action === "editar-imp")  editarImp(btn.dataset.impid);
-  if(action === "excluir-imp")  excluirImpDireto(btn.dataset.impid);
-  if(action === "responder-imp") marcarRespondido(btn.dataset.impid);
-  if(action === "baixar-pdf-texto"){
-    var impTxt = impugnacoes.find(function(x){return x.id===btn.dataset.impid;});
-    if(impTxt && impTxt.textoImp){ gerarPDFImpugnacao(impTxt, impTxt.textoImp, true); }
-    else { alert("Texto nao encontrado. Edite e salve novamente."); }
-    return;
-  }
   if(action === "portal" && pid) { /* removido */ }
   if(action === "ranking" && pid) abrirRanking(pid);
   if(action === "vencedores" && pid) abrirVencedores(pid);
@@ -2382,7 +2135,6 @@ var STATUS_TINT={
   gray:   {accent:"#607d8b", bg:"#f5f8fb"}
 };
 function getStatusTint(id){
-  if(statusKey(id)==="em-andamento") return null; /* Em Andamento fica branco (padrão) */
   var st=getStatusCfg(id);
   return STATUS_TINT[st.cor]||STATUS_TINT.gray;
 }
@@ -2476,7 +2228,6 @@ function setFiltroAgente(btn){
   filtroAgente=btn.dataset.filterAg;
   atualizarURL();
   renderizar();
-  renderImpugnacoes();
 }
 function setFiltroStatus(btn){
   document.querySelectorAll("#filtroStatus .filter-btn").forEach(function(b){b.classList.remove("active");});
@@ -2504,6 +2255,14 @@ function limparFiltrosBusca(){
   var n=document.getElementById("filtroNumero"); if(n) n.value="";
   var o=document.getElementById("filtroObjeto"); if(o) o.value="";
   renderizar();
+}
+/* Recolhe/expande o painel de filtros em telas estreitas (fechado por padrão) */
+function toggleFiltros(){
+  var b=document.getElementById("filtrosBody");
+  var c=document.getElementById("filtrosToggleCaret");
+  if(!b) return;
+  var aberto=b.classList.toggle("aberto");
+  if(c) c.innerHTML=aberto?"\u25B2":"\u25BC";
 }
 function renderFiltroAnos(){
   var el = document.getElementById("filtroAnos"); if(!el) return;
@@ -2560,70 +2319,6 @@ function renderSelectStatus(){
 // listeners em tempo real; gera o feed de movimentações e o % concluído do card.
 var procExtras={};
 
-function fmtEvtTime(iso){
-  var d=new Date(iso);
-  if(isNaN(d.getTime())) return '';
-  var dd=('0'+d.getDate()).slice(-2), mm=('0'+(d.getMonth()+1)).slice(-2);
-  var hh=('0'+d.getHours()).slice(-2), mi=('0'+d.getMinutes()).slice(-2);
-  return dd+'/'+mm+', '+hh+'h'+mi;
-}
-function evtDotCls(msg){
-  var m=msg.toLowerCase();
-  if(m.indexOf('inabilitada')>=0||m.indexOf('recusad')>=0||m.indexOf('reprovad')>=0) return 'rec';
-  if(m.indexOf('habilitada')>=0||m.indexOf('aprovad')>=0) return 'ap';
-  return '';
-}
-// Remove um evento do feed (por t ou msg como chave de fallback)
-function excluirEvento(pid, chave){
-  var ex=procExtras[pid]; if(!ex) return;
-  function filtrar(arr){ return (arr||[]).filter(function(e){ return (e.t||e.msg)!==chave; }); }
-  var rkEvts=filtrar((ex.rk||{}).eventos);
-  var habEvts=filtrar((ex.hab||{}).eventos);
-  var mudouRk=rkEvts.length!==((ex.rk||{}).eventos||[]).length;
-  var mudouHab=habEvts.length!==((ex.hab||{}).eventos||[]).length;
-  // atualização manual legada
-  var proc=processos.find(function(p){ return p.id===pid; });
-  if(proc){
-    var atAntes=(proc.atualizacoes||[]).length;
-    proc.atualizacoes=(proc.atualizacoes||[]).filter(function(u){
-      return (new Date(u.ts).toISOString()!==chave)&&(u.texto!==chave);
-    });
-    if(proc.atualizacoes.length!==atAntes){
-      colRef.doc(pid).update({atualizacoes:proc.atualizacoes,updatedAt:firebase.firestore.FieldValue.serverTimestamp()})
-        .catch(function(err){ console.error('excluir upd legado:',err); });
-    }
-  }
-  if(mudouRk&&ex.rk){
-    ex.rk.eventos=rkEvts;
-    rkColRef.doc(pid).update({eventos:rkEvts,updatedAt:firebase.firestore.FieldValue.serverTimestamp()})
-      .catch(function(err){ console.error('excluir rkEvt:',err); });
-  }
-  if(mudouHab&&ex.hab){
-    ex.hab.eventos=habEvts;
-    habColRef.doc(pid).update({eventos:habEvts,updatedAt:firebase.firestore.FieldValue.serverTimestamp()})
-      .catch(function(err){ console.error('excluir habEvt:',err); });
-  }
-  renderizar();
-}
-function procEventosTodos(p, ex){
-  var evs=[];
-  ((ex.rk||{}).eventos||[]).forEach(function(e){ if(e&&e.msg) evs.push({t:e.t||'', msg:e.msg, soData:false}); });
-  ((ex.hab||{}).eventos||[]).forEach(function(e){ if(e&&e.msg) evs.push({t:e.t||'', msg:e.msg, soData:false}); });
-  // Atualizações manuais legadas (registradas antes do feed automático)
-  ((p&&p.atualizacoes)||[]).forEach(function(u){
-    if(!u||!u.texto) return;
-    var t=u.ts?new Date(u.ts).toISOString():(u.data?u.data+'T12:00:00':'');
-    evs.push({t:t, msg:u.texto, soData:!u.ts});
-  });
-  return evs;
-}
-function cardEventos(p, ex){
-  var evs=procEventosTodos(p, ex);
-  evs.sort(function(a,b){ return String(b.t||'').localeCompare(String(a.t||'')); });
-  return evs.map(function(e){
-    return {msg:e.msg, quando:e.soData?fmtEvtTime(e.t).split(',')[0]:fmtEvtTime(e.t), cls:evtDotCls(e.msg)};
-  });
-}
 function cardItemResolvido(it, estados){
   if(!it.fornecedores||!it.fornecedores.length) return false;
   var win=-1;
@@ -2703,20 +2398,6 @@ function renderizar(){
       progHtml='<div class="proc-progress"><div class="proc-progress-label"><span>Processo '+prog.pct+'% concluído</span><span>'+prog.done+'/'+prog.total+'</span></div>'
         +'<div class="proc-progress-track"><div class="proc-progress-fill'+(prog.pct>=100?' done':'')+'" style="width:'+prog.pct+'%"></div></div></div>';
     }
-    var evts=cardEventos(p, ex);
-    var updHtml="";
-    if(evts.length){
-      for(var j=0;j<evts.length;j++){
-        var ev=evts[j];
-        updHtml+='<div class="evt-item"><div class="evt-dot '+ev.cls+'"></div>'
-          +'<div class="evt-text">'+escHtml(ev.msg)+'</div>'
-          +'<span class="evt-time">'+ev.quando+'</span>'
-          +'<button class="evt-del" data-pid="'+escHtml(p.id)+'" data-evt="'+escHtml(ev.t||ev.msg)+'" title="Excluir">&#10005;</button>'
-          +'</div>';
-      }
-    } else {
-      updHtml='<div class="no-updates">Nenhuma movimentação registrada</div>';
-    }
     var dataLabel=p.dataLicit
       ? '<span class="date-chip">&#128198; '+formatarData(p.dataLicit)+'</span>'
       : '<span class="date-chip" style="opacity:.45;background:#1e4a8a">Sem data</span>';
@@ -2743,7 +2424,6 @@ function renderizar(){
     html+=contatoHtml;
     html+='</div>';
     html+=progHtml;
-    html+='<div class="updates-area">'+updHtml+'</div>';
     html+='<div class="card-obs-wrap">';
     html+='<div class="card-obs-label">&#128221; Observação <span class="obs-st" id="obsst_'+escHtml(p.id)+'"></span></div>';
     html+='<textarea class="card-obs-input" id="obsin_'+escHtml(p.id)+'" placeholder="Anote algo sobre este processo… (aparece na Agenda)" oninput="onProcObsInput(\''+escHtml(p.id)+'\',this)">'+escHtml(p.observacao||"")+'</textarea>';
@@ -2774,37 +2454,7 @@ function renderizar(){
     var _re=document.getElementById(_focoId);
     if(_re){ _re.focus(); try{ _re.setSelectionRange(_selS,_selE); }catch(e){} }
   }
-  marcarUpdatesOverflow();
-  renderHoje();
   atualizarStats();
-}
-
-// ── Aberturas de Hoje (integração com a Agenda) ──────────────────────────────
-function renderHoje(){
-  var sec=document.getElementById("hojeSection");
-  var body=document.getElementById("hojeBody");
-  var cnt=document.getElementById("hojeCount");
-  if(!sec||!body) return;
-  var h=hoje();
-  var doDia=processos.filter(function(p){ return p.dataLicit===h; })
-    .sort(function(a,b){ return (a.numero||"").localeCompare(b.numero||""); });
-  if(!doDia.length){ sec.style.display="none"; body.innerHTML=""; return; }
-  sec.style.display="block";
-  if(cnt) cnt.textContent=doDia.length;
-  var html="";
-  doDia.forEach(function(p){
-    var st=getStatusCfg(p.status);
-    html+='<div class="hoje-item" data-pid="'+escHtml(p.id)+'" data-action="editar">';
-    html+='<div class="hoje-item-num">'+escHtml(rotuloProcesso(p))+'</div>';
-    if(p.objeto) html+='<div class="hoje-item-obj">'+escHtml(p.objeto)+'</div>';
-    html+='<div class="hoje-item-meta">';
-    html+='<span class="hoje-item-tag" style="'+getStatusStyle(p.status)+'">'+escHtml(st.nome||st.label||p.status)+'</span>';
-    if(p.responsavel) html+='<span class="hoje-item-tag" style="background:#e8f0fb;color:#1a4a9a">'+escHtml(p.responsavel)+'</span>';
-    html+='</div>';
-    if(p.observacao&&p.observacao.trim()) html+='<div class="hoje-item-obs">&#128221; '+escHtml(p.observacao)+'</div>';
-    html+='</div>';
-  });
-  body.innerHTML=html;
 }
 
 // ── Fixar processo no topo ───────────────────────────────────────────────────
@@ -2922,37 +2572,10 @@ function salvarProcesso(){
   btn.disabled=true; btn.textContent="Salvando...";
   var ts=firebase.firestore.FieldValue.serverTimestamp();
   var existing=processos.find(function(x){return x.id===editandoId;});
-  var op=colRef.doc(editandoId).set({numero:numero,objeto:objeto,responsavel:resp,status:status,dataLicit:dataLicit,link:link,contato:contato,atualizacoes:existing.atualizacoes||[],fixado:existing.fixado||false,observacao:existing.observacao||"",updatedAt:ts});
+  var op=colRef.doc(editandoId).set({numero:numero,objeto:objeto,responsavel:resp,status:status,dataLicit:dataLicit,link:link,contato:contato,fixado:existing.fixado||false,observacao:existing.observacao||"",updatedAt:ts});
   op.then(function(){toast("Processo atualizado!"); fecharModal();})
     .catch(function(e){alert("Erro ao salvar: "+e.message);})
     .finally(function(){btn.disabled=false; btn.textContent="Salvar Processo";});
-}
-
-// ── Modal Atualização ─────────────────────────────────────────────────────────
-function abrirModalUpdate(id){
-  updateId=id;
-  var p=processos.find(function(x){return x.id===id;});
-  document.getElementById("updateProcessoNome").value=p.numero+" - "+p.objeto;
-  setStatusSelect("updateStatus",p.status);
-  document.getElementById("updateTexto").value="";
-  document.getElementById("updateData").value=hoje();
-  document.getElementById("modalUpdate").classList.add("open");
-}
-function fecharModalUpdate(){ document.getElementById("modalUpdate").classList.remove("open"); }
-function salvarUpdate(){
-  var btn=document.getElementById("btnSalvarUpdate");
-  var texto=document.getElementById("updateTexto").value.trim();
-  var status=document.getElementById("updateStatus").value;
-  var data=document.getElementById("updateData").value;
-  if(!texto){alert("Descreva a atualizacao.");return;}
-  btn.disabled=true; btn.textContent="Salvando...";
-  var p=processos.find(function(x){return x.id===updateId;});
-  var novas=(p.atualizacoes||[]).concat([{texto:texto,data:data,ts:Date.now()}]);
-  var pData={numero:p.numero,objeto:p.objeto,responsavel:p.responsavel,status:status,dataLicit:p.dataLicit,link:p.link,contato:p.contato,atualizacoes:novas,fixado:p.fixado||false,observacao:p.observacao||"",updatedAt:firebase.firestore.FieldValue.serverTimestamp()};
-  colRef.doc(updateId).set(pData)
-    .then(function(){fecharModalUpdate(); toast("Atualizacao registrada!");})
-    .catch(function(e){alert("Erro: "+e.message);})
-    .finally(function(){btn.disabled=false; btn.textContent="Registrar Atualizacao";});
 }
 
 // ── Excluir ───────────────────────────────────────────────────────────────────
@@ -3040,53 +2663,6 @@ function gerarPDF(id){
     doc.text(lL,ML,y+4); y+=lL.length*4.5+6;
   } else { y+=4; }
 
-  // Historico cronologico completo (ranking + habilitação + atualizações manuais antigas)
-  y+=2;
-  setFill(26,58,107); doc.roundedRect(ML,y,CW,10,2,2,"F"); doc.rect(ML,y+6,CW,4,"F");
-  setTextC(255,255,255); doc.setFontSize(9.5); doc.setFont("helvetica","bold");
-  doc.text("HISTORICO CRONOLOGICO DO PROCESSO",ML+5,y+7.5);
-  y+=14;
-  var exPdf=procExtras[p.id]||{};
-  var atList=procEventosTodos(p, exPdf);
-  // Ordem CRESCENTE de tempo (do mais antigo ao mais recente)
-  atList.sort(function(a,b){ return String(a.t||'').localeCompare(String(b.t||'')); });
-  if(!atList.length){
-    doc.setFontSize(9.5); setTextC(90,110,153); doc.setFont("helvetica","italic");
-    doc.text("Nenhuma movimentacao registrada.",ML,y+5); y+=14;
-  } else {
-    function fmtPdfQuando(ev){
-      var d=new Date(ev.t);
-      if(isNaN(d.getTime())) return '---';
-      var dd=('0'+d.getDate()).slice(-2), mm=('0'+(d.getMonth()+1)).slice(-2), aa=d.getFullYear();
-      if(ev.soData) return dd+'/'+mm+'/'+aa;
-      var hh=('0'+d.getHours()).slice(-2), mi=('0'+d.getMinutes()).slice(-2);
-      return dd+'/'+mm+'/'+aa+', '+hh+'h'+mi;
-    }
-    for(var ai=0;ai<atList.length;ai++){
-      var u=atList[ai];
-      var tL=doc.splitTextToSize(u.msg,CW-58);
-      var bH=Math.max(tL.length*5.2+10,16);
-      if(y+bH>PH-52){
-        doc.addPage();
-        setFill(255,255,255); doc.rect(0,0,PW,15,"F");
-        setFill(26,58,107);   doc.rect(0,15,PW,2,"F");
-        try{doc.addImage(LOGO_B64_PDF,"JPEG",ML,2,30,12);}catch(e){}
-        setTextC(26,58,107); doc.setFontSize(9); doc.setFont("helvetica","bold");
-        doc.text("Relatorio: "+p.numero,ML+32,10); y=22;
-      }
-      setFill.apply(null,(ai%2===0)?[245,248,255]:[255,255,255]);
-      doc.roundedRect(ML,y,CW,bH,2,2,"F");
-      setDraw(200,212,232); doc.setLineWidth(0.3); doc.roundedRect(ML,y,CW,bH,2,2,"S");
-      setFill(26,58,107); doc.circle(ML+6.5,y+bH/2,4.5,"F");
-      setTextC(255,255,255); doc.setFontSize(8); doc.setFont("helvetica","bold");
-      doc.text(String(ai+1),ML+6.5,y+bH/2+1.2,{align:"center"});
-      setTextC(90,110,153); doc.setFontSize(8.5); doc.setFont("helvetica","bold");
-      doc.text(fmtPdfQuando(u),PW-MR-4,y+7,{align:"right"});
-      setTextC(22,32,56); doc.setFontSize(9.5); doc.setFont("helvetica","normal");
-      doc.text(tL,ML+14,y+bH/2-(tL.length-1)*2.6+1.5);
-      y+=bH+3;
-    }
-  }
   // Assinatura
   y+=10;
   if(y+34>PH-16){
@@ -3326,185 +2902,6 @@ function copiarLinkFiltro(){
 }
 
 
-// ── Editar / Excluir atualização ──────────────────────────────────────────────
-var editUpdatePid = null;
-var editUpdateTs  = null;
-
-function abrirModalEditUpdate(pid, ts){
-  var p=processos.find(function(x){return x.id===pid;}); if(!p)return;
-  var u=(p.atualizacoes||[]).find(function(a){return String(a.ts)===String(ts);}); if(!u)return;
-  editUpdatePid=pid;
-  editUpdateTs=Number(ts);
-  document.getElementById("editUpdateProcessoNome").value=p.numero+" - "+p.objeto;
-  document.getElementById("editUpdateTexto").value=u.texto||"";
-  document.getElementById("editUpdateData").value=u.data||"";
-  // Populate status select
-  var sel=document.getElementById("editUpdateStatus");
-  sel.innerHTML=statusList.map(function(s){return '<option value="'+escHtml(s.id)+'">'+(escHtml(s.nome||s.id))+'</option>';}).join("");
-  sel.value=p.status;
-  document.getElementById("modalEditUpdate").classList.add("open");
-}
-function fecharModalEditUpdate(){
-  document.getElementById("modalEditUpdate").classList.remove("open");
-  editUpdatePid=null; editUpdateTs=null;
-}
-function salvarEditUpdate(){
-  var btn=document.getElementById("btnSalvarEditUpdate");
-  var texto=document.getElementById("editUpdateTexto").value.trim();
-  var data=document.getElementById("editUpdateData").value;
-  var status=document.getElementById("editUpdateStatus").value;
-  if(!texto){alert("Descreva a atualização.");return;}
-  btn.disabled=true; btn.textContent="Salvando...";
-  var p=processos.find(function(x){return x.id===editUpdatePid;}); if(!p)return;
-  var novas=(p.atualizacoes||[]).map(function(a){
-    return String(a.ts)===String(editUpdateTs) ? {texto:texto,data:data,ts:a.ts} : a;
-  });
-  var pData={numero:p.numero,objeto:p.objeto,responsavel:p.responsavel,
-    status:status,dataLicit:p.dataLicit,link:p.link,contato:p.contato,
-    atualizacoes:novas,fixado:p.fixado||false,observacao:p.observacao||"",updatedAt:firebase.firestore.FieldValue.serverTimestamp()};
-  colRef.doc(editUpdatePid).set(pData)
-    .then(function(){fecharModalEditUpdate();toast("Atualização salva!");})
-    .catch(function(e){alert("Erro: "+e.message);})
-    .finally(function(){btn.disabled=false;btn.textContent="Salvar";});
-}
-function excluirUpdate(){
-  if(!editUpdatePid||!editUpdateTs)return;
-  var p=processos.find(function(x){return x.id===editUpdatePid;}); if(!p)return;
-  var u=(p.atualizacoes||[]).find(function(a){return String(a.ts)===String(editUpdateTs);});
-  var preview=u?u.texto.substring(0,60):"";
-  if(!confirm("Excluir esta atualizacao?")) return;
-  var novas=(p.atualizacoes||[]).filter(function(a){return String(a.ts)!==String(editUpdateTs);});
-  var pData={numero:p.numero,objeto:p.objeto,responsavel:p.responsavel,
-    status:p.status,dataLicit:p.dataLicit,link:p.link,contato:p.contato,
-    atualizacoes:novas,fixado:p.fixado||false,observacao:p.observacao||"",updatedAt:firebase.firestore.FieldValue.serverTimestamp()};
-  colRef.doc(editUpdatePid).set(pData)
-    .then(function(){fecharModalEditUpdate();toast("Atualização excluída.");})
-    .catch(function(e){alert("Erro: "+e.message);});
-}
-function confirmarExcluirUpdate(pid, ts){
-  var p=processos.find(function(x){return x.id===pid;}); if(!p)return;
-  var u=(p.atualizacoes||[]).find(function(a){return String(a.ts)===String(ts);});
-  var preview=u?u.texto.substring(0,60):"";
-  if(!confirm("Excluir esta atualizacao?")) return;
-  var novas=(p.atualizacoes||[]).filter(function(a){return String(a.ts)!==String(ts);});
-  var pData={numero:p.numero,objeto:p.objeto,responsavel:p.responsavel,
-    status:p.status,dataLicit:p.dataLicit,link:p.link,contato:p.contato,
-    atualizacoes:novas,fixado:p.fixado||false,observacao:p.observacao||"",updatedAt:firebase.firestore.FieldValue.serverTimestamp()};
-  colRef.doc(pid).set(pData)
-    .then(function(){toast("Atualização excluída.");})
-    .catch(function(e){alert("Erro: "+e.message);});
-}
-
-
-// ── Gerar PDF timbrado de Impugnação/Esclarecimento ───────────────────────────
-function gerarPDFImpugnacao(imp, texto, download){
-  if(!window.jspdf||!window.jspdf.jsPDF){ alert("Biblioteca PDF ainda carregando. Tente em segundos."); return null; }
-  var jsPDFCls=window.jspdf.jsPDF;
-  var doc=new jsPDFCls({orientation:"portrait",unit:"mm",format:"a4"});
-  var PW=210,PH=297,ML=28,MR=28,CW=PW-ML-MR;
-  var cNavy=[26,58,107],cNavyLt=[42,90,170],cWhite=[255,255,255];
-  var cBg=[238,241,248],cMuted=[90,110,153],cText=[22,32,56],cBorder=[200,212,232];
-  var TIPO_LABELS={impugnacao:"IMPUGNACAO",esclarecimento:"ESCLARECIMENTO",recurso:"RECURSO"};
-  var tipoLabel=TIPO_LABELS[imp.tipo]||((imp.tipo||"").toUpperCase());
-
-  function setFill(r,g,b){doc.setFillColor(r,g,b);}
-  function setDraw(r,g,b){doc.setDrawColor(r,g,b);}
-  function setTxtC(r,g,b){doc.setTextColor(r,g,b);}
-
-  // Cabeçalho branco
-  setFill(255,255,255); doc.rect(0,0,PW,42,"F");
-  try{doc.addImage(LOGO_B64_PDF,"JPEG",ML,5,50,30);}catch(e){}
-  setTxtC(0,0,0); doc.setFontSize(14); doc.setFont("helvetica","bold");
-  var titulo = tipoLabel;
-  if(imp.descricao) titulo += " - "+imp.descricao.substring(0,40).toUpperCase();
-  doc.text(titulo,ML+56,17);
-  doc.setFontSize(9.5); doc.setFont("helvetica","normal"); setTxtC(80,80,80);
-  doc.text("Municipio de Ijui  |  Capital Mundial das Etnias",ML+56,25);
-  doc.text("Emitido em: "+formatarData(hoje())+"  as  "+new Date().toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"}),ML+56,32);
-  var y=50;
-
-  // Box identificação
-  setFill.apply(null,cBg); doc.roundedRect(ML,y,CW,36,3,3,"F");
-  setDraw.apply(null,cBorder); doc.setLineWidth(0.4); doc.roundedRect(ML,y,CW,36,3,3,"S");
-  setFill.apply(null,cNavy); doc.roundedRect(ML,y,CW,10,3,3,"F"); doc.rect(ML,y+6,CW,4,"F");
-  setTxtC.apply(null,cWhite); doc.setFontSize(9.5); doc.setFont("helvetica","bold");
-  doc.text("IDENTIFICACAO",ML+5,y+7.5);
-  var ry=y+16, colW=CW/3;
-  var cols=[
-    [imp.numeroProcesso||"Nao informado","Numero do Processo"],
-    [imp.agente||"Nao informado","Agente Responsavel"],
-    [imp.dataAbertura?formatarData(imp.dataAbertura):"Nao informada","Data Abertura Certame"]
-  ];
-  for(var ci=0;ci<cols.length;ci++){
-    var cx=ML+ci*colW+4;
-    setTxtC.apply(null,cText); doc.setFontSize(10); doc.setFont("helvetica","bold");
-    doc.text(cols[ci][0],cx,ry);
-    doc.setFontSize(8); doc.setFont("helvetica","normal"); setTxtC.apply(null,cMuted);
-    doc.text(cols[ci][1],cx,ry+5);
-  }
-  y+=42;
-
-  // Bloco conteúdo
-  y+=2;
-  setFill.apply(null,cNavy); doc.roundedRect(ML,y,CW,10,2,2,"F"); doc.rect(ML,y+6,CW,4,"F");
-  setTxtC.apply(null,cWhite); doc.setFontSize(9.5); doc.setFont("helvetica","bold");
-  doc.text("CONTEUDO",ML+5,y+7.5);
-  y+=16;
-
-  // Renderizar texto parágrafo a parágrafo
-  setTxtC.apply(null,cText); doc.setFontSize(11); doc.setFont("helvetica","normal");
-  var paragraphs=(texto||"").split("\n");
-  for(var pi=0;pi<paragraphs.length;pi++){
-    var para=paragraphs[pi].trim();
-    if(!para){y+=3;continue;}
-    var lines=doc.splitTextToSize(para,CW);
-    for(var li=0;li<lines.length;li++){
-      if(y+7>PH-30){
-        doc.addPage();
-        setFill(255,255,255); doc.rect(0,0,PW,14,"F");
-        setFill.apply(null,cNavy); doc.rect(0,14,PW,2,"F");
-        try{doc.addImage(LOGO_B64_PDF,"JPEG",ML,1,28,12);}catch(e){}
-        setTxtC.apply(null,cNavy); doc.setFontSize(9); doc.setFont("helvetica","bold");
-        doc.text(tipoLabel+": "+(imp.descricao||"").substring(0,50),ML+32,10);
-        y=22; setTxtC.apply(null,cText); doc.setFontSize(11); doc.setFont("helvetica","normal");
-      }
-      doc.text(lines[li],ML,y); y+=6.5;
-    }
-    y+=2;
-  }
-
-  // Assinatura
-  y+=10;
-  if(y+30>PH-16){doc.addPage();y=28;}
-  var sigX=PW/2;
-  setDraw.apply(null,cNavy); doc.setLineWidth(0.5);
-  doc.line(sigX-50,y,sigX+50,y); y+=7;
-  setTxtC.apply(null,cNavy); doc.setFontSize(10); doc.setFont("helvetica","bold");
-  doc.text(imp.agente||"Agente de Contratacao",sigX,y,{align:"center"}); y+=6;
-  doc.setFontSize(9); doc.setFont("helvetica","normal"); setTxtC.apply(null,cMuted);
-  doc.text("Agente de Contratacao - Municipio de Ijui",sigX,y,{align:"center"});
-
-  // Rodapé
-  var total=doc.internal.getNumberOfPages();
-  for(var pg=1;pg<=total;pg++){
-    doc.setPage(pg);
-    setFill.apply(null,cBg); doc.rect(0,PH-12,PW,12,"F");
-    setDraw.apply(null,cBorder); doc.setLineWidth(0.3); doc.line(ML,PH-12,PW-MR,PH-12);
-    doc.setFontSize(7.5); setTxtC.apply(null,cMuted); doc.setFont("helvetica","normal");
-    doc.text("Municipio de Ijui - Capital Mundial das Etnias  |  Gestao de Processos Licitatorios",ML,PH-5);
-    doc.text("Pagina "+pg+" de "+total,PW-MR,PH-5,{align:"right"});
-  }
-
-  if(download){
-    var nome=tipoLabel+"_"+(imp.numeroProcesso||"").replace(/[^a-zA-Z0-9]/g,"_")+"_"+hoje()+".pdf";
-    doc.save(nome);
-    toast("PDF gerado: "+nome);
-    return null;
-  } else {
-    return {base64:doc.output("datauristring"), nome:tipoLabel+"_"+(imp.numeroProcesso||"").replace(/[^a-zA-Z0-9]/g,"_")+"_"+hoje()+".pdf"};
-  }
-}
-
 // Click fora nao fecha modal - apenas Salvar/Cancelar fecha
 
 // ── PWA Setup ─────────────────────────────────────────────────────────────────
@@ -3556,242 +2953,6 @@ self.addEventListener('fetch', e => {
     navigator.serviceWorker.register(swUrl).catch(function(){});
   }
 })();
-
-// ── Impugnações e Esclarecimentos ─────────────────────────────────────────────
-var impugnacoes   = [];
-var editandoImpId = null;
-var impSectionOpen = true;
-
-impColRef.onSnapshot(function(snap){
-  impugnacoes = snap.docs.map(function(d){ return Object.assign({id:d.id}, d.data()); })
-    .sort(function(a,b){
-      // Sem data vai para o final
-      if(!a.dataAbertura && !b.dataAbertura) return 0;
-      if(!a.dataAbertura) return 1;
-      if(!b.dataAbertura) return -1;
-      return a.dataAbertura.localeCompare(b.dataAbertura);
-    });
-  renderImpugnacoes();
-}, function(err){ console.error("Impugnacoes err:", err); });
-
-function toggleImpSection(){
-  impSectionOpen = !impSectionOpen;
-  document.getElementById("impSectionBody").style.display = impSectionOpen ? "block" : "none";
-  document.getElementById("impToggleIcon").innerHTML = impSectionOpen ? "&#9660;" : "&#9658;";
-}
-
-function renderImpugnacoes(){
-  var el = document.getElementById("impGrid"); if(!el) return;
-  // Filter by current agente
-  var listaImp = filtroAgente === "todos"
-    ? impugnacoes
-    : impugnacoes.filter(function(x){
-        if(!x.agente) return true;  // sem agente aparece pra todos
-        return x.agente === filtroAgente;
-      });
-
-  document.getElementById("impBadge").textContent = impugnacoes.length;
-  /* Sem itens visíveis → seção recolhida automaticamente; com itens → aberta */
-  impSectionOpen = listaImp.length > 0;
-  var _impBody = document.getElementById("impSectionBody");
-  var _impIcon = document.getElementById("impToggleIcon");
-  if(_impBody) _impBody.style.display = impSectionOpen ? "block" : "none";
-  if(_impIcon) _impIcon.innerHTML = impSectionOpen ? "&#9660;" : "&#9658;";
-  if(!listaImp.length){
-    el.innerHTML = '<div style="grid-column:1/-1;text-align:center;color:var(--muted);font-size:13px;padding:20px;font-style:italic">Nenhuma impugnacao ou esclarecimento' + (filtroAgente!=="todos" ? ' para este agente.' : ' cadastrado.') + '</div>';
-    return;
-  }
-  var TIPO_LABELS = {impugnacao:"Impugnacao", esclarecimento:"Esclarecimento", recurso:"Recurso"};
-  var TIPO_COLORS = {impugnacao:"#d32f2f", esclarecimento:"#1565c0", recurso:"#e65100"};
-  var out = "";
-  listaImp.forEach(function(imp){
-    var tipoLabel = TIPO_LABELS[imp.tipo] || imp.tipo;
-    var tipoColor = TIPO_COLORS[imp.tipo] || "#546e7a";
-    // 1 dia util antes da abertura = urgente (card vermelho)
-    var urgente = false;
-    if(imp.dataAbertura){
-      var hoje2=new Date(); hoje2.setHours(0,0,0,0);
-      var ab=new Date(imp.dataAbertura+"T12:00:00");
-      var diff=Math.round((ab-hoje2)/86400000);
-      var diaSem=ab.getDay();
-      // Urgente se: amanha (diff==1), hoje (diff==0), ou abertura segunda e hoje é sexta (diff==3)
-      urgente = diff>=0 && (diff<=1 || (diaSem===1 && diff<=3));
-    }
-    var cardStyle=urgente ? "border:2px solid #d32f2f;border-left:5px solid #d32f2f;background:#fff5f5;" : "";
-    var procNum = imp.numeroProcesso||"Sem numero";
-    var agenteLabel = imp.agente||"";
-    var dataAb = imp.dataAbertura ? formatarData(imp.dataAbertura) : "Sem data";
-    var obsHtml = imp.obs ? ('<div style="font-size:12px;color:var(--muted);line-height:1.4">'+escHtml(imp.obs)+'</div>') : "";
-    var pdfBtn;
-    if(imp.pdfBase64){
-      pdfBtn = '<button class="imp-btn pdf-view" data-action="ver-pdf" data-impid="'+escHtml(imp.id)+'">&#128196; '+escHtml(imp.pdfNome||"PDF")+'</button>';
-    } else if(imp.textoImp){
-      pdfBtn = '<button class="imp-btn pdf-view" data-action="baixar-pdf-texto" data-impid="'+escHtml(imp.id)+'">&#128196; Gerar PDF</button>';
-    } else {
-      pdfBtn = '<span style="font-size:11px;color:var(--muted);padding:4px 6px">Sem PDF</span>';
-    }
-    out += '<div class="imp-card" style="'+cardStyle+'">'
-      +'<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:6px">'
-        +'<div style="flex:1"><div class="imp-card-title">'+escHtml(imp.descricao||"Sem titulo")+'</div>'
-        +(urgente ? '<div style="font-size:11px;font-weight:700;color:#d32f2f;margin-top:3px">&#9888; ABERTURA AMANHA</div>' : "")
-        +'</div>'
-        +'<span class="imp-tag" style="background:'+tipoColor+';color:#fff;flex-shrink:0">'+tipoLabel+'</span>'
-      +'</div>'
-      +'<div class="imp-card-meta">'
-        +'<span class="imp-tag imp-tag-proc">&#128196; '+escHtml(procNum)+'</span>'
-        +(agenteLabel ? ('<span class="imp-tag" style="background:var(--blue-bg);color:var(--blue-text)">&#128100; '+escHtml(agenteLabel)+'</span>') : "")
-        +'<span class="imp-tag imp-tag-date">&#128198; '+dataAb+'</span>'
-      +'</div>'
-      +obsHtml
-      +(imp.respondido ? '<div style="background:#2e7d32;color:#fff;border-radius:6px;padding:4px 10px;font-size:11.5px;font-weight:700;text-align:center">&#10003; Respondido</div>' : "")
-      +'<div class="imp-card-footer">'
-        +pdfBtn
-        +(imp.respondido ? "" : ('<button class="imp-btn" style="background:#2e7d32;color:#fff;border-color:#2e7d32" data-action="responder-imp" data-impid="'+escHtml(imp.id)+'">&#10003; Respondido</button>'))
-        +'<button class="imp-btn" data-action="editar-imp" data-impid="'+escHtml(imp.id)+'">&#9998; Editar</button>'
-        +'<button class="imp-btn danger" data-action="excluir-imp" data-impid="'+escHtml(imp.id)+'">&#128465;</button>'
-      +'</div>'
-    +'</div>';
-  });
-  el.innerHTML = out;
-}
-
-function popularSelectAgentes(){
-  var sel = document.getElementById("impAgente"); if(!sel) return;
-  var cur = sel.value;
-  sel.innerHTML = '<option value="">-- Selecione o agente --</option>';
-  agentes.forEach(function(a){
-    sel.innerHTML += '<option value="'+escHtml(a.nomeAbrev)+'">'+escHtml(a.nomeAbrev)+'</option>';
-  });
-  if(cur) sel.value = cur;
-}
-
-function abrirModalImp(){
-  editandoImpId = null;
-  document.getElementById("modalImpTitulo").textContent = "Nova Impugnacao / Esclarecimento";
-  document.getElementById("impTipo").value = "impugnacao";
-  document.getElementById("impDescricao").value = "";
-  document.getElementById("impDataAbertura").value = "";
-  document.getElementById("impObs").value = "";
-  document.getElementById("impArquivo").value = "";
-  document.getElementById("impUploadStatus").textContent = "";
-  document.getElementById("impNumeroProcesso").value = "";
-  document.getElementById("btnExcluirImp").style.display = "none";
-  popularSelectAgentes();
-  document.getElementById("modalImp").classList.add("open");
-}
-
-function editarImp(id){
-  var imp = impugnacoes.find(function(x){return x.id===id;}); if(!imp) return;
-  editandoImpId = id;
-  document.getElementById("modalImpTitulo").textContent = "Editar Impugnacao / Esclarecimento";
-  document.getElementById("impTipo").value = imp.tipo||"impugnacao";
-  document.getElementById("impDescricao").value = imp.descricao||"";
-  document.getElementById("impDataAbertura").value = imp.dataAbertura||"";
-  document.getElementById("impObs").value = imp.obs||"";
-  document.getElementById("impArquivo").value = "";
-  document.getElementById("impUploadStatus").textContent = imp.pdfBase64 ? ("PDF anexado: "+(imp.pdfNome||"documento.pdf")+". Selecione novo para substituir.") : "";
-  document.getElementById("impNumeroProcesso").value = imp.numeroProcesso||"";
-  document.getElementById("btnExcluirImp").style.display = "inline-flex";
-  popularSelectAgentes();
-  document.getElementById("impAgente").value = imp.agente||"";
-  document.getElementById("modalImp").classList.add("open");
-}
-
-function toggleTextoImp(){
-  var usar = document.getElementById("impUsarTexto").checked;
-  document.getElementById("impTextoArea").style.display = usar ? "block" : "none";
-  document.getElementById("impArquivo").disabled = usar;
-  document.getElementById("impArquivo").style.opacity = usar ? "0.4" : "1";
-}
-function fecharModalImp(){
-  document.getElementById("modalImp").classList.remove("open");
-  editandoImpId = null;
-}
-
-function salvarImp(){
-  var btn = document.getElementById("btnSalvarImp");
-  var tipo           = document.getElementById("impTipo").value;
-  var descricao      = document.getElementById("impDescricao").value.trim();
-  var numeroProcesso = document.getElementById("impNumeroProcesso").value.trim();
-  var agente         = document.getElementById("impAgente").value;
-  var dataAb         = document.getElementById("impDataAbertura").value;
-  var obs            = document.getElementById("impObs").value.trim();
-  var arquivo        = document.getElementById("impArquivo").files[0];
-  var usarTexto      = document.getElementById("impUsarTexto") && document.getElementById("impUsarTexto").checked;
-  var textoImp       = usarTexto ? (document.getElementById("impTexto").value.trim()) : "";
-  if(!descricao){ alert("Informe a descricao."); return; }
-  if(usarTexto && !textoImp){ alert("Digite o texto da impugnacao/esclarecimento."); return; }
-  btn.disabled = true; btn.textContent = "Salvando...";
-  var dadosBase = {
-    tipo:tipo, descricao:descricao,
-    numeroProcesso:numeroProcesso, agente:agente,
-    dataAbertura:dataAb, obs:obs,
-    textoImp: textoImp,
-    criadoEm: editandoImpId
-      ? ((impugnacoes.find(function(x){return x.id===editandoImpId;})||{}).criadoEm||hoje())
-      : hoje(),
-    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-  };
-  function gravar(pdfBase64, pdfNome){
-    if(pdfBase64){ dadosBase.pdfBase64 = pdfBase64; dadosBase.pdfNome = pdfNome||"documento.pdf"; }
-    var op = editandoImpId
-      ? impColRef.doc(editandoImpId).set(dadosBase)
-      : impColRef.add(dadosBase);
-    op.then(function(){ fecharModalImp(); toast("Salvo com sucesso!"); })
-      .catch(function(e){ alert("Erro ao salvar: "+e.message); })
-      .finally(function(){ btn.disabled=false; btn.textContent="Salvar"; });
-  }
-  if(!usarTexto && arquivo){
-    if(arquivo.size > 5*1024*1024){
-      alert("Arquivo muito grande. Maximo 5MB.");
-      btn.disabled=false; btn.textContent="Salvar"; return;
-    }
-    var statusEl = document.getElementById("impUploadStatus");
-    statusEl.textContent = "Lendo PDF...";
-    var reader = new FileReader();
-    reader.onload = function(e){
-      statusEl.textContent = "Salvando...";
-      gravar(e.target.result, arquivo.name);
-    };
-    reader.onerror = function(){ alert("Erro ao ler o arquivo."); btn.disabled=false; btn.textContent="Salvar"; };
-    reader.readAsDataURL(arquivo);
-  } else {
-    var existImp    = editandoImpId ? impugnacoes.find(function(x){return x.id===editandoImpId;}) : null;
-    var existBase64 = (!usarTexto && existImp) ? existImp.pdfBase64||null : null;
-    var existNome   = (!usarTexto && existImp) ? existImp.pdfNome||null   : null;
-    if(existBase64){ dadosBase.pdfBase64 = existBase64; dadosBase.pdfNome = existNome; }
-    gravar(null, null);
-  }
-}
-
-function excluirImp(){
-  if(!editandoImpId) return;
-  var imp = impugnacoes.find(function(x){return x.id===editandoImpId;});
-  if(!confirm("Excluir: "+(imp?imp.descricao:"este item")+"?")) return;
-  impColRef.doc(editandoImpId).delete()
-    .then(function(){ fecharModalImp(); toast("Excluido."); })
-    .catch(function(e){ alert("Erro: "+e.message); });
-}
-
-
-function marcarRespondido(id){
-  var imp = impugnacoes.find(function(x){return x.id===id;}); if(!imp) return;
-  var tipo = imp.tipo==="impugnacao" ? "impugnacao" : (imp.tipo==="esclarecimento" ? "esclarecimento" : "item");
-  if(!confirm(
-    "Marcar como RESPONDIDO e excluir do sistema?\n\n" +
-    '"'+imp.descricao+'"\n\n'+
-    "O registro sera removido do banco de dados (incluindo o PDF)\npara manter o sistema leve."
-  )) return;
-  impColRef.doc(id).delete()
-    .then(function(){ toast("Marcado como respondido e removido!"); })
-    .catch(function(e){ alert("Erro: "+e.message); });
-}
-function excluirImpDireto(id){
-  var imp = impugnacoes.find(function(x){return x.id===id;});
-  if(!confirm("Excluir: "+(imp?imp.descricao:"este item")+"?")) return;
-  impColRef.doc(id).delete().then(function(){ toast("Excluido."); }).catch(function(e){ alert("Erro: "+e.message); });
-}
-
 
 // ── RANKING PANEL (Firestore — sincroniza entre computadores) ─────────────────
 var rkColRef = db.collection('rankings');
@@ -5040,49 +4201,93 @@ function rkLimparFiltros(){
   rkRenderRanking();
 }
 
-// Passo 1: usuário clica em ✗/✓/🔍 → mostra confirmação inline
-// Passo 2: confirma → executa rkExecutarEstado
-function rkSetEstado(key, st){
-  var atual=rkEstados[key]||'neutro';
-  // Clicar no status já ativo = desfaz imediatamente (sem confirmar)
-  if(atual===st){
-    rkEstados[key]='neutro';
-    delete rkMotivos[key];
-    rkPendConfirm=null;
-    rkHasPending=false;
-    rkSalvarFirestore(); rkRenderProcesso(); return;
+// ── Ações das propostas (estilo secretaria, sem botão "Confirmar") ───────────
+// Clicar em ✗/✓/🔍 aplica o estado na hora; o motivo é digitado e salvo
+// automaticamente (debounce) enquanto se escreve.
+function rkPrimeiroNome(nome){ var p=String(nome||'').trim().split(/\s+/); return p[0]||String(nome||''); }
+function rkOrdinalF(n){ return n+'\u00AA'; }
+/* Índice do fornecedor "atual" de um item = primeiro que não foi reprovado */
+function rkFornIdxAtual(it){
+  for(var k=0;k<it.fornecedores.length;k++){
+    if((rkEstados[it.num+'-'+k]||'neutro')!=='reprovado') return k;
   }
-  rkPendConfirm={key:key, st:st};
-  rkRenderRanking(); // re-render para mostrar o bloco de confirmação
-  // foca o textarea de motivo se abriu
-  setTimeout(function(){
-    var ta=document.querySelector('.rk-ci-motivo[data-key="'+key+'"]');
-    if(ta) ta.focus();
-  },60);
+  return -1;
 }
-function rkExecutarEstado(key, st, motivo){
-  rkPendConfirm=null;
-  rkHasPending=false;
-  var sep=key.lastIndexOf('-');
-  var numIt=key.slice(0,sep), fIdx=parseInt(key.slice(sep+1),10);
-  var it=rkItens.find(function(x){ return String(x.num)===String(numIt); });
-  var fn=(it&&it.fornecedores&&it.fornecedores[fIdx])?it.fornecedores[fIdx].nome:'';
-  rkEstados[key]=st;
-  if(motivo&&motivo.trim()) rkMotivos[key]=motivo.trim(); else delete rkMotivos[key];
-  var acao=st==='aprovado'?'aprovada':st==='reprovado'?'reprovada':'em diligência';
-  rkLogEvento('Item '+numIt+' — proposta de '+fn+' '+acao);
-  rkSalvarFirestore(); rkRenderProcesso();
+function rkStatusItem(it){
+  return rkItemAp(it)?'aprovado':rkItemFracassado(it)?'fracassado':rkItemDil(it)?'diligencia':'pendente';
 }
-function rkCancelarConfirm(){
-  rkPendConfirm=null;
-  rkRenderRanking();
-  rkFlushPending();
+function rkAplicarAcao(num, act){
+  var it=rkItens.find(function(x){ return String(x.num)===String(num); }); if(!it) return;
+  var nIt=String(it.num);
+  var idx=rkFornIdxAtual(it);
+  var status=rkStatusItem(it);
+  if(idx<0) return; /* item fracassado: nada a fazer nos botões */
+  var fn=(it.fornecedores[idx]?it.fornecedores[idx].nome:'');
+  var key=nIt+'-'+idx;
+  if(act==='ap'){
+    if(status==='aprovado'){
+      rkEstados[key]='neutro'; delete rkMotivos[key];
+      rkLogEvento('Item '+nIt+' — aprovação desfeita ('+rkPrimeiroNome(fn)+')');
+    } else {
+      rkEstados[key]='aprovado'; delete rkMotivos[key];
+      rkLogEvento('Item '+nIt+' — proposta de '+fn+' aprovada');
+    }
+    rkHasPending=false; rkSalvarFirestore(); rkRenderProcesso();
+  } else if(act==='dil'){
+    if(status==='diligencia'){
+      rkEstados[key]='neutro'; delete rkMotivos[key];
+      rkLogEvento('Item '+nIt+' — diligência desfeita ('+rkPrimeiroNome(fn)+')');
+      rkHasPending=false; rkSalvarFirestore(); rkRenderProcesso();
+    } else {
+      rkEstados[key]='diligencia';
+      rkLogEvento('Item '+nIt+' — proposta de '+fn+' em diligência');
+      rkHasPending=false; rkSalvarFirestore(); rkRenderProcesso();
+      setTimeout(function(){ var ta=document.querySelector('.rks-motivo[data-key="'+key+'"]'); if(ta) ta.focus(); },70);
+    }
+  } else if(act==='rp'){
+    rkEstados[key]='reprovado';
+    rkLogEvento('Item '+nIt+' — proposta de '+fn+' reprovada');
+    rkHasPending=false; rkSalvarFirestore(); rkRenderProcesso();
+    setTimeout(function(){ var ta=document.querySelector('.rks-coloc-motivo-edit[data-key="'+key+'"]'); if(ta) ta.focus(); },70);
+  }
+}
+function rkDesfazerReprovado(key){
+  rkEstados[key]='neutro'; delete rkMotivos[key];
+  var sep=key.lastIndexOf('-'); var numIt=key.slice(0,sep);
+  rkLogEvento('Item '+numIt+' — reprovação desfeita');
+  rkHasPending=false; rkSalvarFirestore(); rkRenderProcesso();
 }
 function rkSetMotivo(key,val){
   rkMotivos[key]=val;
   if(rkMotivoTimer) clearTimeout(rkMotivoTimer);
   rkMotivoTimer=setTimeout(rkSalvarFirestore, 900);
 }
+/* Normaliza texto colado nos campos de motivo: textos vindos do Word/WhatsApp
+   costumam trazer uma quebra de linha "dura" a cada ~70 caracteres, o que faz
+   o parágrafo aparecer todo quebrado dentro da caixa. Aqui juntamos essas
+   quebras soltas em espaço, preservando quebras intencionais (linha em
+   branco = novo parágrafo). */
+function rkNormalizarColado(texto){
+  texto=(texto||"").replace(/\r\n?/g,"\n");
+  texto=texto.replace(/([^\n])\n(?!\n)/g,"$1 ");
+  texto=texto.replace(/\n{3,}/g,"\n\n");
+  texto=texto.replace(/[ \t]{2,}/g," ");
+  return texto.trim();
+}
+document.addEventListener("paste", function(e){
+  var el=e.target;
+  if(!el||!el.classList||!el.classList.contains("rk-motivo-input")) return;
+  var texto=(e.clipboardData||window.clipboardData).getData("text");
+  if(!texto) return;
+  e.preventDefault();
+  var limpo=rkNormalizarColado(texto);
+  var start=el.selectionStart, end=el.selectionEnd;
+  var val=el.value||"";
+  el.value=val.slice(0,start)+limpo+val.slice(end);
+  var pos=start+limpo.length;
+  el.setSelectionRange(pos,pos);
+  el.dispatchEvent(new Event("input",{bubbles:true}));
+});
 function rkAutoResize(el){ el.style.height='auto'; el.style.height=(el.scrollHeight+2)+'px'; }
 function rkParseBRL(s){ if(!s) return 0; return parseFloat(s.replace(/[R$\s]/g,'').replace(/\./g,'').replace(',','.')) || 0; }
 function rkCalcPct(v,r){ var vv=rkParseBRL(v),rr=rkParseBRL(r); if(!rr) return null; return (vv-rr)/rr*100; }
@@ -5106,85 +4311,110 @@ function rkRenderRanking(){
   if(!rkItens.length) return;
   var body=document.getElementById('rkBody');
   var savedScroll=body?body.scrollTop:0;
-  var c=document.getElementById('rkRanking'); c.innerHTML='';
+  var c=document.getElementById('rkRanking'); if(!c) return; c.innerHTML='';
+
+  /* Se há busca por texto ativa, o filtro de status é ignorado — assim o item
+     pesquisado NÃO some ao trocar de status enquanto ele está na tela. */
+  var temBuscaTexto=!!(rkFiltroNum||rkFiltroDesc||rkFiltroForn);
   var lista=rkItens;
-  if(rkFiltroAtivo==='aprovado') lista=rkItens.filter(rkItemAp);
-  else if(rkFiltroAtivo==='diligencia') lista=rkItens.filter(rkItemDil);
-  else if(rkFiltroAtivo==='fracassado') lista=rkItens.filter(rkItemFracassado);
-  else if(rkFiltroAtivo==='pendente') lista=rkItens.filter(rkItemPe);
-  if(rkFiltroNum){ lista=lista.filter(function(it){ return it.num.toLowerCase()===rkFiltroNum; }); }
-  if(rkFiltroDesc){ lista=lista.filter(function(it){ return it.desc.toLowerCase().includes(rkFiltroDesc); }); }
-  if(rkFiltroForn){ lista=lista.filter(function(it){ return it.fornecedores.some(function(f){ return f.nome.toLowerCase().includes(rkFiltroForn); }); }); }
-  if(!lista.length){ var d=document.createElement('div'); d.className='rk-no-results'; d.textContent='Nenhum item encontrado para os filtros aplicados.'; c.appendChild(d); if(body) body.scrollTop=savedScroll; return; }
+  if(!temBuscaTexto){
+    if(rkFiltroAtivo==='aprovado') lista=lista.filter(rkItemAp);
+    else if(rkFiltroAtivo==='diligencia') lista=lista.filter(rkItemDil);
+    else if(rkFiltroAtivo==='fracassado') lista=lista.filter(rkItemFracassado);
+    else if(rkFiltroAtivo==='pendente') lista=lista.filter(rkItemPe);
+  }
+  if(rkFiltroNum){ lista=lista.filter(function(it){ return String(it.num).toLowerCase()===rkFiltroNum; }); }
+  if(rkFiltroDesc){ lista=lista.filter(function(it){ return (it.desc||'').toLowerCase().includes(rkFiltroDesc); }); }
+  if(rkFiltroForn){ lista=lista.filter(function(it){ return it.fornecedores.some(function(f){ return (f.nome||'').toLowerCase().includes(rkFiltroForn); }); }); }
+
+  if(!lista.length){
+    var d=document.createElement('div'); d.className='rk-no-results';
+    d.textContent='Nenhum item encontrado para os filtros aplicados.';
+    c.appendChild(d); if(body) body.scrollTop=savedScroll; return;
+  }
+
+  var html='';
   lista.forEach(function(it){
-    var hc=rkItemAp(it)?'aprovado':rkItemDil(it)?'diligencia':rkItemFracassado(it)?'fracassado':'pendente';
-    var block=document.createElement('div'); block.className='rk-item-block';
-    var head=document.createElement('div'); head.className='rk-item-head '+hc;
-    head.innerHTML='<span class="rk-item-title">Item '+escHtml(it.num)+' \u2014 '+escHtml(it.desc)+'</span><span class="rk-item-ref">'+escHtml(it.ref)+'</span>';
-    block.appendChild(head);
-    var tbl=document.createElement('table'); tbl.className='rk-table';
-    tbl.innerHTML='<thead><tr><th>Fornecedor</th><th class="r">Valor Unit.</th><th class="r">Ref.</th><th>Modelo</th><th>Marca/Fabricante</th><th class="c" style="min-width:140px">Situação / Motivo</th></tr></thead>';
-    var tbody=document.createElement('tbody');
-    var indices=rkFornVisiveis(it);
-    var ocultados=it.fornecedores.length-indices.length;
-    indices.forEach(function(i){
-      var f=it.fornecedores[i];
-      var key=it.num+'-'+i, st=rkEstados[key]||'neutro', mv=rkMotivos[key]||'';
-      var tr=document.createElement('tr'); tr.className='rk-forn '+st;
-      var pct=rkCalcPct(f.valor,it.ref), pv=rkFmtPct(pct);
-      var pc=pct===null?'':pct>0?'rk-pct-acima':pct===0?'rk-pct-zero':'rk-pct-abaixo';
-      var isConfirming=(rkPendConfirm&&rkPendConfirm.key===key);
-      var confirmLabel=isConfirming?(rkPendConfirm.st==='aprovado'?'Confirmar aprovação':'Confirmar '+(rkPendConfirm.st==='reprovado'?'reprovação':'diligência')):'';
-      var confirmCls=isConfirming?rkPendConfirm.st:'';
-      var sitHTML='<div class="rk-sit-btns">'
-        +'<button class="hab-dbtn rec'+(st==='reprovado'?' sel':'')+'" data-rkst="reprovado" data-key="'+escHtml(key)+'" title="Reprovar proposta">&#10005;</button>'
-        +'<button class="hab-dbtn ap'+(st==='aprovado'?' sel':'')+'" data-rkst="aprovado" data-key="'+escHtml(key)+'" title="Aprovar proposta">&#10003;</button>'
-        +'<button class="hab-dbtn dil'+(st==='diligencia'?' sel':'')+'" data-rkst="diligencia" data-key="'+escHtml(key)+'" title="Solicitar diligência">&#128269;</button>'
-        +'</div>';
-      if(isConfirming){
-        sitHTML+='<div class="rk-confirm-inline">'
-          +'<div class="rk-confirm-inline-label">'+escHtml(confirmLabel)+'</div>'
-          +(rkPendConfirm.st!=='aprovado'?'<textarea class="rk-motivo-input rk-ci-motivo" placeholder="Motivo (opcional)..." data-key="'+escHtml(key)+'" rows="2" style="'+(rkPendConfirm.st==='diligencia'?'border-color:#bfdbfe;background:#eff6ff':'')+'"></textarea>':'')
-          +'<div class="rk-confirm-inline-btns">'
-            +'<button class="rk-ci-cancel" data-rkcancel="1">Cancelar</button>'
-            +'<button class="rk-ci-confirm '+escHtml(confirmCls)+'" data-rkconfirm="'+escHtml(key)+'" data-rkst="'+escHtml(rkPendConfirm.st)+'">'+escHtml(confirmLabel)+' →</button>'
+    var nIt=String(it.num);
+    var idx=rkFornIdxAtual(it);
+    var status=rkStatusItem(it);
+    var cardCls='rks-card rk-inline-card';
+    if(status==='aprovado') cardCls+=' rks-aprovado';
+    else if(status==='fracassado') cardCls+=' rks-fracassado';
+    else if(status==='diligencia') cardCls+=' rks-diligencia';
+
+    var titleHtml='<div class="rks-card-title"><span class="rks-item-num">Item '+escHtml(it.num)+'</span>'
+      +'<span class="rks-item-ref">'+escHtml(it.ref||'')+'</span>'+escHtml(it.desc||'')+'</div>';
+
+    /* Lista de colocações: reprovados em letra pequena (com motivo editável e
+       botão de desfazer); a colocação atual em destaque com valor/modelo/marca. */
+    var fornHtml='<div class="rks-coloc-wrap">';
+    for(var ci=0;ci<it.fornecedores.length;ci++){
+      var cf=it.fornecedores[ci];
+      var ckey=nIt+'-'+ci;
+      var cst=rkEstados[ckey]||'neutro';
+      var cmv=rkMotivos[ckey]||'';
+      if(cst==='reprovado'){
+        if(rkOcultarReprovados) continue;
+        fornHtml+='<div class="rks-coloc-rep">'
+          +'<div class="rks-coloc-rep-linha">'
+            +'<span class="rks-coloc-pos">'+rkOrdinalF(ci+1)+' colocada</span>'
+            +'<span class="rks-coloc-nome-rep">'+escHtml(rkPrimeiroNome(cf.nome))+'</span>'
+            +'<span class="rks-coloc-tag-rep">Reprovado</span>'
+            +'<button class="rks-coloc-undo" data-rkundo="'+escHtml(ckey)+'" title="Desfazer reprovação">&#8634;</button>'
+          +'</div>'
+          +'<textarea class="rk-motivo-input rks-coloc-motivo-edit" placeholder="Motivo da reprovação..." data-key="'+escHtml(ckey)+'">'+escHtml(cmv)+'</textarea>'
+          +'</div>';
+      } else if(ci===idx){
+        var pct=rkCalcPct(cf.valor,it.ref), pv=rkFmtPct(pct);
+        var pc=pct===null?'':pct>0?'rk-pct-acima':pct===0?'rk-pct-zero':'rk-pct-abaixo';
+        fornHtml+='<div class="rks-coloc-atual'+(cst==='diligencia'?' dilig':'')+'">'
+          +'<div class="rks-coloc-atual-pos">'+rkOrdinalF(ci+1)+' colocada'+((ci>0&&status!=='aprovado')?' \u00B7 a próxima para avaliar':'')+'</div>'
+          +'<span class="rks-forn-nome">'+escHtml(cf.nome)+'</span>'
+          +'<div class="rks-forn-tags">'
+          +'<span class="rks-forn-tag"><b>Valor</b> '+escHtml(cf.valor||'—')+(pv?' <span class="'+pc+'">'+escHtml(pv)+'</span>':'')+'</span>'
+          +'<span class="rks-forn-tag"><b>Modelo</b> '+escHtml(cf.modelo||'—')+'</span>'
+          +'<span class="rks-forn-tag"><b>Marca</b> '+escHtml(cf.marca||'—')+'</span>'
           +'</div></div>';
-      } else if(st==='aprovado') sitHTML+='<span class="rk-badge ap">Aprovado</span>';
-      else if(st==='reprovado') sitHTML+='<span class="rk-badge rp">Reprovado</span><br><textarea class="rk-motivo-input" placeholder="Motivo da reprovação..." oninput="rkSetMotivo(this.dataset.key,this.value);this.nextElementSibling.textContent=this.value;rkAutoResize(this)" data-key="'+escHtml(key)+'">'+escHtml(mv)+'</textarea><div class="rk-motivo-print">'+escHtml(mv)+'</div>';
-      else if(st==='diligencia') sitHTML+='<span class="rk-badge dil">Diligência</span><br><textarea class="rk-motivo-input" style="border-color:#bfdbfe;background:#eff6ff" placeholder="Motivo da diligência..." oninput="rkSetMotivo(this.dataset.key,this.value);this.nextElementSibling.textContent=this.value;rkAutoResize(this)" data-key="'+escHtml(key)+'">'+escHtml(mv)+'</textarea><div class="rk-motivo-print" style="color:#1d4ed8">'+escHtml(mv)+'</div>';
-      tr.innerHTML='<td data-label="Fornecedor">'+escHtml(f.nome)+'</td>'
-        +'<td class="r" data-label="Valor Unit.">'+escHtml(f.valor)+'</td>'
-        +'<td class="r" data-label="Ref.">'+'<span class="'+pc+'">'+pv+'</span></td>'
-        +'<td data-label="Modelo">'+escHtml(f.modelo)+'</td>'
-        +'<td data-label="Marca/Fabricante">'+escHtml(f.marca)+'</td>'
-        +'<td class="sit" data-label="Situação / Motivo">'+sitHTML+'</td>';
-      tr.querySelectorAll('[data-rkst]').forEach(function(btn){
-        btn.addEventListener('click',function(){ rkSetEstado(btn.dataset.key, btn.dataset.rkst); });
-      });
-      tr.querySelectorAll('[data-rkcancel]').forEach(function(btn){
-        btn.addEventListener('click',function(){ rkCancelarConfirm(); });
-      });
-      tr.querySelectorAll('[data-rkconfirm]').forEach(function(btn){
-        btn.addEventListener('click',function(){
-          var ta=btn.closest('.rk-confirm-inline').querySelector('textarea');
-          rkExecutarEstado(btn.dataset.rkconfirm, btn.dataset.rkst, ta?ta.value:'');
-        });
-      });
-      tbody.appendChild(tr);
-    });
-    if(ocultados>0){
-      var trOc=document.createElement('tr'); trOc.className='rk-hidden-row';
-      trOc.innerHTML='<td colspan="6">&#128274; '+ocultados+' fornecedor'+(ocultados>1?'es':'')+' oculto'+(ocultados>1?'s':'')+' — clique para mostrar todos</td>';
-      trOc.addEventListener('click',function(){
-        rkOcultarReprovados=false; var btnR=document.getElementById('rkBtnOcultarRep'); if(btnR) btnR.innerHTML='&#128683; Ocultar Reprovados';
-        rkModoOculto=false; var btn=document.getElementById('rkBtnToggleOculto'); if(btn) btn.innerHTML='&#128065; Ocultar Classificados';
-        rkRenderRanking();
-      });
-      tbody.appendChild(trOc);
+        break;
+      }
     }
-    tbl.appendChild(tbody); var tblWrap=document.createElement('div'); tblWrap.className='rk-table-scroll'; tblWrap.appendChild(tbl); block.appendChild(tblWrap); c.appendChild(block);
-    block.querySelectorAll('.rk-motivo-input').forEach(rkAutoResize);
+    fornHtml+='</div>';
+
+    /* Botões de ação — agem sobre a colocação atual, sem etapa de confirmação. */
+    var actionHtml='';
+    if(status==='fracassado'){
+      actionHtml='<div class="rks-fracassado-badge">&#128308; Fracassado — todos os '+it.fornecedores.length+' fornecedores reprovados</div>';
+    } else {
+      var apCls=status==='aprovado'?' sel-ap':'';
+      var dilSel=status==='diligencia';
+      actionHtml='<div class="rks-card-btns">'
+        +'<button class="rks-sbtn rks-sbtn-rp" data-rkact="rp" data-num="'+escHtml(nIt)+'"><span class="rks-sbtn-icon">&#10005;</span>Reprovado</button>'
+        +'<button class="rks-sbtn rks-sbtn-ap'+apCls+'" data-rkact="ap" data-num="'+escHtml(nIt)+'"><span class="rks-sbtn-icon">&#10003;</span>Aprovado</button>'
+        +'<button class="rks-sbtn'+(dilSel?' sel-dil':'')+'"'+(dilSel?'':' style="background:#eff6ff;color:#1d4ed8;border-color:#bfdbfe"')+' data-rkact="dil" data-num="'+escHtml(nIt)+'"><span class="rks-sbtn-icon">&#128269;</span>Diligência</button>'
+        +'</div>';
+      if(dilSel && idx>=0){
+        var dkey=nIt+'-'+idx, dmv=rkMotivos[dkey]||'';
+        actionHtml+='<div class="rks-motivo-wrap"><textarea class="rk-motivo-input rks-motivo" style="border-color:#bfdbfe;background:#eff6ff" placeholder="Motivo da diligência..." data-key="'+escHtml(dkey)+'">'+escHtml(dmv)+'</textarea></div>';
+      }
+    }
+    html+='<div class="'+cardCls+'" data-num="'+escHtml(nIt)+'">'+titleHtml+fornHtml+actionHtml+'</div>';
   });
+
+  c.innerHTML=html;
+
+  c.querySelectorAll('[data-rkact]').forEach(function(btn){
+    btn.addEventListener('click',function(){ rkAplicarAcao(btn.dataset.num, btn.dataset.rkact); });
+  });
+  c.querySelectorAll('[data-rkundo]').forEach(function(btn){
+    btn.addEventListener('click',function(){ rkDesfazerReprovado(btn.dataset.rkundo); });
+  });
+  /* Motivo salva sozinho ao digitar (sem botão "Confirmar"). */
+  c.querySelectorAll('.rk-motivo-input').forEach(function(ta){
+    ta.addEventListener('input',function(){ rkSetMotivo(ta.dataset.key, ta.value); rkAutoResize(ta); });
+    rkAutoResize(ta);
+  });
+
   if(body) body.scrollTop=savedScroll;
 }
 function rkCopiarLink(){

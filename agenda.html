@@ -1321,6 +1321,17 @@ function popularAgentesSelect(){
   agentes.forEach(function(a){ sel.innerHTML+='<option value="'+escHtml(a.nomeAbrev)+'">'+escHtml(a.nomeAbrev)+'</option>'; });
   if(atual) sel.value=atual;
 }
+/* Seleciona o responsável no <select> mesmo que haja diferença de caixa/acento
+   entre o valor salvo e o texto da opção (garante que "Pedro" seja marcado). */
+function _selecionarResponsavel(nomeAbrev){
+  var sel=document.getElementById("cResponsavel"); if(!sel) return;
+  sel.value=nomeAbrev;
+  if(sel.value===nomeAbrev) return;
+  var alvo=_portalNorm(nomeAbrev);
+  for(var i=0;i<sel.options.length;i++){
+    if(_portalNorm(sel.options[i].value)===alvo){ sel.selectedIndex=i; return; }
+  }
+}
 function popularStatusSelect(){
   var sel=document.getElementById("cStatus"); if(!sel)return;
   var atual=sel.value;
@@ -2548,18 +2559,27 @@ function puxarDadosPortal(link){
                  || _portalValor(lines,"Pregoeiro");
     if(agenteTxt){
       var abrev=agenteTxt.trim().split(/\s+/)[0];
+      var na=_portalNorm(abrev);
+      var naFull=_portalNorm(agenteTxt);
       var found=agentes.find(function(a){
-        return _portalNorm(a.nomeCompleto||"").indexOf(_portalNorm(abrev))>=0
-            || _portalNorm(a.nomeAbrev||"")===_portalNorm(abrev);
+        var nab=_portalNorm(a.nomeAbrev||"");
+        var nc=_portalNorm(a.nomeCompleto||"");
+        var nc2=_portalNorm(a.nomeCompleto2||"");
+        return nab===na
+            || nab.split(/\s+/)[0]===na
+            || nc.split(/\s+/)[0]===na
+            || nc.indexOf(na)>=0
+            || nc2.indexOf(na)>=0
+            || (nc && naFull.indexOf(nc)>=0);
       });
       if(found){
-        document.getElementById("cResponsavel").value=found.nomeAbrev;
+        _selecionarResponsavel(found.nomeAbrev);
       } else {
         var ts=firebase.firestore.FieldValue.serverTimestamp();
         agColRef.add({nomeAbrev:abrev,nomeCompleto:agenteTxt.trim(),nomeCompleto2:"",createdAt:ts,updatedAt:ts})
           .then(function(){ setTimeout(function(){
             var ag=agentes.find(function(a){ return _portalNorm(a.nomeAbrev)===_portalNorm(abrev); });
-            if(ag) document.getElementById("cResponsavel").value=ag.nomeAbrev;
+            if(ag) _selecionarResponsavel(ag.nomeAbrev);
           },600); });
       }
     }
