@@ -137,6 +137,10 @@
   .card-num { font-size: 17px; font-weight: 700; color: var(--navy); line-height: 1.2; }
   .card-obj { font-size: 14px; color: var(--text); margin-top: 3px; line-height: 1.4; font-weight: 500; }
   .card-meta { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 7px; }
+  .card-atalhos { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+  .card-atalho-btn { display: inline-flex; align-items: center; gap: 5px; background: #fff; border: 1.5px solid var(--border); color: var(--navy); font-size: 11.5px; font-weight: 700; padding: 5px 10px; border-radius: 20px; cursor: pointer; transition: background .12s, border-color .12s; }
+  .card-atalho-btn:hover { background: var(--blue-bg); border-color: var(--navy-light); }
+  .card-atalho-btn:active { transform: scale(0.96); }
   .card-contato { font-size: 13.5px; color: var(--navy); margin-top: 6px; font-weight: 700; background: var(--blue-bg); display: inline-block; padding: 3px 10px; border-radius: 6px; border: 1px solid #c0d4f5; }
   .card-contato span { color: var(--navy-light); }
   .badge { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 700; white-space: nowrap; flex-shrink: 0; }
@@ -1340,14 +1344,39 @@
           <div class="field">
             <label>Cor</label>
             <select id="stCor">
-              <option value="amber">Amarelo (Em Andamento)</option>
-              <option value="blue">Azul (Aguardando)</option>
-              <option value="red">Vermelho (Suspenso)</option>
-              <option value="green">Verde (Concluído)</option>
+              <option value="amber">Amarelo / Laranja</option>
+              <option value="blue">Azul</option>
+              <option value="red">Vermelho</option>
+              <option value="green">Verde</option>
               <option value="purple">Roxo</option>
               <option value="gray">Cinza</option>
+              <option value="teal">Verde-azulado</option>
+              <option value="pink">Rosa</option>
+              <option value="indigo">Índigo</option>
+              <option value="brown">Marrom</option>
+              <option value="cyan">Ciano</option>
+              <option value="olive">Oliva</option>
+              <option value="coral">Coral</option>
+              <option value="navy">Azul-marinho</option>
             </select>
           </div>
+        </div>
+        <div style="border-top:1.5px dashed var(--border);padding-top:12px;display:flex;flex-direction:column;gap:8px">
+          <label style="font-size:11.5px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.4px">Botões de mensagem rápida <span style="font-weight:400;text-transform:none">(aparecem no card quando o processo estiver nesse status; ao clicar, copiam o texto)</span></label>
+          <div class="row">
+            <div class="field">
+              <label>Nome do botão</label>
+              <input type="text" id="stAtLabel" placeholder="Ex: Negociação">
+            </div>
+          </div>
+          <div class="field">
+            <label>Mensagem a copiar</label>
+            <textarea id="stAtTexto" rows="3" placeholder="Ex: Prezados, vamos abrir a fase de negociação..."></textarea>
+          </div>
+          <div style="display:flex;justify-content:flex-end">
+            <button type="button" class="btn-sm" onclick="adicionarAtalhoStatusTemp()">+ Adicionar botão</button>
+          </div>
+          <div id="stAtalhosLista" style="display:flex;flex-direction:column;gap:6px"></div>
         </div>
         <div style="display:flex;gap:8px;justify-content:flex-end">
           <button class="btn-cancel" onclick="limparFormStatus()" style="padding:8px 16px;font-size:13px">Limpar</button>
@@ -1806,13 +1835,22 @@ const LOGO_B64_PDF = "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUN
 
 var processos=[], agentes=[], statusList=[], statusListAll=[], filtroAgente="todos", filtroStatus="todos", filtroAno="todos", ordemSort="desc";
 var editandoId=null, updateId=null, editandoAgId=null, editandoStId=null;
+var stAtalhosTemp=[];
 var STATUS_COR_MAP={
   amber:  {bg:"#ff9800",color:"#fff",border:"#e65c00"},
   blue:   {bg:"#1565c0",color:"#fff",border:"#0d47a1"},
   red:    {bg:"#d32f2f",color:"#fff",border:"#b71c1c"},
   green:  {bg:"#2e7d32",color:"#fff",border:"#1b5e20"},
   purple: {bg:"#6a1b9a",color:"#fff",border:"#4a148c"},
-  gray:   {bg:"#546e7a",color:"#fff",border:"#37474f"}
+  gray:   {bg:"#546e7a",color:"#fff",border:"#37474f"},
+  teal:   {bg:"#00897b",color:"#fff",border:"#00695c"},
+  pink:   {bg:"#d81b60",color:"#fff",border:"#ad1457"},
+  indigo: {bg:"#3949ab",color:"#fff",border:"#283593"},
+  brown:  {bg:"#6d4c41",color:"#fff",border:"#4e342e"},
+  cyan:   {bg:"#00acc1",color:"#fff",border:"#00838f"},
+  olive:  {bg:"#827717",color:"#fff",border:"#5f5a0e"},
+  coral:  {bg:"#e64a19",color:"#fff",border:"#bf360c"},
+  navy:   {bg:"#1a237e",color:"#fff",border:"#0d1257"}
 };
 var STATUS_DEFAULT=[
   {id:"em-andamento",      nome:"Em Andamento",        cor:"amber", ordem:0},
@@ -1976,6 +2014,7 @@ document.addEventListener("click", function(e){
   if(action === "excluir-ag") excluirAgente(btn.dataset.agid);
   if(action === "editar-st")  editarStatus(btn.dataset.stid);
   if(action === "excluir-st") excluirStatus(btn.dataset.stid);
+  if(action === "copiar-atalho"){ copiarAtalhoStatus(btn.dataset.stid, parseInt(btn.dataset.idx,10)); return; }
   if(action === "portal" && pid) { /* removido */ }
   if(action === "ranking" && pid) abrirRanking(pid);
   if(action === "vencedores" && pid) abrirVencedores(pid);
@@ -2138,6 +2177,27 @@ function getStatusStyle(id){
   var c=STATUS_COR_MAP[st.cor]||STATUS_COR_MAP.gray;
   return 'background:'+c.bg+';color:'+c.color+';font-weight:700;';
 }
+function copiarAtalhoStatus(stid, idx){
+  var st=getStatusCfg(stid);
+  var a=st.atalhos&&st.atalhos[idx];
+  if(!a){ return; }
+  var texto=a.texto||"";
+  var feito=function(){ toast('Mensagem "'+a.label+'" copiada!'); };
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(texto).then(feito).catch(function(){ copiarAtalhoFallback(texto,feito); });
+  }else{
+    copiarAtalhoFallback(texto,feito);
+  }
+}
+function copiarAtalhoFallback(texto,cb){
+  var ta=document.createElement("textarea");
+  ta.value=texto;
+  ta.style.position="fixed"; ta.style.opacity="0";
+  document.body.appendChild(ta);
+  ta.focus(); ta.select();
+  try{ document.execCommand("copy"); cb&&cb(); }catch(e){ alert("Não foi possível copiar a mensagem."); }
+  document.body.removeChild(ta);
+}
 /* Tom sutil por status para colorir levemente o card (fundo + faixa superior) */
 var STATUS_TINT={
   amber:  {accent:"#ef8a00", bg:"#fff8ec"},
@@ -2145,7 +2205,15 @@ var STATUS_TINT={
   red:    {accent:"#d32f2f", bg:"#fdf3f3"},
   green:  {accent:"#2e7d32", bg:"#f1f9f3"},
   purple: {accent:"#6a1b9a", bg:"#f7f2fb"},
-  gray:   {accent:"#607d8b", bg:"#f5f8fb"}
+  gray:   {accent:"#607d8b", bg:"#f5f8fb"},
+  teal:   {accent:"#00897b", bg:"#eefaf8"},
+  pink:   {accent:"#d81b60", bg:"#fdf0f5"},
+  indigo: {accent:"#3949ab", bg:"#f1f2fb"},
+  brown:  {accent:"#6d4c41", bg:"#f8f4f2"},
+  cyan:   {accent:"#00acc1", bg:"#eafbfd"},
+  olive:  {accent:"#827717", bg:"#f9f9ec"},
+  coral:  {accent:"#e64a19", bg:"#fef1ec"},
+  navy:   {accent:"#1a237e", bg:"#eef0fa"}
 };
 function getStatusTint(id){
   var st=getStatusCfg(id);
@@ -2195,13 +2263,11 @@ function primeiroNomeAgente(abrev){
   var comp=(a&&a.nomeCompleto)?a.nomeCompleto:(abrev||"");
   return comp.toString().trim().split(/\s+/)[0]||"";
 }
-/* Rótulo final exibido no index: "Pregão 75/2026 - Pedro" */
+/* Rótulo final exibido no index: "Pregão 75/2026" (sem nome do agente) */
 function rotuloProcesso(p){
   var tipo=tipoLicitacao(p.numero);
   var seq=numeroSeq(p.numero);
-  var base=tipo?(tipo+" "+seq):(p.numero||"Sem número");
-  var nome=primeiroNomeAgente(p.responsavel);
-  return base+(nome?" - "+nome:"");
+  return tipo?(tipo+" "+seq):(p.numero||"Sem número");
 }
 function classData(iso){
   if(!iso)return "";
@@ -2447,6 +2513,14 @@ function renderizar(){
     html+='</div>';
     html+='</div>';
     html+='<div class="card-meta"><span class="status-tag" data-action="status-pop" title="Clique para alterar o status" style="'+getStatusStyle(p.status)+'">'+escHtml((st.nome||st.label||p.status))+'<span class="status-caret">&#9660;</span></span>'+dataLabel+linkBtn+'</div>';
+    if(st.atalhos&&st.atalhos.length){
+      var atalhosHtml='<div class="card-atalhos">';
+      for(var ai=0;ai<st.atalhos.length;ai++){
+        atalhosHtml+='<button class="card-atalho-btn" data-action="copiar-atalho" data-stid="'+escHtml(p.status)+'" data-idx="'+ai+'" title="Copiar mensagem">&#128203; '+escHtml(st.atalhos[ai].label)+'</button>';
+      }
+      atalhosHtml+='</div>';
+      html+=atalhosHtml;
+    }
     html+=contatoHtml;
     html+='</div>';
     html+=progHtml;
@@ -2738,13 +2812,46 @@ function limparFormStatus(){
   editandoStId=null;
   document.getElementById("stNome").value="";
   document.getElementById("stCor").value="amber";
+  document.getElementById("stAtLabel").value="";
+  document.getElementById("stAtTexto").value="";
+  stAtalhosTemp=[];
+  renderAtalhosStatusTemp();
   document.getElementById("btnSalvarStatus").textContent="Salvar Status";
+}
+function adicionarAtalhoStatusTemp(){
+  var label=document.getElementById("stAtLabel").value.trim();
+  var texto=document.getElementById("stAtTexto").value.trim();
+  if(!label||!texto){alert("Preencha o nome do botão e a mensagem.");return;}
+  stAtalhosTemp.push({label:label,texto:texto});
+  document.getElementById("stAtLabel").value="";
+  document.getElementById("stAtTexto").value="";
+  renderAtalhosStatusTemp();
+}
+function removerAtalhoStatusTemp(idx){
+  stAtalhosTemp.splice(idx,1);
+  renderAtalhosStatusTemp();
+}
+function renderAtalhosStatusTemp(){
+  var el=document.getElementById("stAtalhosLista"); if(!el)return;
+  if(!stAtalhosTemp.length){ el.innerHTML=""; return; }
+  var html="";
+  for(var i=0;i<stAtalhosTemp.length;i++){
+    var a=stAtalhosTemp[i];
+    html+='<div style="display:flex;align-items:center;gap:8px;background:#fff;border:1.5px solid var(--border);border-radius:8px;padding:7px 10px">';
+    html+='<div style="flex:1;min-width:0"><div style="font-size:12.5px;font-weight:700;color:var(--navy)">'+escHtml(a.label)+'</div>';
+    html+='<div style="font-size:11.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+escHtml(a.texto)+'</div></div>';
+    html+='<button type="button" class="btn-sm danger" style="flex:none;padding:4px 9px;font-size:11.5px" onclick="removerAtalhoStatusTemp('+i+')">Remover</button>';
+    html+='</div>';
+  }
+  el.innerHTML=html;
 }
 function editarStatus(id){
   var st=statusList.find(function(s){return s.id===id;}); if(!st)return;
   editandoStId=id;
   document.getElementById("stNome").value=st.nome||st.label||"";
   document.getElementById("stCor").value=st.cor||"amber";
+  stAtalhosTemp=(st.atalhos||[]).map(function(a){return {label:a.label,texto:a.texto};});
+  renderAtalhosStatusTemp();
   document.getElementById("btnSalvarStatus").textContent="Atualizar";
   document.getElementById("stNome").focus();
 }
@@ -2870,7 +2977,7 @@ function salvarStatus(){
   var stId=editandoStId||(nome.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/\s+/g,"-").replace(/[^a-z0-9-]/g,""));
   var ts=firebase.firestore.FieldValue.serverTimestamp();
   var ordem=editandoStId ? (statusList.find(function(s){return s.id===editandoStId;})||{ordem:statusList.length}).ordem : statusList.length;
-  var data={nome:nome,cor:cor,ordem:ordem,updatedAt:ts};
+  var data={nome:nome,cor:cor,ordem:ordem,atalhos:stAtalhosTemp,updatedAt:ts};
   var op=db.collection("status").doc(stId).set(editandoStId?data:Object.assign({createdAt:ts},data));
   op.then(function(){toast(editandoStId?"Status atualizado!":"Status cadastrado!"); limparFormStatus();})
     .catch(function(e){alert("Erro: "+e.message);})
