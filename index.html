@@ -130,8 +130,7 @@
 
   .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(440px, 1fr)); gap: 20px; }
 
-  .card { background: var(--card); border-radius: 14px; box-shadow: var(--shadow); border: 1.5px solid var(--border); overflow: hidden; transition: box-shadow 0.2s, transform 0.2s; display: flex; flex-direction: column; }
-  .card:hover { box-shadow: var(--shadow-lg); transform: translateY(-2px); }
+  .card { background: var(--card); border-radius: 14px; box-shadow: var(--shadow); border: 1.5px solid var(--border); overflow: hidden; display: flex; flex-direction: column; }
   .card-header { padding: 16px 19px 13px; border-bottom: 1px solid var(--border); background: linear-gradient(135deg, #f5f7fd 0%, #fff 100%); border-top: 3px solid var(--navy); }
   .card-header-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; margin-bottom: 9px; }
   .card-num { font-size: 17px; font-weight: 700; color: var(--navy); line-height: 1.2; }
@@ -2177,17 +2176,19 @@ function getStatusStyle(id){
   var c=STATUS_COR_MAP[st.cor]||STATUS_COR_MAP.gray;
   return 'background:'+c.bg+';color:'+c.color+';font-weight:700;';
 }
-function copiarAtalhoStatus(stid, idx){
-  var st=getStatusCfg(stid);
-  var a=st.atalhos&&st.atalhos[idx];
-  if(!a){ return; }
-  var texto=a.texto||"";
-  var feito=function(){ toast('Mensagem "'+a.label+'" copiada!'); };
+function copiarTextoClipboard(texto, msgToast){
+  var feito=function(){ if(msgToast) toast(msgToast); };
   if(navigator.clipboard&&navigator.clipboard.writeText){
     navigator.clipboard.writeText(texto).then(feito).catch(function(){ copiarAtalhoFallback(texto,feito); });
   }else{
     copiarAtalhoFallback(texto,feito);
   }
+}
+function copiarAtalhoStatus(stid, idx){
+  var st=getStatusCfg(stid);
+  var a=st.atalhos&&st.atalhos[idx];
+  if(!a){ return; }
+  copiarTextoClipboard(a.texto||"", 'Mensagem "'+a.label+'" copiada!');
 }
 function copiarAtalhoFallback(texto,cb){
   var ta=document.createElement("textarea");
@@ -3115,9 +3116,24 @@ function rkLogEvento(msg){
   if(rkEventos.length>500) rkEventos=rkEventos.slice(-500);
 }
 var rkFiltroAtivo = null;
+var rkFiltroPin = null; /* trava a lista visível sob um filtro de status até o próximo clique no filtro, para um item não sumir da tela no meio do trabalho */
 var rkFiltroNum = '';
 var rkFiltroDesc = '';
 var rkFiltroForn = '';
+/* Textos padrão copiados automaticamente ao trabalhar diligência de catálogo/ficha técnica.
+   {EMPRESA} é substituído pelo nome do fornecedor no momento da cópia. */
+var RK_TXT_DILIGENCIA_CATALOGO =
+"Senhor licitante {EMPRESA}\n\n"+
+"Considerando a necessidade de análise da conformidade do produto ofertado com as exigências do edital, fica a empresa diligenciada para apresentar catálogo, ficha técnica, folder, prospecto ou documento equivalente que comprove as características do item cotado.\n\n"+
+"Fica concedido o prazo de 1 dia útil para atendimento da presente diligência.\n\n"+
+"Caso a empresa não encaminhe a documentação solicitada dentro do prazo, ou não apresente pedido de prorrogação antes do término do prazo, restará caracterizada a ausência de interesse no atendimento da diligência, ensejando a desclassificação da proposta, diante da impossibilidade de comprovação do atendimento às exigências editalícias.\n\n"+
+"Ressalta-se que a diligência tem por finalidade esclarecer e comprovar informações relativas à proposta já apresentada, nos termos da Lei nº 14.133/2021 e das regras do edital.";
+var RK_TXT_DESCLASSIFICACAO_CATALOGO =
+"Senhor licitante, {EMPRESA}\n\n"+
+"Considerando que a empresa foi devidamente diligenciada para apresentar catálogo, ficha técnica, folder, prospecto ou documento equivalente, verifica-se que não houve o envio da documentação solicitada, tampouco pedido formal e justificado de prorrogação dentro do prazo concedido.\n\n"+
+"Dessa forma, resta caracterizada a ausência de interesse da empresa no atendimento da diligência e na continuidade do certame, impossibilitando a Administração de verificar a conformidade do produto ofertado com as exigências do edital.\n\n"+
+"Assim, diante da ausência de comprovação do atendimento às especificações editalícias, a proposta da empresa fica desclassificada, nos termos da Lei nº 14.133/2021 e das regras do edital.\n\n"+
+"Ressalta-se que a Administração não pode aceitar proposta cuja conformidade técnica não tenha sido devidamente comprovada, sob pena de violação ao edital, à isonomia entre os licitantes e à segurança da contratação.";
 var rkModoOculto = true; /* por padrão oculta os fornecedores além do atual */
 var rkOcultarReprovados = false; /* quando true: mostra só o fornecedor atual (aprovado ou pendente), nunca reprovados */
 
@@ -3242,7 +3258,7 @@ function abrirRanking(pid){
   var ph=document.getElementById('rkPrintHeaderTitle'); if(ph) ph.textContent='Ranking — '+proc.numero;
   var pl=document.getElementById('rkPrintLogo'); if(pl) pl.src=LOGO_B64_PDF;
   var pf=document.getElementById('rkPrintFooterLeft'); if(pf) pf.textContent='Município de Ijuí — Ranking '+proc.numero;
-  rkFiltroAtivo=null; rkFiltroNum=''; rkFiltroDesc=''; rkFiltroForn='';
+  rkFiltroAtivo=null; rkFiltroPin=null; rkFiltroNum=''; rkFiltroDesc=''; rkFiltroForn='';
   var fn=document.getElementById('rkFiltroNum'); if(fn) fn.value='';
   var fd=document.getElementById('rkFiltroDesc'); if(fd) fd.value='';
   var ff=document.getElementById('rkFiltroForn'); if(ff) ff.value='';
@@ -4315,6 +4331,7 @@ function rkItemPe(it){ return !rkItemAp(it)&&!rkItemDil(it)&&!rkItemFracassado(i
 
 function rkSetFiltro(f){
   rkFiltroAtivo=rkFiltroAtivo===f?null:f;
+  rkFiltroPin=null;
   ['rkBtnTodos','rkBtnAp','rkBtnDil','rkBtnPe'].forEach(function(id){ var el=document.getElementById(id); if(el) el.classList.remove('rk-active'); });
   var m={null:'rkBtnTodos',aprovado:'rkBtnAp',diligencia:'rkBtnDil',pendente:'rkBtnPe',fracassado:'rkBtnFrac'};
   var el=document.getElementById(m[rkFiltroAtivo]); if(el) el.classList.add('rk-active');
@@ -4375,14 +4392,41 @@ function rkAplicarAcao(num, act){
       rkEstados[key]='diligencia';
       rkLogEvento('Item '+nIt+' — proposta de '+fn+' em diligência');
       rkHasPending=false; rkSalvarFirestore(); rkRenderProcesso();
+      copiarTextoClipboard(RK_TXT_DILIGENCIA_CATALOGO.replace('{EMPRESA}', fn), 'Mensagem de diligência copiada — cole no chat do portal!');
       setTimeout(function(){ var ta=document.querySelector('.rks-motivo[data-key="'+key+'"]'); if(ta) ta.focus(); },70);
     }
   } else if(act==='rp'){
-    rkEstados[key]='reprovado';
-    rkLogEvento('Item '+nIt+' — proposta de '+fn+' reprovada');
-    rkHasPending=false; rkSalvarFirestore(); rkRenderProcesso();
-    setTimeout(function(){ var ta=document.querySelector('.rks-coloc-motivo-edit[data-key="'+key+'"]'); if(ta) ta.focus(); },70);
+    rkPendConfirm={num:nIt, key:key};
+    rkRenderProcesso();
+    setTimeout(function(){ var ta=document.querySelector('.rks-rp-confirm-motivo[data-key="'+key+'"]'); if(ta) ta.focus(); },70);
   }
+}
+function rkConfirmarReprovacao(key){
+  var ta=document.querySelector('.rks-rp-confirm-motivo[data-key="'+key+'"]');
+  var mv=ta?ta.value.trim():'';
+  if(!mv){ alert('Informe o motivo da reprovação.'); if(ta) ta.focus(); return; }
+  var sep=key.lastIndexOf('-'); var nIt=key.slice(0,sep); var idx=Number(key.slice(sep+1));
+  var it=rkItens.find(function(x){ return String(x.num)===nIt; }); if(!it) return;
+  var fn=(it.fornecedores[idx]?it.fornecedores[idx].nome:'');
+  rkEstados[key]='reprovado'; rkMotivos[key]=mv;
+  rkLogEvento('Item '+nIt+' — proposta de '+fn+' reprovada');
+  rkPendConfirm=null;
+  rkHasPending=false; rkSalvarFirestore(); rkRenderProcesso();
+}
+function rkNaoEnviouCatalogo(num){
+  var it=rkItens.find(function(x){ return String(x.num)===String(num); }); if(!it) return;
+  var nIt=String(it.num);
+  var idx=rkFornIdxAtual(it); if(idx<0) return;
+  var fn=(it.fornecedores[idx]?it.fornecedores[idx].nome:'');
+  var key=nIt+'-'+idx;
+  var texto=RK_TXT_DESCLASSIFICACAO_CATALOGO.replace('{EMPRESA}', fn);
+  copiarTextoClipboard(texto, 'Mensagem de desclassificação copiada — cole no chat do portal!');
+  rkPendConfirm={num:nIt, key:key};
+  rkRenderProcesso();
+  setTimeout(function(){
+    var ta=document.querySelector('.rks-rp-confirm-motivo[data-key="'+key+'"]');
+    if(ta){ ta.value='Não retornou a diligência.'; ta.focus(); }
+  },70);
 }
 function rkDesfazerReprovado(key){
   rkEstados[key]='neutro'; delete rkMotivos[key];
@@ -4450,11 +4494,20 @@ function rkRenderRanking(){
      pesquisado NÃO some ao trocar de status enquanto ele está na tela. */
   var temBuscaTexto=!!(rkFiltroNum||rkFiltroDesc||rkFiltroForn);
   var lista=rkItens;
-  if(!temBuscaTexto){
-    if(rkFiltroAtivo==='aprovado') lista=lista.filter(rkItemAp);
-    else if(rkFiltroAtivo==='diligencia') lista=lista.filter(rkItemDil);
-    else if(rkFiltroAtivo==='fracassado') lista=lista.filter(rkItemFracassado);
-    else if(rkFiltroAtivo==='pendente') lista=lista.filter(rkItemPe);
+  if(!temBuscaTexto && rkFiltroAtivo){
+    /* A lista sob um filtro de status fica "travada": calculada uma vez ao
+       clicar no filtro e mantida assim enquanto o pregoeiro trabalha nos itens
+       (ex.: reprovar uma marca não deve fazer o item sumir da tela na hora —
+       só quando o filtro for clicado de novo é que a lista se atualiza). */
+    if(rkFiltroPin===null){
+      var matchFn = rkFiltroAtivo==='aprovado' ? rkItemAp
+        : rkFiltroAtivo==='diligencia' ? rkItemDil
+        : rkFiltroAtivo==='fracassado' ? rkItemFracassado
+        : rkFiltroAtivo==='pendente' ? rkItemPe
+        : function(){ return true; };
+      rkFiltroPin = rkItens.filter(matchFn).map(function(it){ return String(it.num); });
+    }
+    lista=lista.filter(function(it){ return rkFiltroPin.indexOf(String(it.num))!==-1; });
   }
   if(rkFiltroNum){ lista=lista.filter(function(it){ return String(it.num).toLowerCase()===rkFiltroNum; }); }
   if(rkFiltroDesc){ lista=lista.filter(function(it){ return (it.desc||'').toLowerCase().includes(rkFiltroDesc); }); }
@@ -4514,10 +4567,19 @@ function rkRenderRanking(){
     }
     fornHtml+='</div>';
 
-    /* Botões de ação — agem sobre a colocação atual, sem etapa de confirmação. */
+    /* Botões de ação — Reprovado exige confirmação com justificativa antes de
+       aplicar; Aprovado/Diligência continuam agindo direto sobre a colocação atual. */
     var actionHtml='';
     if(status==='fracassado'){
       actionHtml='<div class="rks-fracassado-badge">&#128308; Fracassado — todos os '+it.fornecedores.length+' fornecedores reprovados</div>';
+    } else if(rkPendConfirm && rkPendConfirm.num===nIt){
+      actionHtml='<div class="rks-confirm-wrap">'
+        +'<div class="rks-confirm-label">Motivo da reprovação <span style="color:#c0392b;font-weight:400;font-size:11px">(obrigatório)</span></div>'
+        +'<textarea class="rks-rp-confirm-motivo" style="width:100%;font-size:12px;padding:7px 9px;border:1px solid #f5c6c6;border-radius:6px;background:#fff8f8;resize:none;font-family:Arial,sans-serif;line-height:1.5;min-height:64px" placeholder="Descreva o motivo da reprovação..." data-key="'+escHtml(rkPendConfirm.key)+'" rows="3"></textarea>'
+        +'<div class="rks-confirm-btns">'
+          +'<button class="rks-cancel-btn" data-rkcancel="1">Cancelar</button>'
+          +'<button class="rks-confirm-btn" data-rkconfirm="'+escHtml(rkPendConfirm.key)+'">Confirmar Reprovação &#8594;</button>'
+        +'</div></div>';
     } else {
       var apCls=status==='aprovado'?' sel-ap':'';
       var dilSel=status==='diligencia';
@@ -4529,6 +4591,7 @@ function rkRenderRanking(){
       if(dilSel && idx>=0){
         var dkey=nIt+'-'+idx, dmv=rkMotivos[dkey]||'';
         actionHtml+='<div class="rks-motivo-wrap"><textarea class="rk-motivo-input rks-motivo" style="border-color:#bfdbfe;background:#eff6ff" placeholder="Motivo da diligência..." data-key="'+escHtml(dkey)+'">'+escHtml(dmv)+'</textarea></div>';
+        actionHtml+='<div style="margin-top:8px"><button class="rks-sbtn" style="background:#fff3f3;color:#A32D2D;border-color:#f1bcbc" data-rknaocatalogo="'+escHtml(nIt)+'"><span class="rks-sbtn-icon">&#128203;</span>Não enviou o catálogo</button></div>';
       }
     }
     html+='<div class="'+cardCls+'" data-num="'+escHtml(nIt)+'">'+titleHtml+fornHtml+actionHtml+'</div>';
@@ -4539,8 +4602,17 @@ function rkRenderRanking(){
   c.querySelectorAll('[data-rkact]').forEach(function(btn){
     btn.addEventListener('click',function(){ rkAplicarAcao(btn.dataset.num, btn.dataset.rkact); });
   });
+  c.querySelectorAll('[data-rkcancel]').forEach(function(btn){
+    btn.addEventListener('click',function(){ rkPendConfirm=null; rkRenderProcesso(); });
+  });
+  c.querySelectorAll('[data-rkconfirm]').forEach(function(btn){
+    btn.addEventListener('click',function(){ rkConfirmarReprovacao(btn.dataset.rkconfirm); });
+  });
   c.querySelectorAll('[data-rkundo]').forEach(function(btn){
     btn.addEventListener('click',function(){ rkDesfazerReprovado(btn.dataset.rkundo); });
+  });
+  c.querySelectorAll('[data-rknaocatalogo]').forEach(function(btn){
+    btn.addEventListener('click',function(){ rkNaoEnviouCatalogo(btn.dataset.rknaocatalogo); });
   });
   /* Motivo salva sozinho ao digitar (sem botão "Confirmar"). */
   c.querySelectorAll('.rk-motivo-input').forEach(function(ta){
@@ -4578,7 +4650,7 @@ function rkCopiarLink(){
   }
   var saveTimer=null, sharedOwn=false;
   var sharedConfirmando=null; // {num, acao} aguardando confirmação
-  var sharedFiltroSoPendentes=false;
+  var sharedMostrarTodos=false; /* padrão: mostra só itens pendentes/em diligência, pra secretaria sempre ver o que falta */
   var sPendingSnap=null, sHasPending=false;
 
   function sApplySnap(d){
@@ -4628,6 +4700,12 @@ function rkCopiarLink(){
     if(idx>=0&&sharedEstados[n+'-'+idx]==='diligencia') return 'diligencia';
     return '';
   }
+  /* Item ainda não resolvido: sem decisão (pendente) ou em diligência.
+     Resolvido = aprovado ou fracassado (todos os fornecedores reprovados). */
+  function sItemNaoResolvido(it){
+    var st=sGetStatus(it);
+    return st===''||st==='diligencia';
+  }
   function sGetFornIdx(it){
     for(var k=0;k<it.fornecedores.length;k++){
       if((sharedEstados[String(it.num)+'-'+k]||'neutro')!=='reprovado') return k;
@@ -4667,20 +4745,20 @@ function rkCopiarLink(){
       return;
     }
     var pre=sharedItens.filter(function(it){ return sGetStatus(it)!==''; }).length;
-    var pe=sharedItens.filter(function(it){ return sGetStatus(it)===''; }).length;
+    var faltam=sharedItens.filter(sItemNaoResolvido).length;
     var pct=Math.round(pre/sharedItens.length*100);
-    var btnLabel=sharedFiltroSoPendentes?'✕ Mostrar Todos':'🔍 Só Pendentes ('+pe+')';
-    var btnCls='rks-filter-pending-btn'+(sharedFiltroSoPendentes?' ativo':'');
+    var btnLabel=sharedMostrarTodos?'\u{1F50D} Só Pendentes/Diligência ('+faltam+')':'\u{1F441} Mostrar Todos ('+sharedItens.length+')';
+    var btnCls='rks-filter-pending-btn'+(sharedMostrarTodos?'':' ativo');
     var html='<div class="rks-progress-bar"><span>'+pre+' de '+sharedItens.length+' itens analisados</span>'
       +'<div style="display:flex;align-items:center;gap:10px">'
-      +(pe>0||sharedFiltroSoPendentes?'<button id="rksBtnSoPend" class="'+btnCls+'">'+btnLabel+'</button>':'')
+      +'<button id="rksBtnSoPend" class="'+btnCls+'">'+btnLabel+'</button>'
       +'<span class="rks-progress-pct">'+pct+'%</span></div></div>';
 
-    var listaRender=sharedFiltroSoPendentes
-      ? sharedItens.filter(function(it){ return sGetStatus(it)===''; })
-      : sharedItens;
+    var listaRender=sharedMostrarTodos
+      ? sharedItens
+      : sharedItens.filter(sItemNaoResolvido);
 
-    if(sharedFiltroSoPendentes&&!listaRender.length){
+    if(!sharedMostrarTodos&&!listaRender.length){
       html+='<div class="rks-pending-empty">🎉 Nenhum item pendente — todos já foram analisados!</div>';
     }
 
@@ -4776,10 +4854,10 @@ function rkCopiarLink(){
     body.innerHTML=html;
     body.scrollTop=scroll;
 
-    // Listener do botão "Só Pendentes"
+    /* Listener do botão que alterna entre "só pendentes/diligência" (padrão) e "mostrar todos" */
     var btnPend=body.querySelector('#rksBtnSoPend');
     if(btnPend) btnPend.addEventListener('click',function(){
-      sharedFiltroSoPendentes=!sharedFiltroSoPendentes;
+      sharedMostrarTodos=!sharedMostrarTodos;
       sharedRender();
     });
 
