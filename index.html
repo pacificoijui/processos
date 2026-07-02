@@ -95,6 +95,15 @@
 
   main { max-width: 1440px; margin: 0 auto; padding: 28px 32px; }
   .toolbar { display: flex; align-items: center; gap: 12px; margin-bottom: 22px; flex-wrap: wrap; }
+  .quick-links-row { display: flex; gap: 10px; margin: -8px 0 22px 0; }
+  .quick-link-btn { flex: 1; display: flex; align-items: center; justify-content: center; gap: 8px; padding: 12px 14px; border-radius: 10px; font-weight: 800; font-size: 13.5px; letter-spacing: .3px; text-decoration: none; border: 1.5px solid transparent; transition: all .15s; text-align: center; }
+  .quick-link-impug { background: #fdecea; color: #9c2c1f; border-color: #f3b8ae; }
+  .quick-link-impug:hover { background: #f9d8d3; border-color: #e79484; }
+  .quick-link-escl { background: #eaf1fd; color: #1e4a8a; border-color: #b7cdf0; }
+  .quick-link-escl:hover { background: #d7e6fb; border-color: #93b3e6; }
+  @media (max-width: 480px) {
+    .quick-links-row { flex-direction: column; }
+  }
   .search-box { flex: 1; min-width: 220px; position: relative; }
   .search-box input { width: 100%; padding: 11px 14px 11px 40px; border: 1.5px solid var(--border); border-radius: 9px; font-family: Arial, sans-serif; font-size: 14px; background: var(--card); color: var(--text); outline: none; transition: border 0.15s; }
   .search-box input:focus { border-color: var(--navy-light); }
@@ -1209,6 +1218,10 @@
       </div>
       </div><!-- /#filtrosBody -->
     </div>
+  </div>
+  <div class="quick-links-row">
+    <a class="quick-link-btn quick-link-impug" href="https://operacao.portaldecompraspublicas.com.br/3/Impugnacoes/" target="_blank" rel="noopener">&#9888; IMPUGNAÇÕES</a>
+    <a class="quick-link-btn quick-link-escl" href="https://operacao.portaldecompraspublicas.com.br/3/Esclarecimentos/" target="_blank" rel="noopener">&#10067; ESCLARECIMENTOS</a>
   </div>
   <div class="grid" id="grid"></div>
 </main>
