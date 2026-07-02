@@ -805,10 +805,10 @@
   .card-concluido-bar .ck { display: inline-flex; align-items: center; justify-content: center; width: 20px; height: 20px; border-radius: 50%; background: var(--green); color: #fff; font-size: 12px; font-weight: 900; }
 
   /* ── Observação específica do processo (aparece na agenda) ──────────────── */
-  .card-obs-wrap { padding: 10px 19px; border-top: 1px solid var(--border); background: #fbfcff; }
+  .card-obs-wrap { padding: 10px 19px; border-top: 1px solid var(--border); background: transparent; }
   .card-obs-label { font-size: 10.5px; font-weight: 800; color: var(--navy-light); text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; gap: 6px; margin-bottom: 5px; }
   .card-obs-label .obs-st { font-size: 10px; font-weight: 700; color: var(--muted); opacity: 0; transition: opacity .3s; }
-  .card-obs-input { width: 100%; font-family: Arial, sans-serif; font-size: 13px; color: var(--text); background: #fff; border: 1.5px solid var(--border); border-radius: 8px; resize: none; outline: none; padding: 8px 10px; line-height: 1.45; min-height: 38px; max-height: 140px; overflow-y: auto; transition: border-color .15s; }
+  .card-obs-input { width: 100%; font-family: Arial, sans-serif; font-size: 13px; color: var(--text); background: transparent; border: 1.5px solid var(--border); border-radius: 8px; resize: none; outline: none; padding: 8px 10px; line-height: 1.45; min-height: 38px; overflow: hidden; transition: border-color .15s; overscroll-behavior: contain; }
   .card-obs-input:focus { border-color: var(--navy-light); box-shadow: 0 0 0 3px rgba(46,93,168,0.10); }
   .card-obs-input::placeholder { color: #aab4cc; font-style: italic; }
 
@@ -2144,6 +2144,18 @@ function atualizarStats(){
 }
 
 function escHtml(s){ return (s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
+/* Extrai a chave (CD_CHAVE) do link publico do processo no Portal de Compras Publicas
+   e monta o link direto do painel de sessao publica do pregoeiro. A chave e o numero
+   final do slug do link do processo (ex: .../cpmp-11-2026-2026-476491 -> chave 476491). */
+function linkSessaoPublica(link){
+  if(!link) return "";
+  try{
+    var seg=link.split("?")[0].replace(/\/+$/,"").split("/").pop();
+    var m=seg.match(/(\d+)$/);
+    if(m) return "https://operacao.portaldecompraspublicas.com.br/3/SessaoPublica/?ttCD_CHAVE="+m[1];
+  }catch(e){}
+  return "";
+}
 function formatarData(iso){ if(!iso)return ""; var p=iso.split("-"); return p[2]+"/"+p[1]+"/"+p[0]; }
 /* ── Tipo de licitação e rótulo do processo (integrado com a Agenda) ──────── */
 /* Traduz prefixos para nome legível: PE/RPE/RPPE -> Pregão; CC/CONC -> Concorrência */
@@ -2401,8 +2413,9 @@ function renderizar(){
     var dataLabel=p.dataLicit
       ? '<span class="date-chip">&#128198; '+formatarData(p.dataLicit)+'</span>'
       : '<span class="date-chip" style="opacity:.45;background:#1e4a8a">Sem data</span>';
-    var linkBtn=p.link
-      ? '<a class="link-btn" href="'+escHtml(p.link)+'" target="_blank" rel="noopener">&#128279; Acessar Portal</a>'
+    var _sessaoLink=linkSessaoPublica(p.link);
+    var linkBtn=_sessaoLink
+      ? '<a class="link-btn" href="'+escHtml(_sessaoLink)+'" target="_blank" rel="noopener">&#128279; SESSÃO PÚBLICA</a>'
       : '';
     var contatoHtml=p.contato
       ? '<div class="card-contato">Contato: <span>'+escHtml(p.contato)+'</span></div>'
@@ -2447,7 +2460,7 @@ function renderizar(){
   grid.innerHTML=html;
   /* ajusta altura das observações preenchidas */
   grid.querySelectorAll(".card-obs-input").forEach(function(el){
-    el.style.height="auto"; el.style.height=Math.min(el.scrollHeight,140)+"px";
+    el.style.height="auto"; el.style.height=el.scrollHeight+"px";
   });
   /* restaura foco/cursor */
   if(_focoId){
@@ -2471,7 +2484,7 @@ function togglePin(pid){
 // ── Observação por processo (salvamento automático) ──────────────────────────
 var _procObsTimers={};
 function onProcObsInput(pid, el){
-  el.style.height="auto"; el.style.height=Math.min(el.scrollHeight,140)+"px";
+  el.style.height="auto"; el.style.height=el.scrollHeight+"px";
   var p=processos.find(function(x){return x.id===pid;}); if(p) p.observacao=el.value; /* mantém após re-render */
   var st=document.getElementById("obsst_"+pid);
   if(st){ st.textContent="salvando…"; st.style.opacity="1"; }
