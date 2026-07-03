@@ -164,7 +164,6 @@
   .status-aguardando   { background: #1565c0; color: #fff; }
   .status-purple       { background: #6a1b9a; color: #fff; }
   .status-gray         { background: #546e7a; color: #fff; }
-  .date-chip { display: inline-flex; align-items: center; gap: 5px; background: #1e4a8a; color: #fff; border-radius: 6px; padding: 5px 13px; font-size: 12px; font-weight: 700; text-decoration: none; white-space: nowrap; }
   .link-btn { display: inline-flex; align-items: center; gap: 5px; background: var(--navy); color: #fff; border: none; padding: 5px 13px; border-radius: 6px; font-family: Arial, sans-serif; font-size: 12px; font-weight: 700; cursor: pointer; text-decoration: none; transition: background 0.15s; white-space: nowrap; }
   .link-btn:hover { background: var(--navy-light); }
   .link-btn-disabled { background: #dde2ee; color: #99a; cursor: default; }
@@ -262,7 +261,6 @@
     .card-header { padding: 14px 14px 12px; }
     .badge { font-size: 11px; padding: 3px 8px; }
     .status-tag { font-size: 11px; padding: 4px 8px; }
-    .date-chip { font-size: 11px; padding: 4px 10px; }
     .link-btn { font-size: 11px; padding: 4px 10px; }
     .card-contato { font-size: 12.5px; }
   }
@@ -2246,6 +2244,19 @@ function linkSessaoPublica(link){
   }catch(e){}
   return "";
 }
+/* Mesma lógica de extração de chave, mas monta o link da tela de Dados do Processo
+   (usada para anexar documentos no Portal de Compras Publicas). */
+function linkAnexarDocumento(link){
+  if(!link) return "";
+  try{
+    var seg=link.split("?")[0].replace(/\/+$/,"").split("/").pop();
+    var m=seg.match(/(\d+)$/);
+    if(m) return "https://operacao.portaldecompraspublicas.com.br/3/Pregoes/DadosPregao/?slA=Edit&ttCD_CHAVE="+m[1];
+  }catch(e){}
+  return "";
+}
+/* Formata a data no cabeçalho do card (sem ano): "2026-06-24" -> "24/06" */
+function formatarDataCurta(iso){ if(!iso)return ""; var p=iso.split("-"); return p[2]+"/"+p[1]; }
 function formatarData(iso){ if(!iso)return ""; var p=iso.split("-"); return p[2]+"/"+p[1]+"/"+p[0]; }
 /* ── Tipo de licitação e rótulo do processo (integrado com a Agenda) ──────── */
 /* Traduz prefixos para nome legível: PE/RPE/RPPE -> Pregão; CC/CONC -> Concorrência */
@@ -2498,12 +2509,14 @@ function renderizar(){
       progHtml='<div class="proc-progress"><div class="proc-progress-label"><span>Processo '+prog.pct+'% concluído</span><span>'+prog.done+'/'+prog.total+'</span></div>'
         +'<div class="proc-progress-track"><div class="proc-progress-fill'+(prog.pct>=100?' done':'')+'" style="width:'+prog.pct+'%"></div></div></div>';
     }
-    var dataLabel=p.dataLicit
-      ? '<span class="date-chip">&#128198; '+formatarData(p.dataLicit)+'</span>'
-      : '<span class="date-chip" style="opacity:.45;background:#1e4a8a">Sem data</span>';
+    var dataHeaderLabel=p.dataLicit ? ' - '+formatarDataCurta(p.dataLicit) : '';
     var _sessaoLink=linkSessaoPublica(p.link);
     var linkBtn=_sessaoLink
       ? '<a class="link-btn" href="'+escHtml(_sessaoLink)+'" target="_blank" rel="noopener">&#128279; SESSÃO PÚBLICA</a>'
+      : '';
+    var _anexarLink=linkAnexarDocumento(p.link);
+    var anexarBtn=_anexarLink
+      ? '<a class="link-btn" href="'+escHtml(_anexarLink)+'" target="_blank" rel="noopener">&#128206; ANEXAR DOCUMENTO</a>'
       : '';
     var contatoHtml=p.contato
       ? '<div class="card-contato">Contato: <span>'+escHtml(p.contato)+'</span></div>'
@@ -2514,14 +2527,14 @@ function renderizar(){
     html+='<div class="card'+(p.fixado?' pinned':'')+'" data-pid="'+escHtml(p.id)+'"'+_cardStyle+'>';
     html+='<div class="card-header"'+_hdrStyle+'>';
     html+='<div class="card-header-top">';
-    html+='<div><div class="card-num">'+escHtml(rotuloProcesso(p))+'</div>';
+    html+='<div><div class="card-num">'+escHtml(rotuloProcesso(p))+escHtml(dataHeaderLabel)+'</div>';
     html+='<div class="card-obj">'+escHtml(p.objeto)+'</div></div>';
     html+='<div style="display:flex;align-items:center;gap:8px;flex-shrink:0">';
     html+='<button class="card-wa-btn" data-action="share-proc" title="Compartilhar no WhatsApp">&#128242;</button>';
     html+='<button class="card-pin-btn'+(p.fixado?' on':'')+'" data-action="pin" title="'+(p.fixado?'Desafixar':'Fixar no topo')+'">&#128204;</button>';
     html+='</div>';
     html+='</div>';
-    html+='<div class="card-meta"><span class="status-tag" data-action="status-pop" title="Clique para alterar o status" style="'+getStatusStyle(p.status)+'">'+escHtml((st.nome||st.label||p.status))+'<span class="status-caret">&#9660;</span></span>'+dataLabel+linkBtn+'</div>';
+    html+='<div class="card-meta"><span class="status-tag" data-action="status-pop" title="Clique para alterar o status" style="'+getStatusStyle(p.status)+'">'+escHtml((st.nome||st.label||p.status))+'<span class="status-caret">&#9660;</span></span>'+anexarBtn+linkBtn+'</div>';
     if(st.atalhos&&st.atalhos.length){
       var atalhosHtml='<div class="card-atalhos">';
       for(var ai=0;ai<st.atalhos.length;ai++){
