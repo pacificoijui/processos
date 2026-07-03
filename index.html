@@ -2244,14 +2244,14 @@ function linkSessaoPublica(link){
   }catch(e){}
   return "";
 }
-/* Mesma lógica de extração de chave, mas monta o link da tela de Dados do Processo
+/* Mesma lógica de extração de chave, mas monta o link da tela de Upload de Arquivos
    (usada para anexar documentos no Portal de Compras Publicas). */
 function linkAnexarDocumento(link){
   if(!link) return "";
   try{
     var seg=link.split("?")[0].replace(/\/+$/,"").split("/").pop();
     var m=seg.match(/(\d+)$/);
-    if(m) return "https://operacao.portaldecompraspublicas.com.br/3/Pregoes/DadosPregao/?slA=Edit&ttCD_CHAVE="+m[1];
+    if(m) return "https://operacao.portaldecompraspublicas.com.br/3/Pregoes/Pregao/NovoArquivo/?ttCD_CHAVE="+m[1];
   }catch(e){}
   return "";
 }
