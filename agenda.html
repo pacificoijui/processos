@@ -649,30 +649,18 @@
   iconLink.rel = "apple-touch-icon"; iconLink.href = iconB64;
   document.head.appendChild(iconLink);
 
-  /* ── Service Worker ── */
+  /* ── Limpeza de Service Workers antigos ──
+     Navegadores rejeitam registro de SW via blob: (o registro anterior nunca
+     funcionava e só gerava aviso no console). Aqui removemos qualquer registro
+     e cache que tenham ficado de versões antigas, garantindo que a página
+     sempre carregue a versão mais recente publicada no GitHub Pages.          */
   if("serviceWorker" in navigator){
-    var swCode = [
-      "const CACHE = \"agenda-copam-v1\";",
-      "const ASSETS = [self.location.pathname];",
-      "self.addEventListener(\"install\",e=>{",
-      "  e.waitUntil(caches.open(CACHE).then(c=>c.addAll(ASSETS)));",
-      "  self.skipWaiting();",
-      "});",
-      "self.addEventListener(\"activate\",e=>{",
-      "  e.waitUntil(caches.keys().then(ks=>Promise.all(ks.filter(k=>k!==CACHE).map(k=>caches.delete(k)))));",
-      "  self.clients.claim();",
-      "});",
-      "self.addEventListener(\"fetch\",e=>{",
-      "  if(e.request.mode===\"navigate\"){",
-      "    e.respondWith(fetch(e.request).catch(()=>caches.match(e.request)));",
-      "  }",
-      "});"
-    ].join("\n");
-    var swBlob = new Blob([swCode], {type:"text/javascript"});
-    var swURL = URL.createObjectURL(swBlob);
-    navigator.serviceWorker.register(swURL, {scope:"./"})
-      .then(function(){ console.log("SW registrado"); })
-      .catch(function(e){ console.warn("SW:", e.message); });
+    navigator.serviceWorker.getRegistrations().then(function(regs){
+      regs.forEach(function(r){ r.unregister(); });
+    }).catch(function(){});
+    if(window.caches && caches.keys){
+      caches.keys().then(function(ks){ ks.forEach(function(k){ caches.delete(k); }); }).catch(function(){});
+    }
   }
 })();
 </script>
@@ -988,8 +976,9 @@ var calRef  = new Date(hojeRef.getFullYear(), hojeRef.getMonth(), 1);
 var MESES = ["Janeiro","Fevereiro","Março","Abril","Maio","Junho","Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"];
 
 function escHtml(s){ return (s||"").toString().replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
-function ymd(d){ return d.toISOString().split("T")[0]; }
-function hojeStr(){ var d=new Date(); return ymd(new Date(d.getFullYear(),d.getMonth(),d.getDate())); }
+function corSegura(c){ c=(c||"").toString().trim(); return /^#[0-9a-fA-F]{3,8}$/.test(c)?c:"#546e7a"; }
+function ymd(d){ var z=function(n){return (n<10?"0":"")+n;}; return d.getFullYear()+"-"+z(d.getMonth()+1)+"-"+z(d.getDate()); }
+function hojeStr(){ return ymd(new Date()); }
 function fmtData(iso){ if(!iso)return ""; var p=iso.split("-"); return p[2]+"/"+p[1]+"/"+p[0]; }
 function fmtDiaMes(iso){ if(!iso)return ""; var p=iso.split("-"); return p[2]+"/"+p[1]; }
 
@@ -1267,9 +1256,9 @@ try{ if(anivColRef) anivColRef.onSnapshot(function(snap){
 function salvarObs(iso, texto){
   if(!obsColRef) return;
   if(texto.trim()===""){
-    obsColRef.doc(iso).delete().catch(function(){});
+    obsColRef.doc(iso).delete().catch(function(e){ console.error("obs dia:", e); toast("Erro ao excluir a observação: "+e.message); });
   } else {
-    obsColRef.doc(iso).set({texto:texto, updatedAt:firebase.firestore.FieldValue.serverTimestamp()}).catch(function(){});
+    obsColRef.doc(iso).set({texto:texto, updatedAt:firebase.firestore.FieldValue.serverTimestamp()}).catch(function(e){ console.error("obs dia:", e); toast("Erro ao salvar a observação: "+e.message); });
   }
 }
 function onObsInput(iso, el){
@@ -1469,7 +1458,7 @@ var _annaAuth = (function(){ try{ return sessionStorage.getItem("anna_auth")==="
 var _annaViewAnterior=null;
 function toggleModoAnna(){
   if(!_modoAnna){
-    if(!_annaAuth){ annaAbrirLogin(); return; }   /* exige login anna/rainha */
+    if(!_annaAuth){ annaAbrirLogin(); return; }   /* exige login do modo Reequilíbrios */
     annaEntrarModo();
   } else {
     _modoAnna=false;
@@ -1493,10 +1482,71 @@ function annaAbrirLogin(){
   setTimeout(function(){ var x=document.getElementById("annaLgUser"); if(x) x.focus(); },60);
 }
 function annaFecharLogin(){ document.getElementById("annaOvLogin").classList.remove("open"); }
+/* SHA-256 compacto e síncrono (funciona em https e file://, sem dependências).
+   As credenciais do modo Reequilíbrios não ficam mais em texto puro no fonte:
+   apenas o hash de "copam-anna:usuario:senha" é comparado.                    */
+function annaSha256(ascii){
+  function rightRotate(value, amount){ return (value>>>amount)|(value<<(32-amount)); }
+  var mathPow=Math.pow, maxWord=mathPow(2,32), result="";
+  var words=[], asciiBitLength=ascii.length*8;
+  var hash=annaSha256.h=annaSha256.h||[];
+  var k=annaSha256.k=annaSha256.k||[];
+  var primeCounter=k.length;
+  var isComposite={};
+  for(var candidate=2; primeCounter<64; candidate++){
+    if(!isComposite[candidate]){
+      for(var i=0;i<313;i+=candidate){ isComposite[i]=candidate; }
+      hash[primeCounter]=(mathPow(candidate,0.5)*maxWord)|0;
+      k[primeCounter++]=(mathPow(candidate,1/3)*maxWord)|0;
+    }
+  }
+  ascii+="\x80";
+  while(ascii.length%64-56) ascii+="\x00";
+  for(i=0;i<ascii.length;i++){
+    var j=ascii.charCodeAt(i);
+    if(j>>8){ return ""; }
+    words[i>>2]|=j<<((3-i)%4)*8;
+  }
+  words[words.length]=((asciiBitLength/maxWord)|0);
+  words[words.length]=(asciiBitLength);
+  for(j=0;j<words.length;){
+    var w=words.slice(j,j+=16);
+    var oldHash=hash;
+    hash=hash.slice(0,8);
+    for(i=0;i<64;i++){
+      var w15=w[i-15], w2=w[i-2];
+      var a=hash[0], e=hash[4];
+      var temp1=hash[7]
+        +(rightRotate(e,6)^rightRotate(e,11)^rightRotate(e,25))
+        +((e&hash[5])^((~e)&hash[6]))
+        +k[i]
+        +(w[i]=(i<16)?w[i]:(
+            w[i-16]
+            +(rightRotate(w15,7)^rightRotate(w15,18)^(w15>>>3))
+            +w[i-7]
+            +(rightRotate(w2,17)^rightRotate(w2,19)^(w2>>>10))
+          )|0
+        );
+      var temp2=(rightRotate(a,2)^rightRotate(a,13)^rightRotate(a,22))
+        +((a&hash[1])^(a&hash[2])^(hash[1]&hash[2]));
+      hash=[(temp1+temp2)|0].concat(hash);
+      hash[4]=(hash[4]+temp1)|0;
+    }
+    for(i=0;i<8;i++){ hash[i]=(hash[i]+oldHash[i])|0; }
+  }
+  for(i=0;i<8;i++){
+    for(j=3;j+1;j--){
+      var b=(hash[i]>>(j*8))&255;
+      result+=((b<16)?0:"")+b.toString(16);
+    }
+  }
+  return result;
+}
+var ANNA_AUTH_HASH="8a613e93195d8e81062ff6078add2d6392dcd95c91a85a470a0e72519907351a";
 function annaLoginEntrar(){
   var u=(document.getElementById("annaLgUser").value||"").trim().toLowerCase();
   var s=(document.getElementById("annaLgPass").value||"");
-  if(u==="anna" && s==="rainha"){
+  if(annaSha256("copam-anna:"+u+":"+s)===ANNA_AUTH_HASH){
     _annaAuth=true; try{ sessionStorage.setItem("anna_auth","1"); }catch(e){}
     annaFecharLogin(); annaEntrarModo();
   } else {
@@ -1510,9 +1560,10 @@ try{ reqColRef.onSnapshot(function(snap){
 }, function(err){ console.error("req pedidos:", err); }); }catch(e){ console.warn("reqPedidos onSnapshot:", e); }
 
 try{ reqTramColRef.onSnapshot(function(snap){
-  TRAMITES=snap.docs.map(function(d){ var x=d.data()||{}; return {id:d.id, nome:x.nome||"Trâmite", cor:x.cor||"#546e7a", icone:x.icone||"\u2696\uFE0F", ordem:(x.ordem==null?999:x.ordem), multiempresas:!!x.multiempresas, etapas:(x.etapas||[])}; })
+  TRAMITES=snap.docs.map(function(d){ var x=d.data()||{}; return {id:d.id, nome:x.nome||"Trâmite", cor:corSegura(x.cor), icone:x.icone||"\u2696\uFE0F", ordem:(x.ordem==null?999:x.ordem), multiempresas:!!x.multiempresas, etapas:(x.etapas||[]).map(function(e){ return Object.assign({}, e, {cor:corSegura(e.cor)}); })}; })
     .sort(function(a,b){ return a.ordem-b.ordem; });
-  if(document.getElementById("annaOvStatus").classList.contains("open")) renderTramManager();
+  var ovSt=document.getElementById("annaOvStatus");
+  if(ovSt && ovSt.classList.contains("open")) renderTramManager();
   render();
 }, function(err){ console.error("trâmites:", err); }); }catch(e){ console.warn("trâmites onSnapshot:", e); }
 
