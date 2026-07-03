@@ -563,6 +563,10 @@
   .hab-declare-btn:hover{background:#174a2d;transform:translateY(-1px)}
   .hab-declare-btn.undo{background:#fff;color:#666;border:1.5px solid #ccc;font-weight:700}
   .hab-declare-btn.undo:hover{background:#f4f4f4;transform:none}
+  .hab-declare-btn.inab{background:#A32D2D}
+  .hab-declare-btn.inab:hover{background:#832222}
+  .hab-declare-row{display:flex;gap:8px;margin-top:10px}
+  .hab-declare-row .hab-declare-btn{margin-top:0}
   /* Modal qualificação técnica */
   .htec-toggle{display:flex;gap:10px}
   .htec-tbtn{flex:1;padding:11px;border:2px solid var(--border);border-radius:10px;background:#fff;font-family:Arial,sans-serif;font-size:14px;font-weight:700;color:#999;cursor:pointer;transition:all .15s}
@@ -3315,7 +3319,8 @@ function fecharRanking(){
 /* 9.16 Jurídica: documentos ALTERNATIVOS — basta 1 aprovado (um substitui o outro). */
 var habProcessoAtual=null, habEmpresas=[], habEstados={}, habMotivos={};
 var habDocs={}, habDocMotivos={}, habConfig={tecnicaExige:false,tecnicaItens:[]}, habExpand={};
-var habDeclarados={}, habEventos=[];
+var habDeclarados={}, habDeclaradosInab={}, habEventos=[];
+var HAB_MOTIVO_INABILITACAO='Empresa inabilitada do certame.';
 /* Registra um evento no histórico da habilitação (alimenta o feed do card) */
 function habLogEvento(msg){
   habEventos.push({t:new Date().toISOString(), msg:msg});
@@ -3360,7 +3365,7 @@ function habTecDocsFrom(config){
 /* d = { docId: 'aprovado'|'recusado'|'na' } (ausente = não enviado) */
 /* declarado = true quando a empresa foi declarada habilitada manualmente (botão verde); */
 /* precedência: doc recusado > declaração manual > cálculo automático */
-function habCalcDocsStatus(d, tecDocs, legacyEstado, declarado){
+function habCalcDocsStatus(d, tecDocs, legacyEstado, declarado, declaradoInab){
   d=d||{};
   var recusados=[], pendentes=[], done=0, total=1; /* jurídica conta como 1 exigência */
   var juridOk=HAB_DOCS_JUR.some(function(x){ return d[x.id]==='aprovado'; });
@@ -3386,10 +3391,13 @@ function habCalcDocsStatus(d, tecDocs, legacyEstado, declarado){
   if(!recusados.length&&declarado) status='habilitado';
   /* Fallback legado: empresa sem nenhum doc julgado mas com status manual antigo */
   if(!Object.keys(d).length&&!declarado&&legacyEstado) status=legacyEstado;
-  return {status:status, done:done, total:total, recusados:recusados, pendentes:pendentes, juridOk:juridOk, declarado:!!declarado};
+  /* Declaração forçada de inabilitação (botão vermelho): tem precedência sobre tudo acima,
+     inclusive sobre docs pendentes ou já aprovados — é uma decisão explícita do pregoeiro */
+  if(declaradoInab) status='inabilitado';
+  return {status:status, done:done, total:total, recusados:recusados, pendentes:pendentes, juridOk:juridOk, declarado:!!declarado, declaradoInab:!!declaradoInab};
 }
 function habCalcInfo(k){
-  return habCalcDocsStatus(habDocs[k]||{}, habTecDocsFrom(habConfig), habEstados[k]||'', habDeclarados[k]);
+  return habCalcDocsStatus(habDocs[k]||{}, habTecDocsFrom(habConfig), habEstados[k]||'', habDeclarados[k], habDeclaradosInab[k]);
 }
 
 /* Deriva a lista de empresas vencedoras a partir dos itens/estados do ranking */
@@ -3455,7 +3463,7 @@ function abrirHabilitacao(pid){
   habProcessoAtual=p;
   habDocId=pid;
   habEmpresas=[]; habEstados={}; habMotivos={}; habDocs={}; habDocMotivos={}; habExpand={};
-  habDeclarados={}; habEventos=[];
+  habDeclarados={}; habDeclaradosInab={}; habEventos=[];
   habConfig={tecnicaExige:false,tecnicaItens:[]};
   habRkItens=[]; habRkEstados={}; habLegacyEmpresas=[];
   document.getElementById('habPanelTitle').textContent='Habilitação — '+p.numero+(function(){var n=primeiroNomeAgente(p.responsavel);return n?' — '+n:'';})();
@@ -3479,11 +3487,11 @@ function abrirHabilitacao(pid){
       var d=doc.data();
       habEstados=d.estados||{}; habMotivos=d.motivos||{};
       habDocs=d.docs||{}; habDocMotivos=d.docMotivos||{};
-      habDeclarados=d.declarados||{}; habEventos=d.eventos||[];
+      habDeclarados=d.declarados||{}; habDeclaradosInab=d.declaradosInab||{}; habEventos=d.eventos||[];
       habConfig=d.config||{tecnicaExige:false,tecnicaItens:[]};
       habLegacyEmpresas=d.empresas||[];
       habMigrarChaves();
-    } else { habEstados={}; habMotivos={}; habDocs={}; habDocMotivos={}; habDeclarados={}; habEventos=[]; habConfig={tecnicaExige:false,tecnicaItens:[]}; habLegacyEmpresas=[]; }
+    } else { habEstados={}; habMotivos={}; habDocs={}; habDocMotivos={}; habDeclarados={}; habDeclaradosInab={}; habEventos=[]; habConfig={tecnicaExige:false,tecnicaItens:[]}; habLegacyEmpresas=[]; }
     habAtualizarEmpresas();
   }, function(err){ console.error('Hab snapshot error:', err); });
 }
@@ -3508,7 +3516,7 @@ function habSalvarFirestore(){
     habColRef.doc(habDocId).set({
       empresas:habEmpresas, estados:estadosDerivados, motivos:habMotivos,
       docs:habDocs, docMotivos:habDocMotivos, config:habConfig,
-      declarados:habDeclarados, eventos:habEventos,
+      declarados:habDeclarados, declaradosInab:habDeclaradosInab, eventos:habEventos,
       numero:habProcessoAtual?habProcessoAtual.numero:'',
       updatedAt:firebase.firestore.FieldValue.serverTimestamp()
     }).then(function(){ setTimeout(function(){ habOwn=false; },2500); })
@@ -3536,7 +3544,7 @@ function habSetDoc(empKey, docId, st){
   var nomeEmp=(habEmpresas.find(function(e){ return habKeyEmpresa(e.nome)===empKey; })||{}).nome||empKey;
   if(depois!==antes){
     if(depois==='habilitado') habLogEvento(nomeEmp+' declarada habilitada (documentação completa)');
-    else if(depois==='inabilitado') habLogEvento(nomeEmp+' inabilitada — documento recusado');
+    else if(depois==='inabilitado'){ habLogEvento(nomeEmp+' inabilitada — documento recusado'); habDesclassificarNoRanking(empKey, nomeEmp); }
     else if(antes==='habilitado'||antes==='inabilitado') habLogEvento('Julgamento de '+nomeEmp+' reaberto');
   }
   habSalvarFirestore(); habRenderLista();
@@ -3546,6 +3554,7 @@ function habSetDoc(empKey, docId, st){
 function habDeclarar(empKey){
   var nomeEmp=(habEmpresas.find(function(e){ return habKeyEmpresa(e.nome)===empKey; })||{}).nome||empKey;
   habDeclarados[empKey]=true;
+  delete habDeclaradosInab[empKey];
   delete habEstados[empKey];
   habLogEvento(nomeEmp+' declarada habilitada');
   habSalvarFirestore(); habRenderLista();
@@ -3555,6 +3564,52 @@ function habDesfazerDeclaracao(empKey){
   delete habDeclarados[empKey];
   habLogEvento('Declaração de habilitação de '+nomeEmp+' desfeita');
   habSalvarFirestore(); habRenderLista();
+}
+
+/* Botão vermelho: declara a empresa inabilitada E desclassifica automaticamente,
+   no ranking, todas as propostas dela que ainda estivessem ativas (aprovadas,
+   em diligência ou neutras), com a justificativa padrão "Empresa inabilitada
+   do certame." Isso evita ficar com a empresa inabilitada na habilitação mas
+   ainda vencedora/ativa no ranking dos itens.                                  */
+function habInabilitar(empKey){
+  var emp=habEmpresas.find(function(e){ return habKeyEmpresa(e.nome)===empKey; });
+  var nomeEmp=emp?emp.nome:empKey;
+  if(!confirm('Declarar "'+nomeEmp+'" INABILITADA?\n\nTodas as propostas ativas dessa empresa no ranking serão desclassificadas automaticamente, com a justificativa "Empresa inabilitada do certame."'))return;
+  habDeclaradosInab[empKey]=true;
+  delete habDeclarados[empKey];
+  habLogEvento(nomeEmp+' declarada inabilitada');
+  habDesclassificarNoRanking(empKey, nomeEmp);
+  habSalvarFirestore(); habRenderLista();
+}
+function habDesfazerInabilitacao(empKey){
+  var nomeEmp=(habEmpresas.find(function(e){ return habKeyEmpresa(e.nome)===empKey; })||{}).nome||empKey;
+  delete habDeclaradosInab[empKey];
+  habLogEvento('Declaração de inabilitação de '+nomeEmp+' desfeita');
+  habSalvarFirestore(); habRenderLista();
+}
+/* Grava direto no documento de rankings (rkColRef) a desclassificação de todas
+   as propostas da empresa. Usa a cópia local habRkItens/habRkEstados, mantida
+   sempre atualizada por um listener em tempo real (ver abrirHabilitacao), e
+   grava com merge:true para não afetar itens de outras empresas.              */
+function habDesclassificarNoRanking(empKey, nomeEmp){
+  if(!habDocId||!habRkItens.length) return;
+  var upd={};
+  var alterou=false;
+  habRkItens.forEach(function(it){
+    (it.fornecedores||[]).forEach(function(f,idx){
+      if(habKeyEmpresa(f.nome)!==empKey) return;
+      var key=it.num+'-'+idx;
+      if(habRkEstados[key]==='reprovado') return; /* já desclassificada, não sobrescreve motivo anterior */
+      upd['estados.'+key]='reprovado';
+      upd['motivos.'+key]=HAB_MOTIVO_INABILITACAO;
+      habRkEstados=Object.assign({}, habRkEstados); habRkEstados[key]='reprovado'; /* coerência local até o próximo snapshot */
+      alterou=true;
+    });
+  });
+  if(!alterou) return;
+  upd['updatedAt']=firebase.firestore.FieldValue.serverTimestamp();
+  rkColRef.doc(habDocId).update(upd)
+    .catch(function(e){ console.error('Erro ao desclassificar no ranking:', e); habToast('Erro ao desclassificar propostas no ranking: '+e.message); });
 }
 
 function habSetDocMotivo(empKey, docId, texto){
@@ -3678,7 +3733,12 @@ function habRenderLista(){
       +(aberto?habChecklistHTML(k, info):'')
       +(info.declarado
           ?'<button class="hab-declare-btn undo" data-undeclare="'+escHtml(k)+'">&#8617; Desfazer declaração de habilitada</button>'
-          :(s!=='habilitado'?'<button class="hab-declare-btn" data-declare="'+escHtml(k)+'">&#10003; Declarar empresa HABILITADA</button>':''))
+          :info.declaradoInab
+            ?'<button class="hab-declare-btn undo" data-uninab="'+escHtml(k)+'">&#8617; Desfazer declaração de inabilitada</button>'
+            :'<div class="hab-declare-row">'
+              +(s!=='habilitado'?'<button class="hab-declare-btn" data-declare="'+escHtml(k)+'">&#10003; Declarar empresa HABILITADA</button>':'')
+              +(s!=='inabilitado'?'<button class="hab-declare-btn inab" data-inab="'+escHtml(k)+'">&#10007; Declarar empresa INABILITADA</button>':'')
+            +'</div>')
       +(s==='inabilitado'&&info.recusados.length?'<div class="hab-recusa-resumo"><b>Documentos recusados:</b> '+info.recusados.map(escHtml).join('; ')+'</div>':'')
       +'<div class="hab-motivo-wrap"'+(s==='inabilitado'?'':' style="display:none"')+'><textarea class="hab-motivo" placeholder="Justificativa complementar de inabilitação (opcional)..." data-key="'+escHtml(k)+'">'+escHtml(mv)+'</textarea></div>'
       +'</div>';
@@ -3689,6 +3749,12 @@ function habRenderLista(){
   });
   lista.querySelectorAll('[data-declare]').forEach(function(btn){
     btn.addEventListener('click',function(){ habDeclarar(btn.dataset.declare); });
+  });
+  lista.querySelectorAll('[data-inab]').forEach(function(btn){
+    btn.addEventListener('click',function(){ habInabilitar(btn.dataset.inab); });
+  });
+  lista.querySelectorAll('[data-uninab]').forEach(function(btn){
+    btn.addEventListener('click',function(){ habDesfazerInabilitacao(btn.dataset.uninab); });
   });
   lista.querySelectorAll('[data-undeclare]').forEach(function(btn){
     btn.addEventListener('click',function(){ habDesfazerDeclaracao(btn.dataset.undeclare); });
