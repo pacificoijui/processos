@@ -836,6 +836,8 @@
   .card-obs-label .obs-st { font-size: 10px; font-weight: 700; color: var(--muted); opacity: 0; transition: opacity .3s; }
   .card-obs-input { width: 100%; font-family: Arial, sans-serif; font-size: 13px; color: var(--text); background: transparent; border: 1.5px solid var(--border); border-radius: 8px; resize: none; outline: none; padding: 8px 10px; line-height: 1.45; min-height: 38px; overflow: hidden; transition: border-color .15s; }
   .card-obs-input:focus { border-color: var(--navy-light); box-shadow: 0 0 0 3px rgba(46,93,168,0.10); }
+  .card-obs-add-btn { display: flex; align-items: center; gap: 6px; width: 100%; background: transparent; border: none; padding: 8px 19px; font-family: Arial, sans-serif; font-size: 11px; font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; cursor: pointer; transition: color .15s, background .15s; border-top: 1px solid var(--border); }
+  .card-obs-add-btn:hover { color: var(--navy-light); background: rgba(46,93,168,0.06); }
 
   /* ── Sistema de Assinaturas: editor (nos modais) ── */
   .asg-box{display:flex;flex-direction:column;gap:10px}
@@ -2032,7 +2034,17 @@ document.addEventListener("click", function(e){
   if(action === "ranking" && pid) abrirRanking(pid);
   if(action === "vencedores" && pid) abrirVencedores(pid);
   if(action === "habilitacao" && pid) abrirHabilitacao(pid);
+  if(action === "obs-add" && pid){ abrirObsBox(pid); return; }
 });
+
+/* ── Exibir caixa de observação sob demanda (clique no botão "Adicionar observação") ── */
+var _obsAbertos={};
+function abrirObsBox(pid){
+  _obsAbertos[pid]=true;
+  renderizar();
+  var el=document.getElementById("obsin_"+pid);
+  if(el){ el.focus(); }
+}
 
 /* ── Popover rápido para alterar status do processo ───────────────────────────
    Clicar na tag de status de um card abre um pequeno painel para trocar o
@@ -2545,10 +2557,14 @@ function renderizar(){
     html+=contatoHtml;
     html+='</div>';
     html+=progHtml;
-    html+='<div class="card-obs-wrap">';
-    html+='<div class="card-obs-label">&#128221; Observação <span class="obs-st" id="obsst_'+escHtml(p.id)+'"></span></div>';
-    html+='<textarea class="card-obs-input" id="obsin_'+escHtml(p.id)+'" oninput="onProcObsInput(\''+escHtml(p.id)+'\',this)">'+escHtml(p.observacao||"")+'</textarea>';
-    html+='</div>';
+    if((p.observacao&&p.observacao.length) || _obsAbertos[p.id]){
+      html+='<div class="card-obs-wrap">';
+      html+='<div class="card-obs-label">&#128221; Observação <span class="obs-st" id="obsst_'+escHtml(p.id)+'"></span></div>';
+      html+='<textarea class="card-obs-input" id="obsin_'+escHtml(p.id)+'" oninput="onProcObsInput(\''+escHtml(p.id)+'\',this)">'+escHtml(p.observacao||"")+'</textarea>';
+      html+='</div>';
+    } else {
+      html+='<button class="card-obs-add-btn" data-action="obs-add">&#128221; Adicionar observação</button>';
+    }
     html+='<div class="card-footer">';
     html+='<button class="btn-sm" data-action="ranking" style="background:#102040;color:#fff;border-color:#102040">&#128202; Propostas</button>';
     html+='<button class="btn-sm" data-action="habilitacao" style="background:#1E5F3A;color:#fff;border-color:#1E5F3A">&#9989; Habilitação</button>';
