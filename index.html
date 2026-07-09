@@ -178,6 +178,8 @@
   .link-btn-disabled { background: #dde2ee; color: #99a; cursor: default; }
   .link-btn-homolog { background: var(--gold); color: #3a2800; }
   .link-btn-homolog:hover { background: var(--gold-light); }
+  .link-btn-pasta { background: #4a5a75; color: #fff; border: none; cursor: pointer; font-family: inherit; }
+  .link-btn-pasta:hover { background: #102040; }
 
   .card-footer { padding: 11px 19px; border-top: 1px solid var(--border); display: flex; gap: 8px; background: #f7f9fd; }
   .btn-sm { flex: 1; padding: 8px 8px; border-radius: 7px; border: 1.5px solid var(--border); background: #fff; font-family: Arial, sans-serif; font-size: 12.5px; font-weight: 700; color: var(--text); cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 4px; transition: all 0.15s; }
@@ -2030,12 +2032,26 @@ document.addEventListener("click", function(e){
   if(action === "editar-st")  editarStatus(btn.dataset.stid);
   if(action === "excluir-st") excluirStatus(btn.dataset.stid);
   if(action === "copiar-atalho"){ copiarAtalhoStatus(btn.dataset.stid, parseInt(btn.dataset.idx,10)); return; }
+  if(action === "abrir-pasta" && pid){ abrirPastaProcesso(pid); return; }
   if(action === "portal" && pid) { /* removido */ }
   if(action === "ranking" && pid) abrirRanking(pid);
   if(action === "vencedores" && pid) abrirVencedores(pid);
   if(action === "habilitacao" && pid) abrirHabilitacao(pid);
   if(action === "obs-add" && pid){ abrirObsBox(pid); return; }
 });
+
+/* ── Botão 📂 PASTA: abre a pasta do processo no Windows (via Central) ─────────
+   Dentro da Central do Pregoeiro, a página roda com um script injetado que
+   escuta o console. Este log com prefixo __CENTRAL_FOLDER__ é capturado pela
+   Central, que procura a pasta do processo (ex: "PE 10 2026 - ...") nas pastas
+   liberadas do explorador e abre direto no Windows Explorer. Fora da Central,
+   o botão só avisa que precisa do app. */
+function abrirPastaProcesso(pid){
+  var p=processos.find(function(x){return x.id===pid;});
+  if(!p) return;
+  if(!window.__cctx){ toast("📂 Abrir pasta funciona dentro da Central do Pregoeiro"); return; }
+  console.log("__CENTRAL_FOLDER__"+JSON.stringify({numero:p.numero||"", rotulo:rotuloProcesso(p)}));
+}
 
 /* ── Exibir caixa de observação sob demanda (clique no botão "Adicionar observação") ── */
 var _obsAbertos={};
@@ -2552,6 +2568,9 @@ function renderizar(){
     var homologBtn=_homologLink
       ? '<a class="link-btn link-btn-homolog" href="'+escHtml(_homologLink)+'" target="_blank" rel="noopener" title="Abre a sessão na conta do prefeito (ANDREI) para homologar">&#9878;&#65039; HOMOLOGAR</a>'
       : '';
+    /* PASTA: dentro da Central do Pregoeiro, abre a pasta do processo direto no
+       painel de arquivos da Central (ela acha "PE 10 2026 - ..." pelo número). */
+    var pastaBtn='<button class="link-btn link-btn-pasta" data-action="abrir-pasta" title="Abrir a pasta do processo no painel de arquivos da Central do Pregoeiro">&#128194; PASTA</button>';
     var contatoHtml="";
     var _tint=getStatusTint(p.status);
     var _cardStyle=_tint?' style="background:'+_tint.bg+'"':'';
@@ -2566,7 +2585,7 @@ function renderizar(){
     html+='<button class="card-pin-btn'+(p.fixado?' on':'')+'" data-action="pin" title="'+(p.fixado?'Desafixar':'Fixar no topo')+'">&#128204;</button>';
     html+='</div>';
     html+='</div>';
-    html+='<div class="card-meta"><span class="status-tag" data-action="status-pop" title="Clique para alterar o status" style="'+getStatusStyle(p.status)+'">'+escHtml((st.nome||st.label||p.status))+'<span class="status-caret">&#9660;</span></span>'+anexarBtn+linkBtn+homologBtn+'</div>';
+    html+='<div class="card-meta"><span class="status-tag" data-action="status-pop" title="Clique para alterar o status" style="'+getStatusStyle(p.status)+'">'+escHtml((st.nome||st.label||p.status))+'<span class="status-caret">&#9660;</span></span>'+anexarBtn+linkBtn+homologBtn+pastaBtn+'</div>';
     if(st.atalhos&&st.atalhos.length){
       var atalhosHtml='<div class="card-atalhos">';
       for(var ai=0;ai<st.atalhos.length;ai++){
