@@ -136,7 +136,6 @@
   .filter-btn:hover { border-color: var(--navy-light); color: var(--navy); }
   .filter-btn.active { background: var(--navy); color: #fff; border-color: var(--navy); }
   /* ── Filtros recolhíveis (aparecem só em telas estreitas / celular) ─────── */
-  .filtros-toggle-btn { display: none; }
   .filtros-colapsavel { display: flex; flex-direction: column; gap: 10px; width: 100%; }
 
   .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(440px, 1fr)); gap: 20px; }
@@ -240,18 +239,7 @@
     .filtros-wrap { flex-direction: column; gap: 9px; align-items: stretch; }
     .filtro-campo, .filtro-campo.cf-tipo, .filtro-campo.cf-num, .filtro-campo.cf-obj { width: 100%; min-width: 0; }
     .btn-limpar-filtros { width: 100%; }
-    /* Em telas estreitas os filtros ficam recolhidos atrás do botão "Buscar
-       processos" e abrem só quando o usuário toca nele (por padrão fechado). */
-    .filtros-toggle-btn {
-      display: flex; align-items: center; justify-content: space-between; gap: 10px;
-      width: 100%; padding: 12px 16px; border: 1.5px solid var(--border); border-radius: 11px;
-      background: var(--card); color: var(--navy); font-family: Arial, sans-serif;
-      font-size: 14px; font-weight: 700; cursor: pointer; box-shadow: var(--shadow);
-    }
-    .filtros-toggle-btn:active { transform: scale(.995); }
-    .filtros-toggle-caret { font-size: 12px; color: var(--muted); transition: transform .15s; }
-    .filtros-colapsavel { display: none; }
-    .filtros-colapsavel.aberto { display: flex; }
+    /* Painel de filtros ("Buscar processos") sempre aberto, também no mobile. */
     /* Filtros agora QUEBRAM em mais de uma linha — nada fica cortado fora da tela */
     .filter-group { overflow-x: visible; flex-wrap: wrap; }
     .filter-btn { white-space: nowrap; flex-shrink: 0; padding: 7px 12px; font-size: 12px; }
@@ -1206,11 +1194,6 @@
 <main>
   <div class="toolbar">
     <div style="display:flex;flex-direction:column;gap:10px;width:100%">
-      <!-- Botão que recolhe/expande os filtros (só aparece em telas estreitas) -->
-      <button type="button" class="filtros-toggle-btn" id="filtrosToggleBtn" onclick="toggleFiltros()">
-        <span>&#128269; Buscar processos</span>
-        <span class="filtros-toggle-caret" id="filtrosToggleCaret">&#9660;</span>
-      </button>
       <div class="filtros-colapsavel" id="filtrosBody">
       <!-- Linha 0: Filtros de busca separados -->
       <div class="filtros-wrap">
@@ -2418,14 +2401,6 @@ function limparFiltrosBusca(){
   var n=document.getElementById("filtroNumero"); if(n) n.value="";
   var o=document.getElementById("filtroObjeto"); if(o) o.value="";
   renderizar();
-}
-/* Recolhe/expande o painel de filtros em telas estreitas (fechado por padrão) */
-function toggleFiltros(){
-  var b=document.getElementById("filtrosBody");
-  var c=document.getElementById("filtrosToggleCaret");
-  if(!b) return;
-  var aberto=b.classList.toggle("aberto");
-  if(c) c.innerHTML=aberto?"\u25B2":"\u25BC";
 }
 function renderFiltroAnos(){
   var el = document.getElementById("filtroAnos"); if(!el) return;
