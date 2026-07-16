@@ -2498,6 +2498,19 @@ function enviarEmailConclusao(p, dests, cfg){
     })
     .catch(function(e){ alert("Falha ao enviar os e-mails:\n"+e.message); });
 }
+/* Chamado quando um processo passa a Concluído */
+function emailAoConcluir(pid){
+  if(emailCfg.auto===false) return;
+  if(!emailCredenciaisOk()) return;
+  var dests=(emailCfg.destinatarios||[]).filter(function(d){return d&&d.email;});
+  if(!dests.length) return;
+  var p=processos.find(function(x){return x.id===pid;});
+  if(!p) return;
+  if(p.emailConcluidoEm){
+    if(!confirm("O e-mail de conclus\u00e3o deste processo j\u00e1 foi enviado em "+formatarData(p.emailConcluidoEm)+".\nEnviar novamente?")) return;
+  }
+  enviarEmailConclusao(p, dests);
+}
 /* Pré-visualização do modelo em nova aba (com dados de exemplo) */
 function emailVisualizarModelo(){
   var exemplo={
