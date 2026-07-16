@@ -1102,6 +1102,7 @@
       <button class="btn-ghost" onclick="abrirModalStatus()">&#127381; Status</button>
       <button class="btn-ghost" onclick="window.location.href='agenda.html'">&#128197; Agenda</button>
       <button class="btn-ghost" onclick="abrirModalUsuarios()">&#128273; Usuários</button>
+      <button class="btn-ghost" onclick="abrirModalEmail()">&#9993; E-mails</button>
       <span class="auth-chip" id="authUserChip" style="display:none"></span>
       <button class="btn-ghost" onclick="authLogout()" title="Sair">Sair</button>
     </div>
@@ -1635,6 +1636,84 @@
   </div>
 </div>
 
+<!-- MODAL E-MAILS DE CONCLUSAO -->
+<div class="overlay" id="modalEmail">
+  <div class="modal" style="max-width:620px">
+    <div class="modal-header">
+      <h2>&#9993; E-mails de Conclus&atilde;o</h2>
+      <button class="modal-close" onclick="fecharModalEmail()">&#10005;</button>
+    </div>
+    <div class="modal-body" style="gap:14px">
+
+      <div style="background:#f1f9f3;border:1.5px solid #bfe3c6;border-radius:10px;padding:12px 14px;font-size:12.5px;color:#1b5e20;line-height:1.5">
+        Quando um processo for marcado como <b>Conclu&iacute;do</b>, o sistema envia automaticamente um e-mail
+        profissional (objeto, datas, dura&ccedil;&atilde;o e link do portal) para todos os destinat&aacute;rios abaixo.
+      </div>
+
+      <!-- Configuracao Google Apps Script -->
+      <div style="background:#f0f4fb;border-radius:10px;padding:16px;display:flex;flex-direction:column;gap:12px;border:1.5px solid var(--border)">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:8px">
+          <div style="font-size:13px;font-weight:700;color:var(--navy);text-transform:uppercase;letter-spacing:.5px">Conex&atilde;o com o Gmail (Google Apps Script)</div>
+          <button class="btn-ghost" onclick="emailToggleAjuda()" style="padding:5px 10px;font-size:11.5px">Como configurar?</button>
+        </div>
+        <div id="emailAjuda" style="display:none;background:#fff;border:1.5px solid var(--border);border-radius:8px;padding:12px 14px;font-size:12.5px;color:var(--text);line-height:1.7">
+          <b>Passo a passo (gratuito &ndash; usa o pr&oacute;prio Gmail, at&eacute; 500 e-mails/dia):</b><br>
+          1. Acesse <b>script.google.com</b> logado no Gmail que far&aacute; os envios e clique em <b>Novo projeto</b>.<br>
+          2. Apague o conte&uacute;do do editor e cole o c&oacute;digo abaixo
+          <button class="btn-ghost" onclick="emailCopiarScript()" style="padding:3px 10px;font-size:11px;vertical-align:middle">&#128203; Copiar c&oacute;digo</button><br>
+          3. Na 1&ordf; linha do c&oacute;digo, troque <code>SUA-SENHA-AQUI</code> por uma senha que voc&ecirc; inventar (ela tamb&eacute;m ser&aacute; colada no campo <b>Senha</b> abaixo).<br>
+          4. Clique em <b>Implantar &rarr; Nova implanta&ccedil;&atilde;o &rarr; &#9881; Tipo: App da Web</b>. Em &quot;Executar como&quot; deixe <b>Eu</b> e em &quot;Quem pode acessar&quot; escolha <b>Qualquer pessoa</b>. Clique em <b>Implantar</b>.<br>
+          5. Autorize o acesso quando o Google pedir (Avan&ccedil;ado &rarr; Acessar projeto) e copie a <b>URL do app da Web</b> (termina em <code>/exec</code>).<br>
+          6. Cole a URL e a senha nos campos abaixo, salve e use <b>Enviar teste</b>.
+          <pre id="emailScriptCode" style="background:#0d2b52;color:#cfe3ff;border-radius:8px;padding:12px;margin-top:10px;font-size:11px;line-height:1.5;overflow-x:auto;white-space:pre"></pre>
+        </div>
+        <div class="field">
+          <label>URL do App da Web (Apps Script)</label>
+          <input type="text" id="emCfgUrl" placeholder="https://script.google.com/macros/s/.../exec">
+        </div>
+        <div class="field">
+          <label>Senha (a mesma colocada no c&oacute;digo do script)</label>
+          <input type="text" id="emCfgToken" placeholder="senha definida na 1&ordf; linha do script">
+        </div>
+        <label style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text);cursor:pointer;user-select:none">
+          <input type="checkbox" id="emCfgAuto" checked style="width:16px;height:16px;accent-color:var(--green)">
+          Disparar automaticamente ao marcar o processo como <b>Conclu&iacute;do</b>
+        </label>
+      </div>
+
+      <!-- Destinatarios -->
+      <div style="background:#f0f4fb;border-radius:10px;padding:16px;display:flex;flex-direction:column;gap:12px;border:1.5px solid var(--border)">
+        <div style="font-size:13px;font-weight:700;color:var(--navy);text-transform:uppercase;letter-spacing:.5px">Destinat&aacute;rios</div>
+        <div class="row">
+          <div class="field">
+            <label>Nome / Setor</label>
+            <input type="text" id="emDestNome" placeholder="Ex: Secretaria de Sa&uacute;de">
+          </div>
+          <div class="field">
+            <label>E-mail</label>
+            <input type="email" id="emDestEmail" placeholder="email@ijui.rs.gov.br" onkeydown="if(event.key==='Enter')emailAddDest()">
+          </div>
+        </div>
+        <div style="display:flex;justify-content:flex-end">
+          <button class="btn-save" onclick="emailAddDest()" style="padding:8px 20px;font-size:13px">+ Adicionar</button>
+        </div>
+        <div id="emListaDest" style="display:flex;flex-direction:column;gap:8px;max-height:220px;overflow-y:auto"></div>
+      </div>
+
+    </div>
+    <div class="modal-footer" style="justify-content:space-between">
+      <div style="display:flex;gap:8px">
+        <button class="btn-cancel" onclick="emailVisualizarModelo()" style="font-size:13px">&#128065; Ver modelo</button>
+        <button class="btn-cancel" onclick="emailEnviarTeste()" style="font-size:13px">&#9993; Enviar teste</button>
+      </div>
+      <div style="display:flex;gap:8px">
+        <button class="btn-cancel" onclick="fecharModalEmail()">Cancelar</button>
+        <button class="btn-save" id="btnSalvarEmailCfg" onclick="emailSalvarConfig()">Salvar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- PAINEL DE ASSINATURA (link ?assinar=ID&tipo=dec|dil&s=SIGNERID) -->
 <div id="asgSharedPanel">
   <div class="asgs-header">
@@ -2098,8 +2177,14 @@ function mudarStatusRapido(pid, statusId){
   var p=processos.find(function(x){return x.id===pid;});
   fecharStatusPop();
   if(!p || statusKey(p.status)===statusId) return;
-  colRef.doc(pid).update({status:statusId, updatedAt:firebase.firestore.FieldValue.serverTimestamp()})
-    .then(function(){ var st=getStatusCfg(statusId); toast("Status: "+(st.nome||st.label||statusId)); })
+  var eraConcluido=isConcluido(p.status), viraConcluido=isConcluido(statusId);
+  var upd={status:statusId, updatedAt:firebase.firestore.FieldValue.serverTimestamp()};
+  if(viraConcluido && !eraConcluido) upd.dataConclusao=p.dataConclusao||hojeISO();
+  colRef.doc(pid).update(upd)
+    .then(function(){
+      var st=getStatusCfg(statusId); toast("Status: "+(st.nome||st.label||statusId));
+      if(viraConcluido && !eraConcluido) setTimeout(function(){ emailAoConcluir(pid); }, 400);
+    })
     .catch(function(e){ alert("Erro ao alterar status: "+e.message); });
 }
 /* fecha o popover ao clicar fora ou ao rolar/redimensionar */
@@ -2161,13 +2246,11 @@ function vencCompartilharWhatsapp(){
   if(!empresas.length){ toast("Nenhuma empresa vencedora ainda."); return; }
   copiarParaClipboard(montarTextoVencedores(vencProcessoAtual, empresas));
 }
-/* Clique na barra "Processo concluído": monta o texto (vencedores acima do
-   objeto, a partir do ranking do card) e copia para a área de transferência. */
+/* Clique na barra "Processo concluído": monta o texto (sem a lista de
+   vencedores — apenas título, objeto e link) e copia para a área de transferência. */
 function abrirWhatsappConcluido(pid){
   var p=processos.find(function(x){return x.id===pid;}); if(!p)return;
-  var ex=procExtras[p.id]||{}; var rk=ex.rk||{};
-  var empresas=vencDerivarEmpresas(rk.itens||[], rk.estados||{});
-  copiarParaClipboard(montarTextoVencedores(p, empresas));
+  copiarParaClipboard(montarTextoVencedores(p, []));
 }
 function copiarParaClipboard(txt){
   function ok(){ toast("Texto copiado! Cole no grupo do WhatsApp."); }
@@ -2185,6 +2268,272 @@ function copiarFallbackWa(txt,ok,falhou){
     document.body.removeChild(ta);
     if(sucesso) ok(); else falhou();
   }catch(e){ falhou(); }
+}
+
+/* ── E-mail automático de conclusão (Gmail via Google Apps Script) ────────────
+   Configuração (credenciais + destinatários) fica na coleção "email_config",
+   doc "config", compartilhada entre todos os usuários do sistema.            */
+var emailCfgRef = db.collection("email_config").doc("config");
+var emailCfg = {webAppUrl:"", token:"", auto:true, destinatarios:[]};
+var emDestTemp = [];
+emailCfgRef.onSnapshot(function(doc){
+  if(doc.exists){
+    var d=doc.data()||{};
+    emailCfg={webAppUrl:d.webAppUrl||"", token:d.token||"",
+              auto:(d.auto!==false), destinatarios:Array.isArray(d.destinatarios)?d.destinatarios:[]};
+  }
+  var m=document.getElementById("modalEmail");
+  if(m && m.classList.contains("open")) emailPreencherForm();
+}, function(err){ console.warn("email_config: sem permissão de leitura ("+err.message+")"); });
+
+function hojeISO(){
+  var d=new Date();
+  return d.getFullYear()+"-"+("0"+(d.getMonth()+1)).slice(-2)+"-"+("0"+d.getDate()).slice(-2);
+}
+/* Diferença em dias entre duas datas ISO (aaaa-mm-dd) */
+function emailDiffDias(isoA, isoB){
+  function p(iso){ var a=(iso||"").split("-"); if(a.length<3)return null; return new Date(+a[0], +a[1]-1, +a[2]); }
+  var a=p(isoA), b=p(isoB);
+  if(!a||!b||isNaN(a)||isNaN(b)) return null;
+  return Math.round((b-a)/86400000);
+}
+function emailTituloCurto(p){
+  var tipo=tipoLicitacao(p.numero);
+  var seq=numeroSeq(p.numero).replace(/\/20(\d{2})$/,"/$1");
+  return tipo?(tipo+" "+seq):(p.numero||"Processo");
+}
+function emailAssunto(p){
+  var obj=(p.objeto||"").trim().replace(/\s+/g," ");
+  if(obj.length>110) obj=obj.slice(0,110).trim()+"...";
+  return emailTituloCurto(p)+(obj?" - "+obj:"");
+}
+function emailTituloProc(p){
+  var tipo=tipoLicitacao(p.numero);
+  return tipo?(tipo+" "+numeroSeq(p.numero)):(p.numero||"Processo");
+}
+
+/* ── Modal de configuração ── */
+function abrirModalEmail(){
+  emailPreencherForm();
+  document.getElementById("modalEmail").classList.add("open");
+}
+function fecharModalEmail(){ document.getElementById("modalEmail").classList.remove("open"); }
+var EMAIL_LOGO_PREVIEW = "data:image/png;base64," + "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";
+var EMAIL_APPS_SCRIPT_CODE = "var SENHA = \"SUA-SENHA-AQUI\"; // troque pela sua senha (a mesma do sistema)\n\n// Logo de Ijui embutida nos e-mails (gerada automaticamente - nao editar)\nvar LOGO_B64 =\n  \"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\";\n\nfunction doPost(e) {\n  var out;\n  try {\n    var d = JSON.parse(e.postData.contents);\n    if (String(d.token) !== SENHA) throw new Error(\"Senha incorreta.\");\n    var dests = d.destinatarios || [];\n    if (!dests.length) throw new Error(\"Sem destinatarios.\");\n    var inline = null;\n    try {\n      inline = { logoijui: Utilities.newBlob(Utilities.base64Decode(LOGO_B64), \"image/png\", \"logo-ijui.png\") };\n    } catch (err) { inline = null; }\n    var enviados = 0, falhas = [];\n    dests.forEach(function(x) {\n      try {\n        var msg = {\n          to: x.email,\n          subject: d.assunto || \"Processo Concluido\",\n          htmlBody: d.html || \"\",\n          name: d.remetente || \"Licitacoes - Prefeitura de Ijui\"\n        };\n        if (inline) msg.inlineImages = inline;\n        MailApp.sendEmail(msg);\n        enviados++;\n      } catch (err) { falhas.push(x.email + \": \" + err.message); }\n    });\n    out = { ok: true, enviados: enviados, falhas: falhas };\n  } catch (err) {\n    out = { ok: false, erro: String(err && err.message ? err.message : err) };\n  }\n  return ContentService.createTextOutput(JSON.stringify(out))\n    .setMimeType(ContentService.MimeType.JSON);\n}\n";
+function emailToggleAjuda(){
+  var el=document.getElementById("emailAjuda");
+  var abrir=(el.style.display==="none"||!el.style.display);
+  el.style.display=abrir?"block":"none";
+  if(abrir){ var pre=document.getElementById("emailScriptCode"); if(pre&&!pre.textContent) pre.textContent=EMAIL_APPS_SCRIPT_CODE; }
+}
+function emailCopiarScript(){
+  copiarTextoClipboard(EMAIL_APPS_SCRIPT_CODE, "C\u00f3digo copiado! Cole no editor do script.google.com");
+}
+function emailPreencherForm(){
+  document.getElementById("emCfgUrl").value=emailCfg.webAppUrl||"";
+  document.getElementById("emCfgToken").value=emailCfg.token||"";
+  document.getElementById("emCfgAuto").checked=(emailCfg.auto!==false);
+  emDestTemp=(emailCfg.destinatarios||[]).map(function(d){return {nome:d.nome||"",email:d.email||""};});
+  emailRenderDest();
+}
+function emailRenderDest(){
+  var box=document.getElementById("emListaDest");
+  if(!emDestTemp.length){
+    box.innerHTML='<div style="font-size:12.5px;color:var(--muted);text-align:center;padding:10px 0">Nenhum destinatário cadastrado.</div>';
+    return;
+  }
+  var html="";
+  emDestTemp.forEach(function(d,i){
+    html+='<div style="display:flex;align-items:center;gap:10px;background:#fff;border:1.5px solid var(--border);border-radius:8px;padding:8px 12px">'
+      +'<span style="display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;background:var(--navy);color:#fff;font-size:12px;font-weight:800;flex-shrink:0">'+escHtml((d.nome||d.email||"?").trim().charAt(0).toUpperCase())+'</span>'
+      +'<div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:700;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+escHtml(d.nome||"(sem nome)")+'</div>'
+      +'<div style="font-size:12px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+escHtml(d.email)+'</div></div>'
+      +'<button class="btn-cancel" onclick="emailRemoveDest('+i+')" title="Remover" style="padding:4px 10px;font-size:12px;color:var(--red);border-color:var(--red)">&#128465;</button>'
+      +'</div>';
+  });
+  box.innerHTML=html;
+}
+function emailAddDest(){
+  var nome=document.getElementById("emDestNome").value.trim();
+  var email=document.getElementById("emDestEmail").value.trim();
+  if(!email){ alert("Informe o e-mail."); return; }
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){ alert("E-mail inválido: "+email); return; }
+  if(emDestTemp.some(function(d){return d.email.toLowerCase()===email.toLowerCase();})){ alert("Este e-mail já está na lista."); return; }
+  emDestTemp.push({nome:nome,email:email});
+  document.getElementById("emDestNome").value="";
+  document.getElementById("emDestEmail").value="";
+  document.getElementById("emDestNome").focus();
+  emailRenderDest();
+}
+function emailRemoveDest(i){ emDestTemp.splice(i,1); emailRenderDest(); }
+function emailLerForm(){
+  return {
+    webAppUrl:document.getElementById("emCfgUrl").value.trim(),
+    token:document.getElementById("emCfgToken").value.trim(),
+    auto:document.getElementById("emCfgAuto").checked,
+    destinatarios:emDestTemp.slice()
+  };
+}
+function emailSalvarConfig(){
+  var btn=document.getElementById("btnSalvarEmailCfg");
+  var cfg=emailLerForm();
+  if(cfg.webAppUrl && !/^https:\/\/script\.google\.com\/macros\//.test(cfg.webAppUrl)){
+    if(!confirm("A URL informada n\u00e3o parece ser do Apps Script (deveria come\u00e7ar com https://script.google.com/macros/...).\nSalvar mesmo assim?")) return;
+  }
+  btn.disabled=true; btn.textContent="Salvando...";
+  emailCfgRef.set(cfg,{merge:true})
+    .then(function(){ emailCfg=cfg; toast("Configuração de e-mails salva!"); fecharModalEmail(); })
+    .catch(function(e){
+      alert("Erro ao salvar: "+e.message+"\n\nSe for erro de permissão, adicione a coleção 'email_config' às regras do Firestore (mesmo padrão das demais coleções).");
+    })
+    .finally(function(){ btn.disabled=false; btn.textContent="Salvar"; });
+}
+
+/* ── Montagem do e-mail (HTML compatível com Gmail/Outlook) ── */
+function montarEmailConclusaoHtml(p, dataConcISO){
+  var titulo=emailTituloProc(p);
+  var abertura=p.dataLicit?formatarData(p.dataLicit):"";
+  var conclusao=formatarData(dataConcISO);
+  var dias=p.dataLicit?emailDiffDias(p.dataLicit, dataConcISO):null;
+  var durTxt = dias==null ? "&mdash;" : (dias<=0 ? "No mesmo dia" : (dias===1 ? "1 dia" : dias+" dias"));
+  var fraseDur = dias==null ? "" :
+    (dias<=0 ? "O processo foi conclu&iacute;do no mesmo dia da abertura da sess&atilde;o."
+             : "O processo levou <b>"+dias+(dias===1?" dia":" dias")+"</b> entre a abertura da sess&atilde;o e a conclus&atilde;o.");
+  var objeto=escHtml(p.objeto||"");
+  var link=(p.link||"").trim();
+  var linkAttr=escHtml(link);
+
+  var html='<div style="margin:0;padding:0;background:#eef2f7;">'
+  +'<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#eef2f7;"><tr><td align="center" style="padding:32px 12px;">'
+  +'<table role="presentation" cellpadding="0" cellspacing="0" style="max-width:620px;width:100%;background:#ffffff;border-radius:16px;overflow:hidden;font-family:Arial,Helvetica,sans-serif;box-shadow:0 4px 24px rgba(13,43,82,0.12);">'
+  /* faixa verde */
+  +'<tr><td style="background:#2e7d32;height:6px;line-height:6px;font-size:6px;">&nbsp;</td></tr>'
+  /* cabecalho */
+  +'<tr><td style="background:#0d2b52;padding:36px 40px 30px 40px;text-align:center;">'
+  +'<table role="presentation" cellpadding="0" cellspacing="0" align="center"><tr><td style="width:86px;height:86px;border-radius:50%;background:#ffffff;text-align:center;vertical-align:middle;"><img src="cid:logoijui" width="54" alt="Iju&iacute;" style="display:inline-block;vertical-align:middle;border:0;"></td></tr></table>'
+  +'<div style="color:#8fd99c;font-size:12px;font-weight:bold;letter-spacing:3px;margin-top:16px;">&#10003;&nbsp; PROCESSO CONCLU&Iacute;DO</div>'
+  +'<div style="color:#ffffff;font-size:26px;font-weight:bold;margin-top:8px;">'+escHtml(titulo)+'</div>'
+  +'<div style="color:#9fb4d0;font-size:13px;margin-top:8px;">Prefeitura Municipal de Iju&iacute; &nbsp;&bull;&nbsp; Setor de Licita&ccedil;&otilde;es</div>'
+  +'</td></tr>'
+  /* datas / duracao */
+  +'<tr><td style="padding:28px 40px 0 40px;">'
+  +'<table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr>'
+  +'<td width="33%" style="background:#f5f8fb;border:1px solid #e3eaf3;border-radius:10px;padding:14px 8px;text-align:center;">'
+  +'<div style="font-size:10.5px;font-weight:bold;color:#7a8aa0;letter-spacing:1.5px;">ABERTURA</div>'
+  +'<div style="font-size:16px;font-weight:bold;color:#0d2b52;margin-top:6px;">'+(abertura||"&mdash;")+'</div></td>'
+  +'<td width="8" style="font-size:0;">&nbsp;</td>'
+  +'<td width="33%" style="background:#f5f8fb;border:1px solid #e3eaf3;border-radius:10px;padding:14px 8px;text-align:center;">'
+  +'<div style="font-size:10.5px;font-weight:bold;color:#7a8aa0;letter-spacing:1.5px;">CONCLUS&Atilde;O</div>'
+  +'<div style="font-size:16px;font-weight:bold;color:#0d2b52;margin-top:6px;">'+conclusao+'</div></td>'
+  +'<td width="8" style="font-size:0;">&nbsp;</td>'
+  +'<td width="33%" style="background:#f1f9f3;border:1px solid #bfe3c6;border-radius:10px;padding:14px 8px;text-align:center;">'
+  +'<div style="font-size:10.5px;font-weight:bold;color:#3d7a48;letter-spacing:1.5px;">DURA&Ccedil;&Atilde;O</div>'
+  +'<div style="font-size:16px;font-weight:bold;color:#1b6e2a;margin-top:6px;">'+durTxt+'</div></td>'
+  +'</tr></table></td></tr>';
+  if(fraseDur){
+    html+='<tr><td style="padding:20px 40px 0 40px;">'
+    +'<div style="border-left:4px solid #2e7d32;background:#f1f9f3;border-radius:0 10px 10px 0;padding:12px 16px;font-size:13.5px;color:#1b5e20;line-height:1.55;">'+fraseDur+'</div>'
+    +'</td></tr>';
+  }
+  /* objeto */
+  html+='<tr><td style="padding:24px 40px 0 40px;">'
+  +'<div style="font-size:11px;font-weight:bold;color:#7a8aa0;letter-spacing:2px;">OBJETO</div>'
+  +'<div style="font-size:14.5px;color:#22314a;line-height:1.65;margin-top:8px;">'+(objeto||"&mdash;")+'</div>'
+  +'</td></tr>';
+  /* CTA */
+  if(link){
+    html+='<tr><td style="padding:30px 40px 8px 40px;text-align:center;">'
+    +'<a href="'+linkAttr+'" target="_blank" style="display:inline-block;background:#2e7d32;color:#ffffff;text-decoration:none;font-size:14px;font-weight:bold;padding:14px 34px;border-radius:50px;">Acessar o Portal de Compras P&uacute;blicas &nbsp;&rarr;</a>'
+    +'<div style="font-size:12px;color:#7a8aa0;margin-top:12px;line-height:1.5;">Confira toda a documenta&ccedil;&atilde;o e os detalhes do processo atrav&eacute;s do link acima.</div>'
+    +'</td></tr>';
+  }
+  /* rodape */
+  html+='<tr><td style="padding:28px 40px 0 40px;"><div style="border-top:1px solid #e3eaf3;font-size:0;">&nbsp;</div></td></tr>'
+  +'<tr><td style="padding:6px 40px 26px 40px;text-align:center;">'
+  +'<div style="font-size:11.5px;color:#9aa8bb;line-height:1.6;">E-mail autom&aacute;tico do Sistema de Licita&ccedil;&otilde;es &bull; Prefeitura Municipal de Iju&iacute;<br>Enviado em '+conclusao+'</div>'
+  +'</td></tr>'
+  +'</table></td></tr></table></div>';
+  return html;
+}
+
+/* ── Envio (via Google Apps Script — Gmail do próprio usuário) ── */
+function emailCredenciaisOk(cfg){ cfg=cfg||emailCfg; return !!(cfg.webAppUrl); }
+/* Uma única chamada ao Web App envia para todos os destinatários.
+   Content-Type text/plain evita o preflight de CORS no Apps Script. */
+function emailChamarWebApp(cfg, dests, subject, html){
+  return fetch(cfg.webAppUrl,{
+    method:"POST",
+    headers:{"Content-Type":"text/plain;charset=utf-8"},
+    body:JSON.stringify({
+      token:cfg.token||"",
+      assunto:subject,
+      html:html,
+      remetente:"Licita\u00e7\u00f5es - Prefeitura de Iju\u00ed",
+      destinatarios:dests.map(function(d){return {nome:d.nome||"", email:d.email};})
+    })
+  }).then(function(r){
+    return r.text().then(function(t){
+      var data=null;
+      try{ data=JSON.parse(t); }catch(e){}
+      if(!r.ok || !data) throw new Error(data&&data.erro ? data.erro : "Resposta inesperada do script (HTTP "+r.status+"). Confira se a implanta\u00e7\u00e3o est\u00e1 como App da Web com acesso \"Qualquer pessoa\".");
+      if(!data.ok) throw new Error(data.erro||"Falha no script.");
+      return data; /* {ok:true, enviados:n, falhas:[...]} */
+    });
+  });
+}
+function enviarEmailConclusao(p, dests, cfg){
+  cfg=cfg||emailCfg;
+  var dataConc=p.dataConclusao||hojeISO();
+  var subject=emailAssunto(p);
+  var html=montarEmailConclusaoHtml(p, dataConc);
+  toast("Enviando e-mail de conclus\u00e3o ("+dests.length+" destinat\u00e1rio"+(dests.length>1?"s":"")+")...");
+  return emailChamarWebApp(cfg, dests, subject, html)
+    .then(function(res){
+      if(res.enviados>0){
+        colRef.doc(p.id).set({emailConcluidoEm:hojeISO()},{merge:true}).catch(function(){});
+      }
+      var falhas=res.falhas||[];
+      if(!falhas.length){ toast("\u2709 E-mails enviados com sucesso ("+res.enviados+"/"+dests.length+")!"); }
+      else { alert("E-mails enviados: "+res.enviados+"/"+dests.length+"\n\nFalhas:\n"+falhas.join("\n")); }
+    })
+    .catch(function(e){ alert("Falha ao enviar os e-mails:\n"+e.message); });
+}
+/* Pré-visualização do modelo em nova aba (com dados de exemplo) */
+function emailVisualizarModelo(){
+  var exemplo={
+    numero:"PE 75/2026", objeto:"Registro de pre\u00e7os para aquisi\u00e7\u00e3o de materiais de expediente destinados \u00e0s Secretarias Municipais.",
+    dataLicit:"2026-06-24", dataConclusao:hojeISO(),
+    link:"https://www.portaldecompraspublicas.com.br"
+  };
+  var w=window.open("","_blank");
+  if(!w){ alert("Permita pop-ups para visualizar o modelo."); return; }
+  var htmlPrev=montarEmailConclusaoHtml(exemplo, exemplo.dataConclusao).replace(/cid:logoijui/g, EMAIL_LOGO_PREVIEW);
+  w.document.write("<!DOCTYPE html><html><head><meta charset='utf-8'><title>Modelo do e-mail</title></head><body style='margin:0'>"+htmlPrev+"</body></html>");
+  w.document.close();
+}
+/* Envio de teste com dados fictícios (usa o que está digitado no formulário) */
+function emailEnviarTeste(){
+  var cfg=emailLerForm();
+  if(!emailCredenciaisOk(cfg)){ alert("Preencha a URL do App da Web antes do teste."); return; }
+  var em=prompt("Enviar e-mail de teste para qual endere\u00e7o?");
+  if(!em) return;
+  em=em.trim();
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em)){ alert("E-mail inv\u00e1lido."); return; }
+  var exemplo={
+    id:"__teste__", numero:"PE 75/2026",
+    objeto:"[TESTE] Registro de pre\u00e7os para aquisi\u00e7\u00e3o de materiais de expediente destinados \u00e0s Secretarias Municipais.",
+    dataLicit:"2026-06-24", dataConclusao:hojeISO(),
+    link:"https://www.portaldecompraspublicas.com.br"
+  };
+  var subject="[TESTE] "+emailAssunto(exemplo);
+  var html=montarEmailConclusaoHtml(exemplo, exemplo.dataConclusao);
+  toast("Enviando teste...");
+  emailChamarWebApp(cfg, [{nome:"Teste", email:em}], subject, html)
+    .then(function(res){
+      if((res.falhas||[]).length){ alert("O script respondeu, mas o envio falhou:\n"+res.falhas.join("\n")); }
+      else { toast("\u2709 Teste enviado! Verifique a caixa de entrada (e o spam)."); }
+    })
+    .catch(function(e){ alert("Falha no envio de teste:\n"+e.message+"\n\nConfira a URL do App da Web e a senha."); });
 }
 
 /* ── Status config ───────────────────────────────────────────────────────────── */
@@ -2732,8 +3081,13 @@ function salvarProcesso(){
   btn.disabled=true; btn.textContent="Salvando...";
   var ts=firebase.firestore.FieldValue.serverTimestamp();
   var existing=processos.find(function(x){return x.id===editandoId;});
-  var op=colRef.doc(editandoId).set({numero:numero,objeto:objeto,responsavel:resp,status:status,dataLicit:dataLicit,link:link,contato:contato,fixado:existing.fixado||false,observacao:existing.observacao||"",updatedAt:ts},{merge:true});
-  op.then(function(){toast("Processo atualizado!"); fecharModal();})
+  var eraConcluido=isConcluido(existing.status), viraConcluido=isConcluido(status);
+  var payload={numero:numero,objeto:objeto,responsavel:resp,status:status,dataLicit:dataLicit,link:link,contato:contato,fixado:existing.fixado||false,observacao:existing.observacao||"",updatedAt:ts};
+  if(viraConcluido && !eraConcluido) payload.dataConclusao=existing.dataConclusao||hojeISO();
+  var op=colRef.doc(editandoId).set(payload,{merge:true});
+  var pidSalvo=editandoId;
+  op.then(function(){toast("Processo atualizado!"); fecharModal();
+      if(viraConcluido && !eraConcluido) setTimeout(function(){ emailAoConcluir(pidSalvo); }, 400);})
     .catch(function(e){alert("Erro ao salvar: "+e.message);})
     .finally(function(){btn.disabled=false; btn.textContent="Salvar Processo";});
 }
