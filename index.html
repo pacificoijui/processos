@@ -3451,6 +3451,7 @@ var RK_TXT_DESCLASSIFICACAO_CATALOGO =
 "Ressalta-se que a Administração não pode aceitar proposta cuja conformidade técnica não tenha sido devidamente comprovada, sob pena de violação ao edital, à isonomia entre os licitantes e à segurança da contratação.";
 var rkModoOculto = true; /* por padrão oculta os fornecedores além do atual */
 var rkOcultarReprovados = false; /* quando true: mostra só o fornecedor atual (aprovado ou pendente), nunca reprovados */
+var rkGruposAbertos = {}; /* empresas com o grupo expandido, na análise interna — fechado é o padrão */
 
 /* Retorna os índices dos fornecedores a exibir para um item */
 function rkFornVisiveis(it){
@@ -3580,6 +3581,7 @@ function abrirRanking(pid){
   document.getElementById('rankingPanel').classList.add('open');
   if(rkUnsubscribe){ rkUnsubscribe(); rkUnsubscribe=null; }
   rkOwn=false; rkHasPending=false; rkPendingSnap=null; rkPendConfirm=null; rkPendDil=null;
+  rkGruposAbertos={};
   rkEmpModalAberto=false; var _em=document.getElementById('rkEmpModal'); if(_em) _em.style.display='none';
   var primeiraCarga=true;
   rkUnsubscribe=rkColRef.doc(pid).onSnapshot(function(doc){
@@ -5217,7 +5219,50 @@ function rkRenderRanking(){
   }
 
   var html='';
+  /* Com filtro de texto/status ativo, os grupos abrem sozinhos — a lista já
+     está reduzida, não faz sentido esconder de novo atrás de um clique. */
+  var forcarAberto = temBuscaTexto || !!rkFiltroAtivo;
+
+  var grupos={}, ordem=[];
   lista.forEach(function(it){
+    var gIdx=rkFornIdxAtual(it);
+    var gNome=(gIdx>=0&&it.fornecedores[gIdx])?it.fornecedores[gIdx].nome:'__frac__';
+    if(!grupos[gNome]){ grupos[gNome]={nome:gNome, itens:[], pend:0, dil:0, ap:0, frac:0}; ordem.push(gNome); }
+    var g=grupos[gNome];
+    g.itens.push(it);
+    var gst=rkStatusItem(it);
+    if(gst==='pendente') g.pend++;
+    else if(gst==='diligencia') g.dil++;
+    else if(gst==='aprovado') g.ap++;
+    else if(gst==='fracassado') g.frac++;
+  });
+  var gruposOrd=ordem.map(function(n){ return grupos[n]; }).sort(function(a,b){
+    if(a.nome==='__frac__') return 1;
+    if(b.nome==='__frac__') return -1;
+    if(b.pend!==a.pend) return b.pend-a.pend;
+    if(b.dil!==a.dil) return b.dil-a.dil;
+    return a.nome.localeCompare(b.nome);
+  });
+
+  gruposOrd.forEach(function(g){
+    var isFrac=g.nome==='__frac__';
+    var titulo=isFrac?'&#128308; Itens Fracassados':'&#127970; '+escHtml(g.nome);
+    var aberto=forcarAberto||!!rkGruposAbertos[g.nome];
+    var badges='';
+    if(g.pend) badges+='<span style="background:#fef3c7;color:#92400e;border-radius:99px;padding:2px 9px;font-size:11.5px;font-weight:800;margin-left:6px">'+g.pend+' pendente'+(g.pend>1?'s':'')+'</span>';
+    if(g.dil) badges+='<span style="background:#dbeafe;color:#1d4ed8;border-radius:99px;padding:2px 9px;font-size:11.5px;font-weight:800;margin-left:6px">&#128269; '+g.dil+' em diligência</span>';
+    if(g.ap) badges+='<span style="background:#dcfce7;color:#166534;border-radius:99px;padding:2px 9px;font-size:11.5px;font-weight:800;margin-left:6px">&#10003; '+g.ap+'</span>';
+    if(g.frac&&isFrac) badges+='<span style="background:#f1f5f9;color:#475569;border-radius:99px;padding:2px 9px;font-size:11.5px;font-weight:800;margin-left:6px">'+g.frac+'</span>';
+    html+='<div class="rk-emp-grupo-head" data-rkgrp="'+escHtml(g.nome)+'" style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;background:'+(isFrac?'#f8fafc':'#eaf1ff')+';border:1.5px solid '+(isFrac?'#e2e8f0':'#c7dafc')+';border-radius:11px;padding:11px 15px;margin:16px 0 8px;cursor:pointer;user-select:none">'
+      +'<div style="font-size:14px;font-weight:800;color:'+(isFrac?'#475569':'#1e3a5f')+'">'+titulo+'</div>'
+      +'<div style="display:flex;align-items:center;flex-wrap:wrap">'+badges
+      +'<button class="rks-sbtn" style="margin-left:10px;background:'+(aberto?'#fff':'#1d4ed8')+';color:'+(aberto?'#1d4ed8':'#fff')+';border-color:#1d4ed8;padding:5px 12px;font-size:12px;font-weight:800" data-rkgrp-btn="'+escHtml(g.nome)+'">'+(aberto?'Fechar itens':'Abrir itens')+' '+(aberto?'&#9650;':'&#9660;')+'</button></div></div>';
+    if(aberto){
+      g.itens.forEach(function(it){ html+=rkCardHtml(it); });
+    }
+  });
+
+  function rkCardHtml(it){
     var nIt=String(it.num);
     var idx=rkFornIdxAtual(it);
     var status=rkStatusItem(it);
@@ -5305,10 +5350,28 @@ function rkRenderRanking(){
         actionHtml+='<div style="margin-top:8px"><button class="rks-sbtn" style="background:#fff3f3;color:#A32D2D;border-color:#f1bcbc" data-rknaocatalogo="'+escHtml(nIt)+'"><span class="rks-sbtn-icon">&#128203;</span>Não enviou o catálogo</button></div>';
       }
     }
-    html+='<div class="'+cardCls+'" data-num="'+escHtml(nIt)+'">'+titleHtml+fornHtml+actionHtml+'</div>';
-  });
+    return '<div class="'+cardCls+'" data-num="'+escHtml(nIt)+'">'+titleHtml+fornHtml+actionHtml+'</div>';
+  }
 
   c.innerHTML=html;
+
+  /* Recolher/expandir grupos de empresa */
+  c.querySelectorAll('[data-rkgrp]').forEach(function(h){
+    h.addEventListener('click',function(e){
+      if(e.target.closest('[data-rkgrp-btn]')) return;
+      var n=h.dataset.rkgrp;
+      rkGruposAbertos[n]=!rkGruposAbertos[n];
+      rkRenderRanking();
+    });
+  });
+  c.querySelectorAll('[data-rkgrp-btn]').forEach(function(btn){
+    btn.addEventListener('click',function(e){
+      e.stopPropagation();
+      var n=btn.dataset.rkgrpBtn;
+      rkGruposAbertos[n]=!rkGruposAbertos[n];
+      rkRenderRanking();
+    });
+  });
 
   c.querySelectorAll('[data-rkact]').forEach(function(btn){
     btn.addEventListener('click',function(){ rkAplicarAcao(btn.dataset.num, btn.dataset.rkact); });
@@ -5369,7 +5432,7 @@ function rkCopiarLink(){
   var sharedEvts=[];
   var sharedLinkPortal='';   /* link externo do Portal de Compras (o mesmo cadastrado na agenda) */
   var sharedLinkTentado=false; /* fallback: busca no doc do processo caso o ranking ainda não tenha o link salvo */
-  var sharedGruposFechados={}; /* empresas com o grupo recolhido (por nome) */
+  var sharedGruposAbertos={}; /* empresas com o grupo expandido (por nome) — fechado é o padrão */
   function sLog(msg){
     sharedEvts.push({t:new Date().toISOString(), msg:msg});
     if(sharedEvts.length>500) sharedEvts=sharedEvts.slice(-500);
@@ -5529,7 +5592,7 @@ function rkCopiarLink(){
     gruposOrd.forEach(function(g){
       var isFrac=g.nome==='__frac__';
       var titulo=isFrac?'&#128308; Itens Fracassados':'&#127970; '+escHtml(g.nome);
-      var fechado=!!sharedGruposFechados[g.nome];
+      var aberto=!!sharedGruposAbertos[g.nome];
       var badges='';
       if(g.pend) badges+='<span style="background:#fef3c7;color:#92400e;border-radius:99px;padding:2px 9px;font-size:11.5px;font-weight:800;margin-left:6px">'+g.pend+' pendente'+(g.pend>1?'s':'')+'</span>';
       if(g.dil) badges+='<span style="background:#dbeafe;color:#1d4ed8;border-radius:99px;padding:2px 9px;font-size:11.5px;font-weight:800;margin-left:6px">&#128269; '+g.dil+' em diligência</span>';
@@ -5538,8 +5601,8 @@ function rkCopiarLink(){
       html+='<div class="rks-emp-grupo-head" data-empgrp="'+escHtml(g.nome)+'" style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;background:'+(isFrac?'#f8fafc':'#eaf1ff')+';border:1.5px solid '+(isFrac?'#e2e8f0':'#c7dafc')+';border-radius:11px;padding:11px 15px;margin:16px 0 8px;cursor:pointer;user-select:none">'
         +'<div style="font-size:14px;font-weight:800;color:'+(isFrac?'#475569':'#1e3a5f')+'">'+titulo+'</div>'
         +'<div style="display:flex;align-items:center;flex-wrap:wrap">'+badges
-        +'<span style="margin-left:10px;font-size:13px;color:#7a879c">'+(fechado?'&#9654;':'&#9660;')+'</span></div></div>';
-      if(!fechado){
+        +'<button class="rks-sbtn" style="margin-left:10px;background:'+(aberto?'#fff':'#1d4ed8')+';color:'+(aberto?'#1d4ed8':'#fff')+';border-color:#1d4ed8;padding:5px 12px;font-size:12px;font-weight:800" data-empgrp-btn="'+escHtml(g.nome)+'">'+(aberto?'Fechar itens':'Abrir itens')+' '+(aberto?'&#9650;':'&#9660;')+'</button></div></div>';
+      if(aberto){
         g.itens.forEach(function(it){ html+=sCardHtml(it); });
       }
     });
@@ -5641,9 +5704,18 @@ function rkCopiarLink(){
 
     /* Recolher/expandir grupos de empresa */
     body.querySelectorAll('[data-empgrp]').forEach(function(h){
-      h.addEventListener('click',function(){
+      h.addEventListener('click',function(e){
+        if(e.target.closest('[data-empgrp-btn]')) return; /* o botão já cuida do toggle */
         var n=h.dataset.empgrp;
-        sharedGruposFechados[n]=!sharedGruposFechados[n];
+        sharedGruposAbertos[n]=!sharedGruposAbertos[n];
+        sharedRender();
+      });
+    });
+    body.querySelectorAll('[data-empgrp-btn]').forEach(function(btn){
+      btn.addEventListener('click',function(e){
+        e.stopPropagation();
+        var n=btn.dataset.empgrpBtn;
+        sharedGruposAbertos[n]=!sharedGruposAbertos[n];
         sharedRender();
       });
     });
