@@ -1500,6 +1500,20 @@
   </div>
 </div>
 
+<!-- PAINEL DE DILIGÊNCIAS POR EMPRESA (modal sobre o ranking) -->
+<div id="rkEmpModal" style="display:none;position:fixed;inset:0;z-index:99990;background:rgba(15,23,42,.55);backdrop-filter:blur(2px)">
+  <div style="position:absolute;inset:0;display:flex;align-items:flex-start;justify-content:center;padding:26px 12px;overflow:auto" onclick="if(event.target===this)rkFecharPainelEmpresas()">
+    <div style="background:#f5f8ff;border-radius:16px;max-width:860px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.35);overflow:hidden">
+      <div style="background:#1d4ed8;color:#fff;padding:16px 22px;display:flex;align-items:center;justify-content:space-between;gap:12px">
+        <div style="font-size:17px;font-weight:800">&#127970; Diligências por Empresa</div>
+        <button onclick="rkFecharPainelEmpresas()" style="background:rgba(255,255,255,.18);border:none;color:#fff;font-size:15px;font-weight:700;border-radius:8px;padding:6px 14px;cursor:pointer">Fechar &#10005;</button>
+      </div>
+      <div style="padding:14px 18px 6px;font-size:12.5px;color:#4a5a76;line-height:1.55">Cada card mostra os itens <b>em diligência</b> e <b>pendentes</b> em que a empresa é a colocação atual. Defina o prazo e use os botões: a mensagem já sai com a lista de itens, e o motivo de todos os itens é atualizado de uma vez.</div>
+      <div id="rkEmpLista" style="padding:10px 18px 20px"></div>
+    </div>
+  </div>
+</div>
+
 <!-- MODAL PEDIDO DE DILIGÊNCIA -->
 <div class="overlay" id="modalDil">
   <div class="modal" style="max-width:720px">
@@ -1801,6 +1815,9 @@
         <div class="rk-stat sdil" id="rkBtnDil" onclick="rkSetFiltro('diligencia')"><div class="n" id="rks-dil">0</div><div class="l">Em Diligência</div></div>
         <div class="rk-stat sfrac" id="rkBtnFrac" onclick="rkSetFiltro('fracassado')"><div class="n" id="rks-frac">0</div><div class="l">Fracassados</div></div>
         <div class="rk-stat spe" id="rkBtnPe" onclick="rkSetFiltro('pendente')"><div class="n" id="rks-pe">0</div><div class="l">Itens Pendentes</div></div>
+      </div>
+      <div style="margin:2px 0 10px;display:flex;justify-content:flex-end">
+        <button onclick="rkAbrirPainelEmpresas()" style="background:#1d4ed8;color:#fff;border:none;border-radius:9px;padding:10px 18px;font-size:13.5px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:8px;box-shadow:0 2px 8px rgba(29,78,216,.25)">&#127970; Painel por Empresa <span id="rkEmpBadge" style="background:#fff;color:#1d4ed8;border-radius:99px;padding:1px 8px;font-size:12px;font-weight:800">0</span></button>
       </div>
       <p class="rk-hint">Cada item mostra os reprovados e a colocação atual. Clique em Reprovado / Aprovado / Diligência na colocação atual — o motivo é salvo sozinho ao digitar. &nbsp;|&nbsp; Use os filtros acima para filtrar.</p>
       <div class="rk-filters-wrap">
@@ -3393,6 +3410,7 @@ var rkEventos = [];
 var rkPendConfirm = null; /* {key, st} aguardando confirmação */
 var rkPendDil = null; /* {num, key} aguardando confirmação do prazo da diligência */
 var rkDilUltimaHora = '17:00'; /* lembra o último horário usado no prazo da diligência */
+var rkDilUltimoOffsetDias = 0; /* lembra o último deslocamento de dia (0=hoje, 1=amanhã, etc.) */
 /* Registra um evento no histórico do ranking (alimenta o feed do card) */
 function rkLogEvento(msg){
   rkEventos.push({t:new Date().toISOString(), msg:msg});
@@ -3407,10 +3425,24 @@ var rkFiltroForn = '';
    {EMPRESA} é substituído pelo nome do fornecedor no momento da cópia. */
 var RK_TXT_DILIGENCIA_CATALOGO =
 "Senhor licitante {EMPRESA},\n\n"+
-"Para que seja possível verificar se o produto ofertado atende às exigências do edital, a empresa fica DILIGENCIADA a apresentar catálogo, ficha técnica, folder, prospecto ou documento equivalente que comprove as características do item cotado.\n\n"+
+"Solicitamos, para {ITENS}, a apresentação de catálogo, ficha técnica, folder, prospecto ou documento equivalente que comprove as características do(s) produto(s) ofertado(s), a fim de verificar o atendimento às exigências do edital.\n\n"+
 "PRAZO PARA RESPOSTA: {PRAZO}.\n\n"+
 "Caso a documentação não seja enviada dentro do prazo, e não haja pedido de prorrogação antes do seu término, ficará caracterizado o desinteresse no atendimento da diligência e a proposta será DESCLASSIFICADA, por não ser possível comprovar o atendimento às exigências do edital.\n\n"+
 "Esta diligência destina-se a esclarecer e comprovar informações da proposta já apresentada, nos termos do art. 64 da Lei nº 14.133/2021 e das regras do edital.";
+/* Versões "em massa" usadas pelo Painel por Empresa — {LISTA} vira uma linha por item. */
+var RK_TXT_DILIGENCIA_LOTE =
+"Senhor licitante {EMPRESA},\n\n"+
+"Solicitamos, em diligência, o envio de catálogo, ficha técnica, folder, prospecto ou documento equivalente que comprove as características dos produtos ofertados nos seguintes itens:\n\n"+
+"{LISTA}\n\n"+
+"PRAZO PARA RESPOSTA: {PRAZO}.\n\n"+
+"Caso a documentação não seja enviada dentro do prazo, e não haja pedido de prorrogação antes do seu término, ficará caracterizado o desinteresse no atendimento da diligência e as propostas dos itens acima serão DESCLASSIFICADAS, por não ser possível comprovar o atendimento às exigências do edital.\n\n"+
+"Esta diligência destina-se a esclarecer e comprovar informações das propostas já apresentadas, nos termos do art. 64 da Lei nº 14.133/2021 e das regras do edital.";
+var RK_TXT_DESCLASSIFICACAO_LOTE =
+"Senhor licitante {EMPRESA},\n\n"+
+"Considerando que a empresa foi devidamente diligenciada para apresentar catálogo, ficha técnica, folder, prospecto ou documento equivalente referente aos itens abaixo, verifica-se que não houve o envio da documentação solicitada, tampouco pedido formal e justificado de prorrogação dentro do prazo concedido:\n\n"+
+"{LISTA}\n\n"+
+"Dessa forma, resta caracterizada a ausência de interesse da empresa no atendimento da diligência, impossibilitando a Administração de verificar a conformidade dos produtos ofertados com as exigências do edital.\n\n"+
+"Assim, as propostas da empresa para os itens acima ficam DESCLASSIFICADAS, nos termos da Lei nº 14.133/2021 e das regras do edital, uma vez que a Administração não pode aceitar proposta cuja conformidade técnica não tenha sido comprovada, sob pena de violação ao edital e à isonomia entre os licitantes.";
 var RK_TXT_DESCLASSIFICACAO_CATALOGO =
 "Senhor licitante, {EMPRESA}\n\n"+
 "Considerando que a empresa foi devidamente diligenciada para apresentar catálogo, ficha técnica, folder, prospecto ou documento equivalente, verifica-se que não houve o envio da documentação solicitada, tampouco pedido formal e justificado de prorrogação dentro do prazo concedido.\n\n"+
@@ -3483,7 +3515,7 @@ function rkDigitando(){
 }
 function rkFlushPending(){
   if(!rkHasPending) return;
-  if(rkOwn||rkPendConfirm!==null||rkPendDil!==null||rkDigitando()) return;
+  if(rkOwn||rkPendConfirm!==null||rkPendDil!==null||rkEmpModalAberto||rkDigitando()) return;
   rkHasPending=false;
   rkApplySnap(rkPendingSnap);
 }
@@ -3499,6 +3531,7 @@ function rkSalvarFirestore(){
     motivos: rkMotivos,
     eventos: rkEventos,
     numero: rkProcessoAtual.numero,
+    linkPortal: rkProcessoAtual.link||'',
     updatedAt: firebase.firestore.FieldValue.serverTimestamp()
   }).catch(function(e){ console.error('Erro ao salvar ranking:', e); toast('Erro ao salvar na nuvem'); });
 }
@@ -3529,7 +3562,7 @@ document.getElementById('rkFileInput').addEventListener('change', function(){
 function abrirRanking(pid){
   var proc=processos.find(function(p){ return p.id===pid; });
   if(!proc) return;
-  rkProcessoAtual={id:pid,numero:proc.numero};
+  rkProcessoAtual={id:pid,numero:proc.numero,link:(proc.link||'').trim()};
   var _rkPg=primeiroNomeAgente(proc.responsavel);
   document.getElementById('rkPanelTitle').textContent='Ranking — '+proc.numero+(_rkPg?' — '+_rkPg:'');
   var ph=document.getElementById('rkPrintHeaderTitle'); if(ph) ph.textContent='Ranking — '+proc.numero;
@@ -3547,6 +3580,7 @@ function abrirRanking(pid){
   document.getElementById('rankingPanel').classList.add('open');
   if(rkUnsubscribe){ rkUnsubscribe(); rkUnsubscribe=null; }
   rkOwn=false; rkHasPending=false; rkPendingSnap=null; rkPendConfirm=null; rkPendDil=null;
+  rkEmpModalAberto=false; var _em=document.getElementById('rkEmpModal'); if(_em) _em.style.display='none';
   var primeiraCarga=true;
   rkUnsubscribe=rkColRef.doc(pid).onSnapshot(function(doc){
     var d=doc.exists?doc.data():null;
@@ -3555,7 +3589,7 @@ function abrirRanking(pid){
       rkApplySnap(d);
       return;
     }
-    if(rkOwn||rkPendConfirm!==null||rkPendDil!==null||rkDigitando()){ rkPendingSnap=d; rkHasPending=true; return; }
+    if(rkOwn||rkPendConfirm!==null||rkPendDil!==null||rkEmpModalAberto||rkDigitando()){ rkPendingSnap=d; rkHasPending=true; return; }
     rkApplySnap(d);
   }, function(e){
     if(noJson) noJson.innerHTML='<h3>Erro ao carregar</h3><p>'+e.message+'</p>';
@@ -4761,6 +4795,14 @@ function rkDataISO(offsetDias){
   var d=new Date(); d.setDate(d.getDate()+(offsetDias||0));
   return d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2);
 }
+/* Diferença em dias entre uma data ISO (yyyy-mm-dd) e hoje — usada para lembrar
+   se da última vez foi escolhido "hoje", "amanhã" ou outro deslocamento. */
+function rkOffsetDeData(dateStr){
+  var p=(dateStr||rkDataISO(0)).split('-');
+  var alvo=new Date(parseInt(p[0],10), parseInt(p[1],10)-1, parseInt(p[2],10));
+  var hoje=new Date(); hoje.setHours(0,0,0,0); alvo.setHours(0,0,0,0);
+  return Math.round((alvo-hoje)/86400000);
+}
 function rkFmtHora(timeStr){
   var p=(timeStr||'17:00').split(':');
   var h=parseInt(p[0],10)||17, m=parseInt(p[1],10)||0;
@@ -4782,24 +4824,290 @@ function rkFrasePrazo(dateStr, timeStr){
   else if(dateStr===rkDataISO(1)) quando='amanhã, ';
   return 'até as '+rkFmtHora(timeStr)+' de '+quando+rkDiaSemana(dateStr)+', '+rkFmtDataBR(dateStr);
 }
+/* Monta "o item 31", "os itens 31 e 32" ou "os itens 31, 32 e 33" a partir de uma lista de números. */
+function rkFormatarListaItens(nums){
+  nums=nums.slice().sort(function(a,b){
+    var na=parseFloat(a), nb=parseFloat(b);
+    if(!isNaN(na)&&!isNaN(nb)) return na-nb;
+    return String(a).localeCompare(String(b));
+  });
+  if(nums.length===1) return 'o item '+nums[0];
+  if(nums.length===2) return 'os itens '+nums[0]+' e '+nums[1];
+  return 'os itens '+nums.slice(0,-1).join(', ')+' e '+nums[nums.length-1];
+}
 function rkConfirmarDiligencia(key){
   var inpD=document.querySelector('.rks-dil-data[data-key="'+key+'"]');
   var inpH=document.querySelector('.rks-dil-hora[data-key="'+key+'"]');
-  var dataStr=(inpD&&inpD.value)?inpD.value:rkDataISO(0);
+  var dataStr=(inpD&&inpD.value)?inpD.value:rkDataISO(rkDilUltimoOffsetDias);
   var horaStr=(inpH&&inpH.value)?inpH.value:rkDilUltimaHora;
   rkDilUltimaHora=horaStr;
+  rkDilUltimoOffsetDias=rkOffsetDeData(dataStr); /* lembra pro próximo item: hoje/amanhã/etc. */
   var sep=key.lastIndexOf('-'); var nIt=key.slice(0,sep); var idx=Number(key.slice(sep+1));
   var it=rkItens.find(function(x){ return String(x.num)===nIt; }); if(!it){ rkPendDil=null; rkRenderProcesso(); return; }
   var fn=(it.fornecedores[idx]?it.fornecedores[idx].nome:'');
   rkEstados[key]='diligencia';
-  rkMotivos[key]='Diligência solicitada até as '+rkFmtHora(horaStr)+' do dia '+rkFmtDataBR(dataStr)+' ('+rkDiaSemana(dataStr)+').';
+
+  /* Junta este item a outros itens já em diligência do MESMO fornecedor, pra
+     a mensagem e o motivo saírem citando todos juntos (ex.: "os itens 31, 32 e 33"). */
+  var itensGrupo=[nIt];
+  rkItens.forEach(function(x){
+    var xNum=String(x.num); if(xNum===nIt) return;
+    var xIdx=rkFornIdxAtual(x);
+    if(xIdx<0) return;
+    var xFn=(x.fornecedores[xIdx]?x.fornecedores[xIdx].nome:'');
+    if(xFn===fn && rkEstados[xNum+'-'+xIdx]==='diligencia') itensGrupo.push(xNum);
+  });
+  var listaItens=rkFormatarListaItens(itensGrupo);
+  var fraseData='Diligência solicitada ('+listaItens+') até as '+rkFmtHora(horaStr)+' do dia '+rkFmtDataBR(dataStr)+' ('+rkDiaSemana(dataStr)+').';
+  itensGrupo.forEach(function(numIt){
+    var idxG=rkFornIdxAtual(rkItens.find(function(x){ return String(x.num)===numIt; })||{fornecedores:[]});
+    if(idxG>=0) rkMotivos[numIt+'-'+idxG]=fraseData;
+  });
+
   rkLogEvento('Item '+nIt+' — proposta de '+fn+' em diligência (prazo: '+rkFmtHora(horaStr)+' de '+rkFmtDataBR(dataStr)+')');
   rkPendDil=null;
   rkHasPending=false; rkSalvarFirestore(); rkRenderProcesso();
   var msg=RK_TXT_DILIGENCIA_CATALOGO
     .replace('{EMPRESA}', fn)
+    .replace('{ITENS}', listaItens)
     .replace('{PRAZO}', rkFrasePrazo(dataStr, horaStr));
   copiarTextoClipboard(msg, 'Mensagem de diligência (com prazo) copiada — cole no chat do portal!');
+}
+/* ── PAINEL POR EMPRESA ─────────────────────────────────────────────────────
+   Agrupa os itens em que cada empresa é a colocação atual, separando os que
+   estão EM DILIGÊNCIA dos PENDENTES. Permite, por empresa: definir um prazo
+   único, copiar a mensagem de diligência já com a lista de itens, colocar
+   todos os pendentes em diligência de uma vez e desclassificar em massa quem
+   não respondeu. */
+var rkEmpModalAberto=false;
+
+function rkAgruparPorEmpresa(){
+  var mapa={};
+  rkItens.forEach(function(it){
+    var idx=rkFornIdxAtual(it);
+    if(idx<0) return; /* fracassado */
+    var f=it.fornecedores[idx]; if(!f||!f.nome) return;
+    var st=rkEstados[it.num+'-'+idx]||'neutro';
+    if(st==='aprovado') return;
+    var nome=f.nome;
+    if(!mapa[nome]) mapa[nome]={nome:nome, dil:[], pend:[]};
+    var reg={num:String(it.num), desc:it.desc||'', key:it.num+'-'+idx};
+    if(st==='diligencia') mapa[nome].dil.push(reg);
+    else mapa[nome].pend.push(reg);
+  });
+  var lista=Object.keys(mapa).map(function(k){ return mapa[k]; });
+  var ordNum=function(a,b){
+    var na=parseFloat(a.num), nb=parseFloat(b.num);
+    if(!isNaN(na)&&!isNaN(nb)) return na-nb;
+    return String(a.num).localeCompare(String(b.num));
+  };
+  lista.forEach(function(e){ e.dil.sort(ordNum); e.pend.sort(ordNum); });
+  lista.sort(function(a,b){
+    if(b.dil.length!==a.dil.length) return b.dil.length-a.dil.length;
+    if(b.pend.length!==a.pend.length) return b.pend.length-a.pend.length;
+    return a.nome.localeCompare(b.nome);
+  });
+  return lista;
+}
+function rkEmpDescCurta(desc){
+  desc=String(desc||'').trim();
+  return desc.length>80 ? desc.slice(0,80).trim()+'…' : desc;
+}
+/* Lista em linhas pra mensagem do portal: "Item 31 — Martelo" */
+function rkEmpListaTexto(regs){
+  return regs.map(function(r){
+    return 'Item '+r.num+(r.desc?' — '+rkEmpDescCurta(r.desc):'');
+  }).join('\n');
+}
+function rkAbrirPainelEmpresas(){
+  rkEmpModalAberto=true;
+  document.getElementById('rkEmpModal').style.display='block';
+  rkRenderPainelEmpresas();
+}
+function rkFecharPainelEmpresas(){
+  rkEmpModalAberto=false;
+  document.getElementById('rkEmpModal').style.display='none';
+  rkFlushPending();
+}
+function rkEmpChipsItens(regs, cor, corBg, corBorda){
+  if(!regs.length) return '<span style="font-size:12px;color:#9aa7bd;font-style:italic">nenhum</span>';
+  return regs.map(function(r){
+    return '<span title="'+escHtml(r.desc||'')+'" style="display:inline-block;background:'+corBg+';color:'+cor+';border:1px solid '+corBorda+';border-radius:7px;padding:2px 8px;font-size:12px;font-weight:700;margin:2px 3px 2px 0;cursor:default">'+escHtml(r.num)+'</span>';
+  }).join('');
+}
+function rkRenderPainelEmpresas(){
+  var c=document.getElementById('rkEmpLista'); if(!c) return;
+  var empresas=rkAgruparPorEmpresa();
+  if(!empresas.length){
+    c.innerHTML='<div style="text-align:center;color:#7a879c;font-size:13.5px;padding:30px;font-style:italic">Nenhuma empresa com itens em diligência ou pendentes.</div>';
+    return;
+  }
+  var html='';
+  empresas.forEach(function(emp,i){
+    var eid='emp'+i;
+    var temDil=emp.dil.length>0, temPend=emp.pend.length>0;
+    html+='<div style="background:#fff;border:1.5px solid '+(temDil?'#bfdbfe':'#e3e8f2')+';border-radius:13px;padding:14px 16px;margin-bottom:12px">';
+    /* cabeçalho */
+    html+='<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:8px">'
+      +'<div style="font-size:14.5px;font-weight:800;color:#1e293b">'+escHtml(emp.nome)+'</div>'
+      +'<div style="display:flex;gap:6px">'
+        +(temDil?'<span style="background:#dbeafe;color:#1d4ed8;border-radius:99px;padding:2px 10px;font-size:12px;font-weight:800">&#128269; '+emp.dil.length+' em diligência</span>':'')
+        +(temPend?'<span style="background:#fef3c7;color:#92400e;border-radius:99px;padding:2px 10px;font-size:12px;font-weight:800">&#9203; '+emp.pend.length+' pendente'+(emp.pend.length>1?'s':'')+'</span>':'')
+      +'</div></div>';
+    /* itens */
+    if(temDil) html+='<div style="margin:4px 0"><span style="font-size:11.5px;font-weight:800;color:#1d4ed8;text-transform:uppercase;letter-spacing:.4px">Em diligência:</span><br>'+rkEmpChipsItens(emp.dil,'#1d4ed8','#eff6ff','#bfdbfe')+'</div>';
+    if(temPend) html+='<div style="margin:4px 0"><span style="font-size:11.5px;font-weight:800;color:#92400e;text-transform:uppercase;letter-spacing:.4px">Pendentes:</span><br>'+rkEmpChipsItens(emp.pend,'#92400e','#fffbeb','#fde68a')+'</div>';
+    /* prazo */
+    html+='<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:10px 0 8px;background:#f2f6ff;border:1px solid #dbe6fb;border-radius:10px;padding:8px 10px">'
+      +'<span style="font-size:12px;font-weight:800;color:#1d4ed8">Prazo:</span>'
+      +'<input type="date" class="rk-emp-data" data-emp="'+eid+'" value="'+rkDataISO(rkDilUltimoOffsetDias)+'" style="font-size:13px;padding:6px 8px;border:1px solid #bfdbfe;border-radius:7px;background:#fff;font-family:Arial,sans-serif">'
+      +'<input type="time" class="rk-emp-hora" data-emp="'+eid+'" value="'+escHtml(rkDilUltimaHora)+'" style="font-size:13px;padding:6px 8px;border:1px solid #bfdbfe;border-radius:7px;background:#fff;font-family:Arial,sans-serif">'
+      +'<button class="rks-sbtn" style="background:#fff;color:#1d4ed8;border-color:#bfdbfe;padding:5px 11px" data-empdia="0" data-emp="'+eid+'">Hoje</button>'
+      +'<button class="rks-sbtn" style="background:#fff;color:#1d4ed8;border-color:#bfdbfe;padding:5px 11px" data-empdia="1" data-emp="'+eid+'">Amanhã</button>'
+      +'</div>';
+    /* ações */
+    var lblPrincipal;
+    if(temPend&&temDil) lblPrincipal='&#128269; Diligenciar todos ('+(emp.dil.length+emp.pend.length)+') e copiar mensagem';
+    else if(temPend) lblPrincipal='&#128269; Diligenciar os '+emp.pend.length+' pendentes e copiar mensagem';
+    else lblPrincipal='&#128203; Copiar mensagem de diligência ('+emp.dil.length+' '+(emp.dil.length>1?'itens':'item')+')';
+    html+='<div style="display:flex;gap:8px;flex-wrap:wrap">';
+    html+='<button class="rks-sbtn" style="background:#1d4ed8;color:#fff;border-color:#1d4ed8;padding:8px 14px;font-weight:800" data-empdil="'+escHtml(emp.nome)+'" data-emp="'+eid+'">'+lblPrincipal+'</button>';
+    html+='<button class="rks-sbtn" style="background:#fff;color:#1e3a5f;border-color:#1e3a5f;padding:8px 14px;font-weight:700" data-emppedido="'+escHtml(emp.nome)+'" data-emp="'+eid+'">&#128438; Gerar Pedido de Diligência (PDF)</button>';
+    if(temDil&&temPend) html+='<button class="rks-sbtn" style="background:#eff6ff;color:#1d4ed8;border-color:#bfdbfe;padding:8px 14px" data-empmsg="'+escHtml(emp.nome)+'" data-emp="'+eid+'">&#128203; Copiar mensagem só dos '+emp.dil.length+' em diligência</button>';
+    if(temDil) html+='<button class="rks-sbtn" style="background:#fff3f3;color:#A32D2D;border-color:#f1bcbc;padding:8px 14px" data-empdesc="'+escHtml(emp.nome)+'">&#10060; Não respondeu — Desclassificar os '+emp.dil.length+'</button>';
+    html+='</div>';
+    html+='</div>';
+  });
+  c.innerHTML=html;
+  /* listeners */
+  c.querySelectorAll('[data-empdia]').forEach(function(btn){
+    btn.addEventListener('click',function(){
+      var inp=c.querySelector('.rk-emp-data[data-emp="'+btn.dataset.emp+'"]');
+      if(inp) inp.value=rkDataISO(parseInt(btn.dataset.empdia,10)||0);
+    });
+  });
+  c.querySelectorAll('[data-empdil]').forEach(function(btn){
+    btn.addEventListener('click',function(){ rkEmpDiligenciar(btn.dataset.empdil, btn.dataset.emp, true); });
+  });
+  c.querySelectorAll('[data-empmsg]').forEach(function(btn){
+    btn.addEventListener('click',function(){ rkEmpDiligenciar(btn.dataset.empmsg, btn.dataset.emp, false); });
+  });
+  c.querySelectorAll('[data-empdesc]').forEach(function(btn){
+    btn.addEventListener('click',function(){ rkEmpDesclassificar(btn.dataset.empdesc); });
+  });
+  c.querySelectorAll('[data-emppedido]').forEach(function(btn){
+    btn.addEventListener('click',function(){ rkEmpGerarPedido(btn.dataset.emppedido, btn.dataset.emp); });
+  });
+}
+function rkEmpPrazoLido(eid){
+  var c=document.getElementById('rkEmpLista');
+  var inpD=c?c.querySelector('.rk-emp-data[data-emp="'+eid+'"]'):null;
+  var inpH=c?c.querySelector('.rk-emp-hora[data-emp="'+eid+'"]'):null;
+  var dataStr=(inpD&&inpD.value)?inpD.value:rkDataISO(rkDilUltimoOffsetDias);
+  var horaStr=(inpH&&inpH.value)?inpH.value:rkDilUltimaHora;
+  rkDilUltimaHora=horaStr;
+  rkDilUltimoOffsetDias=rkOffsetDeData(dataStr);
+  return {data:dataStr, hora:horaStr};
+}
+/* Aplica estado 'diligencia' + motivo com prazo em um conjunto de itens (usado
+   pelos botões do Painel por Empresa e pela geração do Pedido de Diligência). */
+function rkEmpAplicarPrazoEstados(regs, prazo){
+  var fraseMotivo='Diligência solicitada até as '+rkFmtHora(prazo.hora)+' do dia '+rkFmtDataBR(prazo.data)+' ('+rkDiaSemana(prazo.data)+').';
+  regs.forEach(function(r){
+    rkEstados[r.key]='diligencia';
+    rkMotivos[r.key]=fraseMotivo;
+  });
+}
+/* incluirPendentes=true: pendentes também entram em diligência; false: só atualiza/copia os que já estão. */
+function rkEmpDiligenciar(nomeEmp, eid, incluirPendentes){
+  var emp=rkAgruparPorEmpresa().find(function(e){ return e.nome===nomeEmp; }); if(!emp) return;
+  var prazo=rkEmpPrazoLido(eid);
+  var regs=incluirPendentes ? emp.dil.concat(emp.pend) : emp.dil.slice();
+  if(!regs.length) return;
+  regs.sort(function(a,b){ var na=parseFloat(a.num),nb=parseFloat(b.num); if(!isNaN(na)&&!isNaN(nb)) return na-nb; return String(a.num).localeCompare(String(b.num)); });
+  rkEmpAplicarPrazoEstados(regs, prazo);
+  var nums=regs.map(function(r){ return r.num; });
+  rkLogEvento('Diligência em lote — '+nomeEmp+' ('+rkFormatarListaItens(nums)+'; prazo: '+rkFmtHora(prazo.hora)+' de '+rkFmtDataBR(prazo.data)+')');
+  rkHasPending=false; rkSalvarFirestore(); rkRenderProcesso(); rkRenderPainelEmpresas();
+  var msg=RK_TXT_DILIGENCIA_LOTE
+    .replace('{EMPRESA}', nomeEmp)
+    .replace('{LISTA}', rkEmpListaTexto(regs))
+    .replace('{PRAZO}', rkFrasePrazo(prazo.data, prazo.hora));
+  copiarTextoClipboard(msg, 'Mensagem de diligência ('+regs.length+' '+(regs.length>1?'itens':'item')+') copiada — cole no chat do portal!');
+}
+/* Gera um Pedido de Diligência formal no módulo do sistema (numeração sequencial
+   por ano) já com o texto pronto — cabeçalho "Prezada empresa...", dados do
+   pregão, lista de itens e prazo — e baixa o PDF na hora, pra enviar por e-mail. */
+function rkEmpGerarPedido(nomeEmp, eid){
+  if(!rkProcessoAtual){ toast('Abra um ranking primeiro.'); return; }
+  var proc=(typeof processos!=='undefined'?processos:[]).find(function(p){ return p.id===rkProcessoAtual.id; })||{};
+  var emp=rkAgruparPorEmpresa().find(function(e){ return e.nome===nomeEmp; }); if(!emp) return;
+  var regs=emp.dil.concat(emp.pend);
+  if(!regs.length){ toast('Nenhum item em diligência ou pendente para esta empresa.'); return; }
+  regs.sort(function(a,b){ var na=parseFloat(a.num),nb=parseFloat(b.num); if(!isNaN(na)&&!isNaN(nb)) return na-nb; return String(a.num).localeCompare(String(b.num)); });
+  var prazo=rkEmpPrazoLido(eid);
+  rkEmpAplicarPrazoEstados(regs, prazo);
+
+  var procNum=proc.numero||rkProcessoAtual.numero||'';
+  var objeto=(proc.objeto||'').trim().replace(/\s+/g,' ');
+  var link=(proc.link||rkProcessoAtual.link||'').trim();
+  var listaLinhas=regs.map(function(r){ return '- Item '+r.num+(r.desc?' — '+rkEmpDescCurta(r.desc):''); }).join('\n');
+  var frasePrazo=rkFrasePrazo(prazo.data, prazo.hora);
+
+  var texto=
+    'Prezada empresa **'+nomeEmp+'**,\n\n'+
+    'Referente ao **'+procNum+'**'+(objeto?', cujo objeto é: '+objeto:'')+', com a documentação e anexos disponíveis no Portal de Compras Públicas.\n\n'+
+    (link?'[LINK] '+link+' | Clique aqui para acessar o processo no Portal de Compras Públicas\n\n':'')+
+    '## Do Objeto da Diligência\n\n'+
+    'No exame das propostas apresentadas, verificou-se a necessidade de comprovação das características dos produtos ofertados pela empresa. Assim, solicitamos, em diligência, o envio de catálogo, ficha técnica, folder, prospecto ou documento equivalente referente aos seguintes itens:\n\n'+
+    listaLinhas+'\n\n'+
+    '## Do Prazo\n\n'+
+    'O prazo para resposta é **'+frasePrazo+'**, mediante envio da documentação pelo próprio Portal de Compras Públicas.\n\n'+
+    'Caso a documentação não seja enviada dentro do prazo, e não haja pedido de prorrogação antes do seu término, ficará caracterizado o desinteresse no atendimento da diligência e as propostas dos itens acima serão desclassificadas, por não ser possível comprovar o atendimento às exigências do edital.\n\n'+
+    '## Da Fundamentação\n\n'+
+    'A presente diligência destina-se a esclarecer e comprovar informações das propostas já apresentadas, nos termos do art. 64 da Lei nº 14.133/2021 e das regras do edital, sendo vedada a inclusão posterior de documento que deveria constar originariamente da proposta.\n\n'+
+    'Atenciosamente,';
+
+  var ano=String(new Date().getFullYear());
+  var maxN=0;
+  (typeof diligenciasList!=='undefined'?diligenciasList:[]).forEach(function(d){
+    if(String(d.ano)===ano){ var n=parseInt(d.numero,10)||0; if(n>maxN) maxN=n; }
+  });
+  var data={
+    numero:maxN+1,
+    ano:ano,
+    titulo:'Diligência de catálogo — '+nomeEmp,
+    processoNumero:procNum,
+    agente:proc.responsavel||'',
+    tipo:'diligencia',
+    resultado:'outro',
+    dataDecisao:hoje(),
+    assinantes:null,
+    texto:texto
+  };
+  var nums=regs.map(function(r){ return r.num; });
+  rkLogEvento('Pedido de Diligência nº '+dilFmtNum(data)+' gerado — '+nomeEmp+' ('+rkFormatarListaItens(nums)+')');
+  rkHasPending=false; rkSalvarFirestore(); rkRenderProcesso(); rkRenderPainelEmpresas();
+  var ts=firebase.firestore.FieldValue.serverTimestamp();
+  dilColRef.add(Object.assign({createdAt:ts, updatedAt:ts}, data)).then(function(){
+    toast('Pedido de Diligência nº '+dilFmtNum(data)+' registrado no módulo!');
+  }).catch(function(e){ alert('Erro ao registrar o pedido: '+e.message); });
+  dilGerarPDF(data);
+}
+function rkEmpDesclassificar(nomeEmp){
+  var emp=rkAgruparPorEmpresa().find(function(e){ return e.nome===nomeEmp; }); if(!emp||!emp.dil.length) return;
+  var nums=emp.dil.map(function(r){ return r.num; });
+  if(!confirm('Desclassificar a empresa '+nomeEmp+' em '+rkFormatarListaItens(nums)+' por não retornar a diligência?\n\nA proposta seguinte de cada item vira a nova colocação atual.')) return;
+  emp.dil.forEach(function(r){
+    rkEstados[r.key]='reprovado';
+    rkMotivos[r.key]='Não retornou a diligência.';
+  });
+  rkLogEvento('Desclassificação em lote — '+nomeEmp+' ('+rkFormatarListaItens(nums)+') por não retornar a diligência');
+  rkHasPending=false; rkSalvarFirestore(); rkRenderProcesso(); rkRenderPainelEmpresas();
+  var msg=RK_TXT_DESCLASSIFICACAO_LOTE
+    .replace('{EMPRESA}', nomeEmp)
+    .replace('{LISTA}', rkEmpListaTexto(emp.dil));
+  copiarTextoClipboard(msg, 'Mensagem de desclassificação ('+emp.dil.length+' '+(emp.dil.length>1?'itens':'item')+') copiada — cole no chat do portal!');
 }
 function rkNaoEnviouCatalogo(num){
   var it=rkItens.find(function(x){ return String(x.num)===String(num); }); if(!it) return;
@@ -4866,6 +5174,7 @@ function rkRenderProcesso(){
   document.getElementById('rks-dil').textContent=dil;
   var fe=document.getElementById('rks-frac'); if(fe) fe.textContent=frac;
   document.getElementById('rks-pe').textContent=pe;
+  var eb=document.getElementById('rkEmpBadge'); if(eb) eb.textContent=rkAgruparPorEmpresa().length;
   ['rkBtnTodos','rkBtnAp','rkBtnDil','rkBtnFrac','rkBtnPe'].forEach(function(id){ var el=document.getElementById(id); if(el) el.classList.remove('rk-active'); });
   var m={null:'rkBtnTodos',aprovado:'rkBtnAp',diligencia:'rkBtnDil',pendente:'rkBtnPe',fracassado:'rkBtnFrac'};
   var el=document.getElementById(m[rkFiltroAtivo]); if(el) el.classList.add('rk-active');
@@ -4965,7 +5274,7 @@ function rkRenderRanking(){
       actionHtml='<div class="rks-confirm-wrap" style="border:1.5px solid #bfdbfe;background:#eff6ff;border-radius:11px;padding:12px 14px">'
         +'<div class="rks-confirm-label" style="color:#1d4ed8;font-weight:800">&#128269; Prazo para resposta da diligência</div>'
         +'<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:9px 0 4px">'
-          +'<input type="date" class="rks-dil-data" data-key="'+escHtml(dk)+'" value="'+rkDataISO(0)+'" style="font-size:13px;padding:7px 9px;border:1px solid #bfdbfe;border-radius:7px;background:#fff;font-family:Arial,sans-serif">'
+          +'<input type="date" class="rks-dil-data" data-key="'+escHtml(dk)+'" value="'+rkDataISO(rkDilUltimoOffsetDias)+'" style="font-size:13px;padding:7px 9px;border:1px solid #bfdbfe;border-radius:7px;background:#fff;font-family:Arial,sans-serif">'
           +'<input type="time" class="rks-dil-hora" data-key="'+escHtml(dk)+'" value="'+escHtml(rkDilUltimaHora)+'" style="font-size:13px;padding:7px 9px;border:1px solid #bfdbfe;border-radius:7px;background:#fff;font-family:Arial,sans-serif">'
           +'<button class="rks-sbtn" style="background:#fff;color:#1d4ed8;border-color:#bfdbfe;padding:6px 12px" data-rkdildia="0" data-key="'+escHtml(dk)+'">Hoje</button>'
           +'<button class="rks-sbtn" style="background:#fff;color:#1d4ed8;border-color:#bfdbfe;padding:6px 12px" data-rkdildia="1" data-key="'+escHtml(dk)+'">Amanhã</button>'
@@ -5058,6 +5367,9 @@ function rkCopiarLink(){
 
   var sharedItens=[], sharedEstados={}, sharedMotivos={}, sharedNumero='';
   var sharedEvts=[];
+  var sharedLinkPortal='';   /* link externo do Portal de Compras (o mesmo cadastrado na agenda) */
+  var sharedLinkTentado=false; /* fallback: busca no doc do processo caso o ranking ainda não tenha o link salvo */
+  var sharedGruposFechados={}; /* empresas com o grupo recolhido (por nome) */
   function sLog(msg){
     sharedEvts.push({t:new Date().toISOString(), msg:msg});
     if(sharedEvts.length>500) sharedEvts=sharedEvts.slice(-500);
@@ -5072,7 +5384,16 @@ function rkCopiarLink(){
       sharedItens=d.itens||[]; sharedEstados=d.estados||{};
       sharedMotivos=d.motivos||{}; sharedNumero=d.numero||'';
       sharedEvts=d.eventos||[];
+      if(d.linkPortal) sharedLinkPortal=d.linkPortal;
     } else { sharedItens=[]; sharedNumero='Não encontrado'; }
+    /* Rankings salvos antes desta versão não têm o link — busca uma vez no
+       cadastro do processo (mesmo id). Se as regras não permitirem, ignora. */
+    if(!sharedLinkPortal && !sharedLinkTentado){
+      sharedLinkTentado=true;
+      db.collection('processos').doc(sharedId).get().then(function(pd){
+        if(pd.exists && (pd.data().link||'').trim()){ sharedLinkPortal=pd.data().link.trim(); sharedRender(); }
+      }).catch(function(){});
+    }
     sharedRender();
   }
   function sFlushPending(){
@@ -5093,7 +5414,8 @@ function rkCopiarLink(){
     rkColRef.doc(sharedId).set({
       itens:sharedItens, estados:sharedEstados, motivos:sharedMotivos,
       eventos:sharedEvts,
-      numero:sharedNumero, updatedAt:firebase.firestore.FieldValue.serverTimestamp()
+      numero:sharedNumero, linkPortal:sharedLinkPortal||'',
+      updatedAt:firebase.firestore.FieldValue.serverTimestamp()
     }).then(function(){ setSaveDot('saved'); setTimeout(function(){ sharedOwn=false; sFlushPending(); },3000); })
     .catch(function(){ setSaveDot('idle'); sharedOwn=false; sFlushPending(); });
   }
@@ -5163,7 +5485,12 @@ function rkCopiarLink(){
     var pct=Math.round(pre/sharedItens.length*100);
     var btnLabel=sharedMostrarTodos?'\u{1F50D} Só Pendentes/Diligência ('+faltam+')':'\u{1F441} Mostrar Todos ('+sharedItens.length+')';
     var btnCls='rks-filter-pending-btn'+(sharedMostrarTodos?'':' ativo');
-    var html='<div class="rks-progress-bar"><span>'+pre+' de '+sharedItens.length+' itens analisados</span>'
+    var html='';
+    if(sharedLinkPortal){
+      html+='<div style="margin:0 0 12px"><a href="'+escHtml(sharedLinkPortal)+'" target="_blank" rel="noopener" style="display:flex;align-items:center;justify-content:center;gap:10px;background:#1d4ed8;color:#fff;text-decoration:none;font-size:14.5px;font-weight:800;border-radius:11px;padding:13px 18px;box-shadow:0 2px 10px rgba(29,78,216,.28)">&#128196; Acessar Documentação no Portal de Compras Públicas &#8599;</a>'
+        +'<div style="text-align:center;font-size:11.5px;color:#7a879c;margin-top:5px">Abre a página pública do processo, onde estão os catálogos e documentos enviados pelas empresas.</div></div>';
+    }
+    html+='<div class="rks-progress-bar"><span>'+pre+' de '+sharedItens.length+' itens analisados</span>'
       +'<div style="display:flex;align-items:center;gap:10px">'
       +'<button id="rksBtnSoPend" class="'+btnCls+'">'+btnLabel+'</button>'
       +'<span class="rks-progress-pct">'+pct+'%</span></div></div>';
@@ -5176,7 +5503,48 @@ function rkCopiarLink(){
       html+='<div class="rks-pending-empty">🎉 Nenhum item pendente — todos já foram analisados!</div>';
     }
 
+    /* ── Agrupa por empresa (colocação atual) ──
+       Itens fracassados (sem colocação atual) vão para um grupo próprio no fim. */
+    var grupos={}, ordem=[];
     listaRender.forEach(function(it){
+      var gIdx=sGetFornIdx(it);
+      var gNome=(gIdx>=0&&it.fornecedores[gIdx])?it.fornecedores[gIdx].nome:'__frac__';
+      if(!grupos[gNome]){ grupos[gNome]={nome:gNome, itens:[], pend:0, dil:0, ap:0, frac:0}; ordem.push(gNome); }
+      var g=grupos[gNome];
+      g.itens.push(it);
+      var gst=sGetStatus(it);
+      if(gst==='') g.pend++;
+      else if(gst==='diligencia') g.dil++;
+      else if(gst==='aprovado') g.ap++;
+      else if(gst==='fracassado') g.frac++;
+    });
+    var gruposOrd=ordem.map(function(n){ return grupos[n]; }).sort(function(a,b){
+      if(a.nome==='__frac__') return 1;
+      if(b.nome==='__frac__') return -1;
+      if(b.pend!==a.pend) return b.pend-a.pend;
+      if(b.dil!==a.dil) return b.dil-a.dil;
+      return a.nome.localeCompare(b.nome);
+    });
+
+    gruposOrd.forEach(function(g){
+      var isFrac=g.nome==='__frac__';
+      var titulo=isFrac?'&#128308; Itens Fracassados':'&#127970; '+escHtml(g.nome);
+      var fechado=!!sharedGruposFechados[g.nome];
+      var badges='';
+      if(g.pend) badges+='<span style="background:#fef3c7;color:#92400e;border-radius:99px;padding:2px 9px;font-size:11.5px;font-weight:800;margin-left:6px">'+g.pend+' pendente'+(g.pend>1?'s':'')+'</span>';
+      if(g.dil) badges+='<span style="background:#dbeafe;color:#1d4ed8;border-radius:99px;padding:2px 9px;font-size:11.5px;font-weight:800;margin-left:6px">&#128269; '+g.dil+' em diligência</span>';
+      if(g.ap) badges+='<span style="background:#dcfce7;color:#166534;border-radius:99px;padding:2px 9px;font-size:11.5px;font-weight:800;margin-left:6px">&#10003; '+g.ap+'</span>';
+      if(g.frac&&isFrac) badges+='<span style="background:#f1f5f9;color:#475569;border-radius:99px;padding:2px 9px;font-size:11.5px;font-weight:800;margin-left:6px">'+g.frac+'</span>';
+      html+='<div class="rks-emp-grupo-head" data-empgrp="'+escHtml(g.nome)+'" style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;background:'+(isFrac?'#f8fafc':'#eaf1ff')+';border:1.5px solid '+(isFrac?'#e2e8f0':'#c7dafc')+';border-radius:11px;padding:11px 15px;margin:16px 0 8px;cursor:pointer;user-select:none">'
+        +'<div style="font-size:14px;font-weight:800;color:'+(isFrac?'#475569':'#1e3a5f')+'">'+titulo+'</div>'
+        +'<div style="display:flex;align-items:center;flex-wrap:wrap">'+badges
+        +'<span style="margin-left:10px;font-size:13px;color:#7a879c">'+(fechado?'&#9654;':'&#9660;')+'</span></div></div>';
+      if(!fechado){
+        g.itens.forEach(function(it){ html+=sCardHtml(it); });
+      }
+    });
+
+    function sCardHtml(it){
       var st=sGetStatus(it);
       var idx=sGetFornIdx(it);
       var forn=idx>=0?it.fornecedores[idx]:null;
@@ -5265,11 +5633,20 @@ function rkCopiarLink(){
           +'<button class="rks-sbtn" style="background:#eff6ff;color:#1d4ed8;border-color:#bfdbfe" data-action="dil" data-num="'+escHtml(it.num)+'"><span class="rks-sbtn-icon">🔍</span>Diligência</button>'
           +'</div>';
       }
-      html+='<div class="'+cardCls+'" data-num="'+escHtml(it.num)+'">'+titleHtml+fornHtml+actionHtml+'</div>';
-    });
+      return '<div class="'+cardCls+'" data-num="'+escHtml(it.num)+'">'+titleHtml+fornHtml+actionHtml+'</div>';
+    }
 
     body.innerHTML=html;
     body.scrollTop=scroll;
+
+    /* Recolher/expandir grupos de empresa */
+    body.querySelectorAll('[data-empgrp]').forEach(function(h){
+      h.addEventListener('click',function(){
+        var n=h.dataset.empgrp;
+        sharedGruposFechados[n]=!sharedGruposFechados[n];
+        sharedRender();
+      });
+    });
 
     /* Listener do botão que alterna entre "só pendentes/diligência" (padrão) e "mostrar todos" */
     var btnPend=body.querySelector('#rksBtnSoPend');
@@ -6500,6 +6877,8 @@ function dilParseBlocos(texto){
     var l=raw.trim();
     if(!l) continue;
     var m;
+    m=l.match(/^\[LINK\]\s*(\S+)\s*\|\s*(.+)$/i);
+    if(m){ blocos.push({t:"link", url:m[1], x:m[2].trim()}); continue; }
     m=l.match(/^(#{1,6})\s+(.*)$/);
     if(m){
       var nivel=Math.min(m[1].length,3);
@@ -6546,6 +6925,7 @@ function dilAtualizarPreview(){
     else if(b.t==="h2") html+="<h2>"+escHtml(b.x)+"</h2>";
     else if(b.t==="h3") html+="<h3>"+escHtml(b.x)+"</h3>";
     else if(b.t==="q") html+="<blockquote>"+dilInlineHTML(b.x)+"</blockquote>";
+    else if(b.t==="link") html+='<div style="text-align:center;margin:14px 0"><a href="'+escHtml(b.url)+'" target="_blank" rel="noopener" style="display:inline-block;background:#1A3A6B;color:#fff;text-decoration:none;font-weight:700;font-size:13px;border-radius:8px;padding:9px 18px">'+escHtml(b.x)+'</a></div>';
     else html+="<p>"+dilInlineHTML(b.x)+"</p>";
   });
   if(emLista) html+="</ul>";
@@ -6749,6 +7129,19 @@ function dilGerarPDF(dec){
       y+=5;
     } else if(b.t==="li"){
       renderLiItem(b.x);
+    } else if(b.t==="link"){
+      /* Botão azul clicável centralizado (link para o portal) */
+      fs(10.5);ft("bold");
+      var lkTxt=b.x, lkPad=7;
+      var lkW=Math.min(doc.getTextWidth(lkTxt)+lkPad*2, CW), lkH=11;
+      if(y+lkH+8>BOTTOM) newPage(); else y+=3;
+      var lkX=ML+(CW-lkW)/2, lkY=y-2;
+      fill(cNavy); draw(cNavy); doc.setLineWidth(0.3);
+      doc.roundedRect(lkX,lkY,lkW,lkH,2.2,2.2,"FD");
+      tc([255,255,255]);
+      doc.text(lkTxt,ML+CW/2,lkY+lkH/2+1.6,{align:"center"});
+      doc.link(lkX,lkY,lkW,lkH,{url:b.url});
+      y=lkY+lkH+9;
     } else {
       renderPara(b.x,IND);
     }
@@ -6761,7 +7154,7 @@ function dilGerarPDF(dec){
     signers:asgSignersDoc(dec,nomeAssina),
     PW:PW,ML:ML,MR:MR,CW:CW,BOTTOM:BOTTOM,LH:LH,
     cNavy:cNavy,cMuted:cMuted,cText:cText,cBorder:cBorder,
-    y:y,
+    y:y, semPendente:true,
     requestPage:function(){ newPage(); return y; }
   });
 
@@ -6991,7 +7384,7 @@ function asgAssinaturasPDF(doc, o){
       if(sg.img){
         if(sg.assinadoEm){ doc.text("Assinado eletronicamente em "+asgFmtDataHora(sg.assinadoEm),cx,ty,{align:"center"}); ty+=3.6; }
         /* CPF não é exibido no PDF (dado pessoal) */
-      } else {
+      } else if(!o.semPendente){
         doc.text("(assinatura pendente)",cx,ty,{align:"center"});
       }
     }
