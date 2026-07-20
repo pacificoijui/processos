@@ -3391,6 +3391,8 @@ var rkEstados = {};
 var rkMotivos = {};
 var rkEventos = [];
 var rkPendConfirm = null; /* {key, st} aguardando confirmação */
+var rkPendDil = null; /* {num, key} aguardando confirmação do prazo da diligência */
+var rkDilUltimaHora = '17:00'; /* lembra o último horário usado no prazo da diligência */
 /* Registra um evento no histórico do ranking (alimenta o feed do card) */
 function rkLogEvento(msg){
   rkEventos.push({t:new Date().toISOString(), msg:msg});
@@ -3404,11 +3406,11 @@ var rkFiltroForn = '';
 /* Textos padrão copiados automaticamente ao trabalhar diligência de catálogo/ficha técnica.
    {EMPRESA} é substituído pelo nome do fornecedor no momento da cópia. */
 var RK_TXT_DILIGENCIA_CATALOGO =
-"Senhor licitante {EMPRESA}\n\n"+
-"Considerando a necessidade de análise da conformidade do produto ofertado com as exigências do edital, fica a empresa diligenciada para apresentar catálogo, ficha técnica, folder, prospecto ou documento equivalente que comprove as características do item cotado.\n\n"+
-"Fica concedido o prazo de 1 dia útil para atendimento da presente diligência.\n\n"+
-"Caso a empresa não encaminhe a documentação solicitada dentro do prazo, ou não apresente pedido de prorrogação antes do término do prazo, restará caracterizada a ausência de interesse no atendimento da diligência, ensejando a desclassificação da proposta, diante da impossibilidade de comprovação do atendimento às exigências editalícias.\n\n"+
-"Ressalta-se que a diligência tem por finalidade esclarecer e comprovar informações relativas à proposta já apresentada, nos termos da Lei nº 14.133/2021 e das regras do edital.";
+"Senhor licitante {EMPRESA},\n\n"+
+"Para que seja possível verificar se o produto ofertado atende às exigências do edital, a empresa fica DILIGENCIADA a apresentar catálogo, ficha técnica, folder, prospecto ou documento equivalente que comprove as características do item cotado.\n\n"+
+"PRAZO PARA RESPOSTA: {PRAZO}.\n\n"+
+"Caso a documentação não seja enviada dentro do prazo, e não haja pedido de prorrogação antes do seu término, ficará caracterizado o desinteresse no atendimento da diligência e a proposta será DESCLASSIFICADA, por não ser possível comprovar o atendimento às exigências do edital.\n\n"+
+"Esta diligência destina-se a esclarecer e comprovar informações da proposta já apresentada, nos termos do art. 64 da Lei nº 14.133/2021 e das regras do edital.";
 var RK_TXT_DESCLASSIFICACAO_CATALOGO =
 "Senhor licitante, {EMPRESA}\n\n"+
 "Considerando que a empresa foi devidamente diligenciada para apresentar catálogo, ficha técnica, folder, prospecto ou documento equivalente, verifica-se que não houve o envio da documentação solicitada, tampouco pedido formal e justificado de prorrogação dentro do prazo concedido.\n\n"+
@@ -3481,7 +3483,7 @@ function rkDigitando(){
 }
 function rkFlushPending(){
   if(!rkHasPending) return;
-  if(rkOwn||rkPendConfirm!==null||rkDigitando()) return;
+  if(rkOwn||rkPendConfirm!==null||rkPendDil!==null||rkDigitando()) return;
   rkHasPending=false;
   rkApplySnap(rkPendingSnap);
 }
@@ -3510,7 +3512,7 @@ document.getElementById('rkFileInput').addEventListener('change', function(){
       var proc=JSON.parse(e.target.result);
       if(!proc.itens) return alert('JSON inválido.');
       rkItens=proc.itens;
-      rkPendConfirm=null;
+      rkPendConfirm=null; rkPendDil=null;
       rkLogEvento('Propostas importadas ('+rkItens.length+' itens)');
       if(proc.motivos) rkMotivos=Object.assign({}, rkMotivos, proc.motivos);
       rkSalvarFirestore();
@@ -3544,7 +3546,7 @@ function abrirRanking(pid){
   document.getElementById('rkConteudo').style.display='none';
   document.getElementById('rankingPanel').classList.add('open');
   if(rkUnsubscribe){ rkUnsubscribe(); rkUnsubscribe=null; }
-  rkOwn=false; rkHasPending=false; rkPendingSnap=null; rkPendConfirm=null;
+  rkOwn=false; rkHasPending=false; rkPendingSnap=null; rkPendConfirm=null; rkPendDil=null;
   var primeiraCarga=true;
   rkUnsubscribe=rkColRef.doc(pid).onSnapshot(function(doc){
     var d=doc.exists?doc.data():null;
@@ -3553,7 +3555,7 @@ function abrirRanking(pid){
       rkApplySnap(d);
       return;
     }
-    if(rkOwn||rkPendConfirm!==null||rkDigitando()){ rkPendingSnap=d; rkHasPending=true; return; }
+    if(rkOwn||rkPendConfirm!==null||rkPendDil!==null||rkDigitando()){ rkPendingSnap=d; rkHasPending=true; return; }
     rkApplySnap(d);
   }, function(e){
     if(noJson) noJson.innerHTML='<h3>Erro ao carregar</h3><p>'+e.message+'</p>';
@@ -4726,13 +4728,14 @@ function rkAplicarAcao(num, act){
       rkLogEvento('Item '+nIt+' — diligência desfeita ('+rkPrimeiroNome(fn)+')');
       rkHasPending=false; rkSalvarFirestore(); rkRenderProcesso();
     } else {
-      rkEstados[key]='diligencia';
-      rkLogEvento('Item '+nIt+' — proposta de '+fn+' em diligência');
-      rkHasPending=false; rkSalvarFirestore(); rkRenderProcesso();
-      copiarTextoClipboard(RK_TXT_DILIGENCIA_CATALOGO.replace('{EMPRESA}', fn), 'Mensagem de diligência copiada — cole no chat do portal!');
-      setTimeout(function(){ var ta=document.querySelector('.rks-motivo[data-key="'+key+'"]'); if(ta) ta.focus(); },70);
+      /* Abre o painel de prazo (data + horário) antes de aplicar a diligência. */
+      rkPendConfirm=null;
+      rkPendDil={num:nIt, key:key};
+      rkRenderProcesso();
+      setTimeout(function(){ var el=document.querySelector('.rks-dil-data[data-key="'+key+'"]'); if(el) el.focus(); },70);
     }
   } else if(act==='rp'){
+    rkPendDil=null;
     rkPendConfirm={num:nIt, key:key};
     rkRenderProcesso();
     setTimeout(function(){ var ta=document.querySelector('.rks-rp-confirm-motivo[data-key="'+key+'"]'); if(ta) ta.focus(); },70);
@@ -4749,6 +4752,54 @@ function rkConfirmarReprovacao(key){
   rkLogEvento('Item '+nIt+' — proposta de '+fn+' reprovada');
   rkPendConfirm=null;
   rkHasPending=false; rkSalvarFirestore(); rkRenderProcesso();
+}
+/* ── Prazo da diligência ────────────────────────────────────────────────────
+   Ao clicar em Diligência abre um painel com data (hoje pré-selecionada) e
+   horário (último usado, padrão 17:00). Ao confirmar: aplica o estado, copia
+   a mensagem com o prazo já embutido e preenche o motivo automaticamente. */
+function rkDataISO(offsetDias){
+  var d=new Date(); d.setDate(d.getDate()+(offsetDias||0));
+  return d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2);
+}
+function rkFmtHora(timeStr){
+  var p=(timeStr||'17:00').split(':');
+  var h=parseInt(p[0],10)||17, m=parseInt(p[1],10)||0;
+  return m>0 ? (h+'h'+('0'+m).slice(-2)) : (h+'h');
+}
+function rkFmtDataBR(dateStr){
+  var p=(dateStr||rkDataISO(0)).split('-');
+  return p[2]+'/'+p[1]+'/'+p[0];
+}
+function rkDiaSemana(dateStr){
+  var p=(dateStr||rkDataISO(0)).split('-');
+  var d=new Date(parseInt(p[0],10), parseInt(p[1],10)-1, parseInt(p[2],10));
+  return ['domingo','segunda-feira','terça-feira','quarta-feira','quinta-feira','sexta-feira','sábado'][d.getDay()];
+}
+/* Frase do prazo pra mensagem do portal: "até as 17h de hoje, segunda-feira, 20/07/2026" */
+function rkFrasePrazo(dateStr, timeStr){
+  var quando='';
+  if(dateStr===rkDataISO(0)) quando='hoje, ';
+  else if(dateStr===rkDataISO(1)) quando='amanhã, ';
+  return 'até as '+rkFmtHora(timeStr)+' de '+quando+rkDiaSemana(dateStr)+', '+rkFmtDataBR(dateStr);
+}
+function rkConfirmarDiligencia(key){
+  var inpD=document.querySelector('.rks-dil-data[data-key="'+key+'"]');
+  var inpH=document.querySelector('.rks-dil-hora[data-key="'+key+'"]');
+  var dataStr=(inpD&&inpD.value)?inpD.value:rkDataISO(0);
+  var horaStr=(inpH&&inpH.value)?inpH.value:rkDilUltimaHora;
+  rkDilUltimaHora=horaStr;
+  var sep=key.lastIndexOf('-'); var nIt=key.slice(0,sep); var idx=Number(key.slice(sep+1));
+  var it=rkItens.find(function(x){ return String(x.num)===nIt; }); if(!it){ rkPendDil=null; rkRenderProcesso(); return; }
+  var fn=(it.fornecedores[idx]?it.fornecedores[idx].nome:'');
+  rkEstados[key]='diligencia';
+  rkMotivos[key]='Diligência solicitada até as '+rkFmtHora(horaStr)+' do dia '+rkFmtDataBR(dataStr)+' ('+rkDiaSemana(dataStr)+').';
+  rkLogEvento('Item '+nIt+' — proposta de '+fn+' em diligência (prazo: '+rkFmtHora(horaStr)+' de '+rkFmtDataBR(dataStr)+')');
+  rkPendDil=null;
+  rkHasPending=false; rkSalvarFirestore(); rkRenderProcesso();
+  var msg=RK_TXT_DILIGENCIA_CATALOGO
+    .replace('{EMPRESA}', fn)
+    .replace('{PRAZO}', rkFrasePrazo(dataStr, horaStr));
+  copiarTextoClipboard(msg, 'Mensagem de diligência (com prazo) copiada — cole no chat do portal!');
 }
 function rkNaoEnviouCatalogo(num){
   var it=rkItens.find(function(x){ return String(x.num)===String(num); }); if(!it) return;
@@ -4909,6 +4960,20 @@ function rkRenderRanking(){
     var actionHtml='';
     if(status==='fracassado'){
       actionHtml='<div class="rks-fracassado-badge">&#128308; Fracassado — todos os '+it.fornecedores.length+' fornecedores reprovados</div>';
+    } else if(rkPendDil && rkPendDil.num===nIt){
+      var dk=rkPendDil.key;
+      actionHtml='<div class="rks-confirm-wrap" style="border:1.5px solid #bfdbfe;background:#eff6ff;border-radius:11px;padding:12px 14px">'
+        +'<div class="rks-confirm-label" style="color:#1d4ed8;font-weight:800">&#128269; Prazo para resposta da diligência</div>'
+        +'<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:9px 0 4px">'
+          +'<input type="date" class="rks-dil-data" data-key="'+escHtml(dk)+'" value="'+rkDataISO(0)+'" style="font-size:13px;padding:7px 9px;border:1px solid #bfdbfe;border-radius:7px;background:#fff;font-family:Arial,sans-serif">'
+          +'<input type="time" class="rks-dil-hora" data-key="'+escHtml(dk)+'" value="'+escHtml(rkDilUltimaHora)+'" style="font-size:13px;padding:7px 9px;border:1px solid #bfdbfe;border-radius:7px;background:#fff;font-family:Arial,sans-serif">'
+          +'<button class="rks-sbtn" style="background:#fff;color:#1d4ed8;border-color:#bfdbfe;padding:6px 12px" data-rkdildia="0" data-key="'+escHtml(dk)+'">Hoje</button>'
+          +'<button class="rks-sbtn" style="background:#fff;color:#1d4ed8;border-color:#bfdbfe;padding:6px 12px" data-rkdildia="1" data-key="'+escHtml(dk)+'">Amanhã</button>'
+        +'</div>'
+        +'<div class="rks-confirm-btns">'
+          +'<button class="rks-cancel-btn" data-rkdilcancel="1">Cancelar</button>'
+          +'<button class="rks-confirm-btn" style="background:#1d4ed8;border-color:#1d4ed8" data-rkdilconfirm="'+escHtml(dk)+'">Confirmar Diligência &#8594;</button>'
+        +'</div></div>';
     } else if(rkPendConfirm && rkPendConfirm.num===nIt){
       actionHtml='<div class="rks-confirm-wrap">'
         +'<div class="rks-confirm-label">Motivo da reprovação <span style="color:#c0392b;font-weight:400;font-size:11px">(obrigatório)</span></div>'
@@ -4950,6 +5015,18 @@ function rkRenderRanking(){
   });
   c.querySelectorAll('[data-rknaocatalogo]').forEach(function(btn){
     btn.addEventListener('click',function(){ rkNaoEnviouCatalogo(btn.dataset.rknaocatalogo); });
+  });
+  c.querySelectorAll('[data-rkdildia]').forEach(function(btn){
+    btn.addEventListener('click',function(){
+      var inp=document.querySelector('.rks-dil-data[data-key="'+btn.dataset.key+'"]');
+      if(inp) inp.value=rkDataISO(parseInt(btn.dataset.rkdildia,10)||0);
+    });
+  });
+  c.querySelectorAll('[data-rkdilcancel]').forEach(function(btn){
+    btn.addEventListener('click',function(){ rkPendDil=null; rkRenderProcesso(); });
+  });
+  c.querySelectorAll('[data-rkdilconfirm]').forEach(function(btn){
+    btn.addEventListener('click',function(){ rkConfirmarDiligencia(btn.dataset.rkdilconfirm); });
   });
   /* Motivo salva sozinho ao digitar (sem botão "Confirmar"). */
   c.querySelectorAll('.rk-motivo-input').forEach(function(ta){
