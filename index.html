@@ -1160,6 +1160,56 @@
   .dec-card,.dil-card{border-left-color:var(--real);border-radius:12px}
   .dec-preview h1,.dil-preview h1{border-bottom:2px solid var(--amarelo)}
 
+  /* ── Filtro de desclassificação (revisão cruzada com o portal) ── */
+  .rk-stat.sdesc .n{color:#B45309}
+  .rk-stat.sdesc.rk-active{border-color:var(--laranja);background:#FEF3E7}
+
+  /* ── Alternância do modo de análise (por empresa / itens corridos) ── */
+  .rk-modo-toggle{display:inline-flex;background:#EEF2FB;border:1px solid var(--border);border-radius:11px;padding:3px;gap:2px}
+  .rk-modo-btn{background:transparent;border:none;border-radius:8px;padding:8px 15px;font-family:'Sora',system-ui,sans-serif;font-size:13px;font-weight:700;color:var(--muted);cursor:pointer;transition:all .15s;white-space:nowrap;display:inline-flex;align-items:center;gap:6px}
+  .rk-modo-btn:hover:not(.active){color:var(--real)}
+  .rk-modo-btn.active{background:#fff;color:var(--marinho);box-shadow:0 1px 4px rgba(8,28,82,.12)}
+
+  /* ── Tabela de Vencedores: colunas equilibradas + paleta das etnias ── */
+  .venc-tbl{table-layout:fixed}
+  .venc-tbl th{background:linear-gradient(120deg,var(--marinho),var(--real))!important;color:#fff;border-color:rgba(255,255,255,.18)!important;letter-spacing:.2px;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .venc-tbl td{white-space:normal;word-break:break-word;vertical-align:top;color:var(--text)}
+  .venc-tbl td.r{white-space:nowrap}
+  .venc-tbl td:first-child{min-width:0;max-width:none;width:7%;text-align:center;font-weight:800;color:var(--marinho);font-family:'Space Grotesk',monospace}
+  .venc-tbl th:nth-child(2),.venc-tbl td:nth-child(2){width:33%}
+  .venc-tbl th:nth-child(3),.venc-tbl td:nth-child(3),
+  .venc-tbl th:nth-child(4),.venc-tbl td:nth-child(4){width:14%}
+  .venc-tbl th:nth-child(5),.venc-tbl td:nth-child(5){width:9%}
+  .venc-tbl th:nth-child(6),.venc-tbl td:nth-child(6),
+  .venc-tbl th:nth-child(7),.venc-tbl td:nth-child(7){width:11.5%}
+  .venc-tbl tbody tr:nth-child(even) td{background:#F6F9FE}
+  .venc-card{border:1px solid var(--border);box-shadow:var(--shadow);border-radius:12px}
+  .venc-total-row{background:var(--green-bg);color:var(--verde-2);border-top:1px solid #cfe8d4}
+  .venc-total-row span{color:var(--verde-2)}
+  .venc-grand-total{color:var(--marinho)}
+  .venc-grand-total span{color:var(--verde-2)}
+
+  /* ── Links compartilhados (secretaria / proposta): faixa + paleta ── */
+  .rks-header,.hbs-header,.asgs-header{position:relative}
+  .rks-header::after,.hbs-header::after,.asgs-header::after{content:"";position:absolute;left:0;right:0;bottom:0;height:3px;background:var(--faixa)}
+  .rks-progress-bar,.hbs-progress{border-radius:14px;box-shadow:var(--shadow)}
+  .rks-progress-pct,.hbs-pct{color:var(--real)}
+  .rks-card,.hbs-card{border-radius:14px;box-shadow:var(--shadow)}
+  .rks-card-title{color:var(--marinho)}
+  .rks-item-num{background:linear-gradient(120deg,var(--marinho),var(--real));color:#fff}
+  .rks-item-ref{color:var(--real)}
+  .rks-card.rks-aprovado{border-left-color:var(--verde-2)}
+  .rks-card.rks-reprovado,.rks-card.rks-confirmando{border-left-color:var(--vermelho)}
+  .rks-card.rks-diligencia{border-left-color:var(--real)}
+  .hbs-card.habil{border-left-color:var(--verde-2)}
+  .hbs-card.inabil{border-left-color:var(--vermelho)}
+  .rks-sbtn.sel-ap,.hbs-sbtn.sel-hab{background:var(--verde-2);border-color:var(--verde-2);box-shadow:0 3px 10px rgba(30,122,52,.28)}
+  .rks-sbtn.sel-rp,.hbs-sbtn.sel-inab{background:var(--vermelho);border-color:var(--vermelho);box-shadow:0 3px 10px rgba(227,36,43,.28)}
+  .rks-sbtn.sel-dil{background:var(--real);border-color:var(--real);box-shadow:0 3px 10px rgba(20,64,168,.28)}
+  .rks-save-dot.saved,.hbs-dot.saved{background:var(--verde-2)}
+  .rks-filter-pending-btn.ativo{background:var(--real);border-color:var(--real)}
+  @media(hover:hover){.rks-filter-pending-btn:hover:not(.ativo){border-color:var(--real);color:var(--real);background:var(--blue-bg)}}
+
   /* ── Login (portão de acesso) ── */
   #authGate{background:radial-gradient(1000px 520px at 15% -10%,#1E52CC 0%,transparent 55%),linear-gradient(160deg,#0D2B7E 0%,#081C52 75%)}
   .auth-card{border-radius:20px;position:relative;overflow:hidden}
@@ -1945,8 +1995,13 @@
         <div class="rk-stat sdil" id="rkBtnDil" onclick="rkSetFiltro('diligencia')"><div class="n" id="rks-dil">0</div><div class="l">Em Diligência</div></div>
         <div class="rk-stat sfrac" id="rkBtnFrac" onclick="rkSetFiltro('fracassado')"><div class="n" id="rks-frac">0</div><div class="l">Fracassados</div></div>
         <div class="rk-stat spe" id="rkBtnPe" onclick="rkSetFiltro('pendente')"><div class="n" id="rks-pe">0</div><div class="l">Itens Pendentes</div></div>
+        <div class="rk-stat sdesc" id="rkBtnDesc" onclick="rkSetFiltro('desclassificado')" title="Itens em que alguma empresa foi desclassificada — para revisar/conferir no portal"><div class="n" id="rks-desc">0</div><div class="l">Com Desclassificação</div></div>
       </div>
-      <div style="margin:2px 0 10px;display:flex;justify-content:flex-end">
+      <div style="margin:2px 0 10px;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap">
+        <div class="rk-modo-toggle" role="group" aria-label="Modo de análise das propostas">
+          <button type="button" id="rkModoEmpBtn" class="rk-modo-btn active" onclick="rkSetModo('empresa')">&#127970; Por empresa</button>
+          <button type="button" id="rkModoItensBtn" class="rk-modo-btn" onclick="rkSetModo('itens')">&#128203; Itens corridos</button>
+        </div>
         <button onclick="rkAbrirPainelEmpresas()" style="background:#1d4ed8;color:#fff;border:none;border-radius:9px;padding:10px 18px;font-size:13.5px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:8px;box-shadow:0 2px 8px rgba(29,78,216,.25)">&#127970; Painel por Empresa <span id="rkEmpBadge" style="background:#fff;color:#1d4ed8;border-radius:99px;padding:1px 8px;font-size:12px;font-weight:800">0</span></button>
       </div>
       <p class="rk-hint">Cada item mostra os reprovados e a colocação atual. Clique em Reprovado / Aprovado / Diligência na colocação atual — o motivo é salvo sozinho ao digitar. &nbsp;|&nbsp; Use os filtros acima para filtrar.</p>
@@ -3550,6 +3605,7 @@ function rkLogEvento(msg){
   if(rkEventos.length>500) rkEventos=rkEventos.slice(-500);
 }
 var rkFiltroAtivo = null;
+var rkModoAnalise = 'empresa'; /* 'empresa' (agrupado) | 'itens' (lista corrida) */
 var rkFiltroPin = null; /* trava a lista visível sob um filtro de status até o próximo clique no filtro, para um item não sumir da tela no meio do trabalho */
 var rkFiltroNum = '';
 var rkFiltroDesc = '';
@@ -4560,7 +4616,7 @@ function vencRenderLista(){
       if(e.telefone) meta.push('Telefone: '+escHtml(e.telefone));
       if(meta.length) html+='<div class="venc-head-meta">'+meta.join(' &middot; ')+'</div>';
       html+='</div>';
-      html+='<div class="rk-table-scroll"><table class="rk-table"><thead><tr><th>Código</th><th>Produto</th><th>Modelo</th><th>Marca/Fabricante</th><th class="r">Qtde</th><th class="r">Valor Unit.</th><th class="r">Valor Total</th></tr></thead><tbody>';
+      html+='<div class="rk-table-scroll"><table class="rk-table venc-tbl"><thead><tr><th>Código</th><th>Produto</th><th>Modelo</th><th>Marca/Fabricante</th><th class="r">Qtde</th><th class="r">Valor Unit.</th><th class="r">Valor Total</th></tr></thead><tbody>';
       e.itens.forEach(function(it){
         html+='<tr class="neutro"><td data-label="Código">'+escHtml(it.num)+'</td><td data-label="Produto">'+escHtml(it.desc)+'</td><td data-label="Modelo">'+escHtml(it.modelo)+'</td><td data-label="Marca/Fabricante">'+escHtml(it.marca)+'</td>'
           +'<td class="r" data-label="Qtde">'+(it.qtde!==null?vencFmtNum(it.qtde)+(it.unidade?' '+escHtml(it.unidade):''):'—')+'</td>'
@@ -4598,7 +4654,7 @@ function vencGerarWord(){
     body+='<div class="empresa">'+escHtml(e.nome)+(meta.length?' | '+meta.join(' - '):'')+'</div>';
     body+='<table><thead><tr><th>Código</th><th>Produto</th><th>Modelo</th><th>Marca/Fabricante</th><th class="r">Qtde</th><th class="r">Valor Unit.</th><th class="r">Valor Total</th></tr></thead><tbody>';
     e.itens.forEach(function(it){
-      body+='<tr><td>'+escHtml(it.num)+'</td><td>'+escHtml(it.desc)+'</td><td>'+escHtml(it.modelo)+'</td><td>'+escHtml(it.marca)+'</td>'
+      body+='<tr><td class="cod">'+escHtml(it.num)+'</td><td>'+escHtml(it.desc)+'</td><td>'+escHtml(it.modelo)+'</td><td>'+escHtml(it.marca)+'</td>'
         +'<td class="r">'+(it.qtde!==null?vencFmtNum(it.qtde)+(it.unidade?' '+escHtml(it.unidade):''):'—')+'</td>'
         +'<td class="r">R$ '+vencFmtBRL(it.valorUnit)+'</td>'
         +'<td class="r">'+(it.valorTotal!==null?'R$ '+vencFmtBRL(it.valorTotal):'—')+'</td></tr>';
@@ -4606,25 +4662,40 @@ function vencGerarWord(){
     body+='<tr class="totalrow"><td colspan="6" class="r">TOTAL DO VENCEDOR</td><td class="r">R$ '+vencFmtBRL(e.total)+'</td></tr>';
     body+='</tbody></table>';
   });
+  var FAIXA='<table class="faixa"><tr>'
+    +'<td width="14%" bgcolor="#E3242B"></td>'
+    +'<td width="14%" bgcolor="#F26B21"></td>'
+    +'<td width="14%" bgcolor="#FFC20E"></td>'
+    +'<td width="16%" bgcolor="#8CC63F"></td>'
+    +'<td width="14%" bgcolor="#1E7A34"></td>'
+    +'<td width="14%" bgcolor="#0B6E7F"></td>'
+    +'<td width="14%" bgcolor="#1440A8"></td>'
+    +'</tr></table>';
   var htmlDoc = '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40">'
     +'<head><meta charset="utf-8"><title>Vencedores '+escHtml(numero)+'</title>'
     +'<style>'
-    +'body{font-family:Arial,sans-serif;font-size:11pt;color:#162038}'
-    +'h1{font-size:16pt;color:#102040;text-align:center;margin-bottom:2pt}'
-    +'.sub{text-align:center;font-size:10pt;color:#5a6e99;margin:0}'
-    +'.empresa{background:#102040;color:#fff;font-weight:bold;font-size:10.5pt;padding:6pt 8pt;margin-top:14pt}'
+    +'body{font-family:Arial,sans-serif;font-size:11pt;color:#101A33}'
+    +'h1{font-size:16pt;color:#12306B;text-align:center;margin:8pt 0 2pt;letter-spacing:.3px}'
+    +'.sub{text-align:center;font-size:10pt;color:#5A6685;margin:0}'
+    +'.empresa{background:#081C52;color:#fff;font-weight:bold;font-size:10.5pt;padding:7pt 9pt;margin-top:16pt}'
     +'table{width:100%;border-collapse:collapse;margin-bottom:2pt}'
-    +'th{background:#1a3a6b;color:#fff;font-size:9pt;padding:5pt;border:1px solid #cdd5e8;text-align:left}'
-    +'td{font-size:9.5pt;padding:5pt;border:1px solid #cdd5e8}'
+    +'th{background:#12306B;color:#fff;font-size:9pt;padding:5pt 6pt;border:1px solid #b9c6e4;text-align:left}'
+    +'td{font-size:9.5pt;padding:5pt 6pt;border:1px solid #d8dff0}'
+    +'.cod{text-align:center;font-weight:bold;color:#12306B}'
     +'.r{text-align:right}'
-    +'.totalrow td{background:#eef1f8;font-weight:bold;color:#1E5F3A}'
-    +'.grandtotal{text-align:right;font-size:13pt;font-weight:bold;color:#102040;margin-top:18pt}'
+    +'.totalrow td{background:#EAF6EC;font-weight:bold;color:#1E7A34;border-color:#cfe8d4}'
+    +'.grandtotal{text-align:right;font-size:13pt;font-weight:bold;color:#12306B;margin-top:18pt;border-top:2px solid #12306B;padding-top:8pt}'
+    +'.faixa{width:100%;border-collapse:collapse;margin:0 0 4pt;table-layout:fixed}'
+    +'.faixa td{padding:0;border:none;height:6pt;font-size:1pt;line-height:6pt}'
     +'</style></head><body>'
+    +FAIXA
     +'<h1>VENCEDORES DO PROCESSO</h1>'
     +'<p class="sub">Município de Ijuí — Poder Executivo</p>'
     +'<p class="sub">Coordenadoria de Compras, Patrimônio e Administração de Materiais — COPAM'+(numero?' &middot; '+escHtml(numero):'')+'</p>'
     +body
     +'<p class="grandtotal">Valor Total: R$ '+vencFmtBRL(totalGeral)+'</p>'
+    +FAIXA
+    +'<p class="sub" style="margin-top:7pt;font-size:8pt;color:#8590a8">Município de Ijuí &middot; Capital Mundial das Etnias &middot; Gestão de Processos Licitatórios</p>'
     +'</body></html>';
   var blob=new Blob(['\ufeff', htmlDoc], {type:'application/msword'});
   var url=URL.createObjectURL(blob);
@@ -4713,6 +4784,7 @@ function rkGerarPDF(){
   else if(rkFiltroAtivo==='diligencia') lista=rkItens.filter(rkItemDil);
   else if(rkFiltroAtivo==='fracassado') lista=rkItens.filter(rkItemFracassado);
   else if(rkFiltroAtivo==='pendente') lista=rkItens.filter(rkItemPe);
+  else if(rkFiltroAtivo==='desclassificado') lista=rkItens.filter(rkItemTemDesc);
   if(rkFiltroNum){ lista=lista.filter(function(it){ return it.num.toLowerCase()===rkFiltroNum; }); }
   if(rkFiltroDesc){ lista=lista.filter(function(it){ return it.desc.toLowerCase().includes(rkFiltroDesc); }); }
   if(rkFiltroForn){ lista=lista.filter(function(it){ return it.fornecedores.some(function(f){ return f.nome.toLowerCase().includes(rkFiltroForn); }); }); }
@@ -4725,6 +4797,7 @@ function rkGerarPDF(){
   else if(rkFiltroAtivo==='diligencia') filtroDesc='Filtro: Itens em Diligência';
   else if(rkFiltroAtivo==='fracassado') filtroDesc='Filtro: Itens Fracassados';
   else if(rkFiltroAtivo==='pendente') filtroDesc='Filtro: Itens Pendentes';
+  else if(rkFiltroAtivo==='desclassificado') filtroDesc='Filtro: Itens com Desclassificação';
   if(rkFiltroNum) filtroDesc=(filtroDesc?filtroDesc+' · ':'')+'Item nº '+rkFiltroNum;
   if(rkFiltroDesc) filtroDesc=(filtroDesc?filtroDesc+' · ':'')+'Descrição: "'+rkFiltroDesc+'"';
   if(rkFiltroForn) filtroDesc=(filtroDesc?filtroDesc+' · ':'')+'Fornecedor: "'+rkFiltroForn+'"';
@@ -4836,13 +4909,23 @@ function rkItemAp(it){ return it.fornecedores.some(function(_,i){ return rkEstad
 function rkItemDil(it){ return !rkItemAp(it)&&it.fornecedores.some(function(_,i){ return rkEstados[it.num+'-'+i]==='diligencia'; }); }
 function rkItemFracassado(it){ if(!it.fornecedores||!it.fornecedores.length) return false; return it.fornecedores.every(function(_,i){ return (rkEstados[it.num+'-'+i]||'neutro')==='reprovado'; }); }
 function rkItemPe(it){ return !rkItemAp(it)&&!rkItemDil(it)&&!rkItemFracassado(it); }
+/* Item que teve ao menos uma empresa/proposta DESCLASSIFICADA (reprovada) —
+   usado no filtro de revisão cruzada com o portal. */
+function rkItemTemDesc(it){ if(!it.fornecedores) return false; return it.fornecedores.some(function(_,i){ return (rkEstados[it.num+'-'+i]||'neutro')==='reprovado'; }); }
 
 function rkSetFiltro(f){
   rkFiltroAtivo=rkFiltroAtivo===f?null:f;
   rkFiltroPin=null;
-  ['rkBtnTodos','rkBtnAp','rkBtnDil','rkBtnPe'].forEach(function(id){ var el=document.getElementById(id); if(el) el.classList.remove('rk-active'); });
-  var m={null:'rkBtnTodos',aprovado:'rkBtnAp',diligencia:'rkBtnDil',pendente:'rkBtnPe',fracassado:'rkBtnFrac'};
+  ['rkBtnTodos','rkBtnAp','rkBtnDil','rkBtnPe','rkBtnFrac','rkBtnDesc'].forEach(function(id){ var el=document.getElementById(id); if(el) el.classList.remove('rk-active'); });
+  var m={null:'rkBtnTodos',aprovado:'rkBtnAp',diligencia:'rkBtnDil',pendente:'rkBtnPe',fracassado:'rkBtnFrac',desclassificado:'rkBtnDesc'};
   var el=document.getElementById(m[rkFiltroAtivo]); if(el) el.classList.add('rk-active');
+  rkRenderRanking();
+}
+function rkSetModo(m){
+  rkModoAnalise=(m==='itens')?'itens':'empresa';
+  var be=document.getElementById('rkModoEmpBtn'), bi=document.getElementById('rkModoItensBtn');
+  if(be) be.classList.toggle('active', rkModoAnalise==='empresa');
+  if(bi) bi.classList.toggle('active', rkModoAnalise==='itens');
   rkRenderRanking();
 }
 function rkOnFiltro(){
@@ -5303,15 +5386,16 @@ function rkFmtPct(p){ if(p===null) return ''; return (p>0?'+':'')+p.toFixed(1).r
 
 function rkRenderProcesso(){
   if(!rkItens.length) return;
-  var ap=rkItens.filter(rkItemAp).length, dil=rkItens.filter(rkItemDil).length, frac=rkItens.filter(rkItemFracassado).length, pe=rkItens.filter(rkItemPe).length;
+  var ap=rkItens.filter(rkItemAp).length, dil=rkItens.filter(rkItemDil).length, frac=rkItens.filter(rkItemFracassado).length, pe=rkItens.filter(rkItemPe).length, desc=rkItens.filter(rkItemTemDesc).length;
   document.getElementById('rks-total').textContent=rkItens.length;
   document.getElementById('rks-ap').textContent=ap;
   document.getElementById('rks-dil').textContent=dil;
   var fe=document.getElementById('rks-frac'); if(fe) fe.textContent=frac;
   document.getElementById('rks-pe').textContent=pe;
+  var de=document.getElementById('rks-desc'); if(de) de.textContent=desc;
   var eb=document.getElementById('rkEmpBadge'); if(eb) eb.textContent=rkAgruparPorEmpresa().length;
-  ['rkBtnTodos','rkBtnAp','rkBtnDil','rkBtnFrac','rkBtnPe'].forEach(function(id){ var el=document.getElementById(id); if(el) el.classList.remove('rk-active'); });
-  var m={null:'rkBtnTodos',aprovado:'rkBtnAp',diligencia:'rkBtnDil',pendente:'rkBtnPe',fracassado:'rkBtnFrac'};
+  ['rkBtnTodos','rkBtnAp','rkBtnDil','rkBtnFrac','rkBtnPe','rkBtnDesc'].forEach(function(id){ var el=document.getElementById(id); if(el) el.classList.remove('rk-active'); });
+  var m={null:'rkBtnTodos',aprovado:'rkBtnAp',diligencia:'rkBtnDil',pendente:'rkBtnPe',fracassado:'rkBtnFrac',desclassificado:'rkBtnDesc'};
   var el=document.getElementById(m[rkFiltroAtivo]); if(el) el.classList.add('rk-active');
   rkRenderRanking();
 }
@@ -5336,6 +5420,7 @@ function rkRenderRanking(){
         : rkFiltroAtivo==='diligencia' ? rkItemDil
         : rkFiltroAtivo==='fracassado' ? rkItemFracassado
         : rkFiltroAtivo==='pendente' ? rkItemPe
+        : rkFiltroAtivo==='desclassificado' ? rkItemTemDesc
         : function(){ return true; };
       rkFiltroPin = rkItens.filter(matchFn).map(function(it){ return String(it.num); });
     }
@@ -5356,6 +5441,15 @@ function rkRenderRanking(){
      está reduzida, não faz sentido esconder de novo atrás de um clique. */
   var forcarAberto = temBuscaTexto || !!rkFiltroAtivo;
 
+  if(rkModoAnalise==='itens'){
+    /* Lista corrida: todos os itens em sequência numérica, sem agrupar por empresa. */
+    var listaOrd=lista.slice().sort(function(a,b){
+      var na=parseInt(a.num,10), nb=parseInt(b.num,10);
+      if(!isNaN(na)&&!isNaN(nb)&&na!==nb) return na-nb;
+      return String(a.num).localeCompare(String(b.num),'pt-BR',{numeric:true});
+    });
+    listaOrd.forEach(function(it){ html+=rkCardHtml(it); });
+  } else {
   var grupos={}, ordem=[];
   lista.forEach(function(it){
     var gIdx=rkFornIdxAtual(it);
@@ -5394,6 +5488,7 @@ function rkRenderRanking(){
       g.itens.forEach(function(it){ html+=rkCardHtml(it); });
     }
   });
+  } /* fim do modo 'empresa' */
 
   function rkCardHtml(it){
     var nIt=String(it.num);
@@ -6523,8 +6618,10 @@ function decGerarPDF(dec){
   var PW=210,PH=297,ML=25,MR=25,CW=PW-ML-MR;
   var FS=11.5,LH=6.8,PARA=5.5,IND=10;
   var BOTTOM=PH-25;
-  var cNavy=[26,58,107],cGold=[232,160,32];
-  var cText=[25,25,25],cMuted=[110,120,150],cBorder=[200,210,230];
+  var cNavy=[8,28,82],cNavy2=[18,48,107],cGold=[242,107,33],cAmber=[255,194,14];
+  var cText=[25,25,25],cMuted=[110,120,150],cBorder=[210,218,235];
+  var faixaSegs=[[227,36,43,14],[242,107,33,14],[255,194,14,14],[140,198,63,16],[30,122,52,14],[11,110,127,14],[20,64,168,14]];
+  function drawFaixa(x0,y0,w,h){var acc=0;for(var fi=0;fi<faixaSegs.length;fi++){var sg=faixaSegs[fi];var sw=w*(sg[3]/100);doc.setFillColor(sg[0],sg[1],sg[2]);doc.rect(x0+acc,y0,sw+0.25,h,'F');acc+=sw;}}
   var numFmt=decFmtNum(dec);
   var y=0;
   var ag=(typeof agentes!=="undefined"?agentes:[]).find(function(a){return a.nomeAbrev===dec.agente;});
@@ -6630,19 +6727,21 @@ function decGerarPDF(dec){
 
   function newPage(){
     doc.addPage();
+    drawFaixa(0,0,PW,1.6);
     var lw=22,lhh=7.1;
-    try{doc.addImage(LOGO_B64_PDF,"JPEG",(PW-lw)/2,5,lw,lhh);}catch(e){}
-    draw(cBorder); doc.setLineWidth(0.3); doc.line(ML,18,PW-MR,18);
-    y=26;
+    try{doc.addImage(LOGO_B64_PDF,"JPEG",(PW-lw)/2,7,lw,lhh);}catch(e){}
+    draw(cBorder); doc.setLineWidth(0.3); doc.line(ML,19.5,PW-MR,19.5);
+    y=27;
   }
 
   fill([255,255,255]); doc.rect(0,0,PW,PH,"F");
-  try{doc.addImage(LOGO_B64_PDF,"JPEG",(PW-52)/2,8,52,16.8);}catch(e){}
-  draw(cNavy); doc.setLineWidth(0.5); doc.line(ML,33,PW-MR,33);
-  y=44;
+  drawFaixa(0,0,PW,2.2);
+  try{doc.addImage(LOGO_B64_PDF,"JPEG",(PW-52)/2,11,52,16.8);}catch(e){}
+  draw(cNavy); doc.setLineWidth(0.6); doc.line(ML,35,PW-MR,35);
+  y=46;
 
-  fs(14);ft("bold");tc(cNavy);
-  doc.text("DECISAO DO PREGOEIRO No "+numFmt,PW/2,y,{align:"center"}); y+=9;
+  fs(15);ft("bold");tc(cNavy);
+  doc.text("Decisão do Pregoeiro "+numFmt,PW/2,y,{align:"center"}); y+=9;
   if(dec.processoNumero){
     fs(11);ft("normal");tc(cMuted);
     doc.text(dec.processoNumero,PW/2,y,{align:"center"}); y+=7;
@@ -6723,10 +6822,10 @@ function decGerarPDF(dec){
   var total=doc.internal.getNumberOfPages();
   for(var pg=1;pg<=total;pg++){
     doc.setPage(pg);
-    draw(cBorder);doc.setLineWidth(0.3);doc.line(ML,PH-20,PW-MR,PH-20);
+    drawFaixa(ML,PH-16.8,CW,1.4);
     fs(7.5);ft("normal");tc(cMuted);
-    doc.text("Municipio de Ijui  \u00b7  Capital Mundial das Etnias  \u00b7  Gestao de Processos Licitatorios",ML,PH-14);
-    doc.text("Pagina "+pg+" de "+total,PW-MR,PH-14,{align:"right"});
+    doc.text("Município de Ijuí  \u00b7  Capital Mundial das Etnias  \u00b7  Gestão de Processos Licitatórios",ML,PH-11.5);
+    doc.text("Página "+pg+" de "+total,PW-MR,PH-11.5,{align:"right"});
   }
 
   var nome="Decisao_Pregoeiro_"+("00"+(parseInt(dec.numero,10)||0)).slice(-3)+"_"+dec.ano+".pdf";
@@ -7153,8 +7252,10 @@ function dilGerarPDF(dec){
   var PW=210,PH=297,ML=25,MR=25,CW=PW-ML-MR;
   var FS=11.5,LH=6.8,PARA=5.5,IND=10;
   var BOTTOM=PH-25;
-  var cNavy=[26,58,107],cGold=[232,160,32];
-  var cText=[25,25,25],cMuted=[110,120,150],cBorder=[200,210,230];
+  var cNavy=[8,28,82],cNavy2=[18,48,107],cGold=[242,107,33],cAmber=[255,194,14];
+  var cText=[25,25,25],cMuted=[110,120,150],cBorder=[210,218,235];
+  var faixaSegs=[[227,36,43,14],[242,107,33,14],[255,194,14,14],[140,198,63,16],[30,122,52,14],[11,110,127,14],[20,64,168,14]];
+  function drawFaixa(x0,y0,w,h){var acc=0;for(var fi=0;fi<faixaSegs.length;fi++){var sg=faixaSegs[fi];var sw=w*(sg[3]/100);doc.setFillColor(sg[0],sg[1],sg[2]);doc.rect(x0+acc,y0,sw+0.25,h,'F');acc+=sw;}}
   var numFmt=dilFmtNum(dec);
   var y=0;
   var ag=(typeof agentes!=="undefined"?agentes:[]).find(function(a){return a.nomeAbrev===dec.agente;});
@@ -7260,19 +7361,21 @@ function dilGerarPDF(dec){
 
   function newPage(){
     doc.addPage();
+    drawFaixa(0,0,PW,1.6);
     var lw=22,lhh=7.1;
-    try{doc.addImage(LOGO_B64_PDF,"JPEG",(PW-lw)/2,5,lw,lhh);}catch(e){}
-    draw(cBorder); doc.setLineWidth(0.3); doc.line(ML,18,PW-MR,18);
-    y=26;
+    try{doc.addImage(LOGO_B64_PDF,"JPEG",(PW-lw)/2,7,lw,lhh);}catch(e){}
+    draw(cBorder); doc.setLineWidth(0.3); doc.line(ML,19.5,PW-MR,19.5);
+    y=27;
   }
 
   fill([255,255,255]); doc.rect(0,0,PW,PH,"F");
-  try{doc.addImage(LOGO_B64_PDF,"JPEG",(PW-52)/2,8,52,16.8);}catch(e){}
-  draw(cNavy); doc.setLineWidth(0.5); doc.line(ML,33,PW-MR,33);
-  y=44;
+  drawFaixa(0,0,PW,2.2);
+  try{doc.addImage(LOGO_B64_PDF,"JPEG",(PW-52)/2,11,52,16.8);}catch(e){}
+  draw(cNavy); doc.setLineWidth(0.6); doc.line(ML,35,PW-MR,35);
+  y=46;
 
-  fs(14);ft("bold");tc(cNavy);
-  doc.text("PEDIDO DE DILIGENCIA No "+numFmt,PW/2,y,{align:"center"}); y+=9;
+  fs(15);ft("bold");tc(cNavy);
+  doc.text("Pedido de Diligência "+numFmt,PW/2,y,{align:"center"}); y+=9;
   if(dec.processoNumero){
     fs(11);ft("normal");tc(cMuted);
     doc.text(dec.processoNumero,PW/2,y,{align:"center"}); y+=7;
@@ -7366,10 +7469,10 @@ function dilGerarPDF(dec){
   var total=doc.internal.getNumberOfPages();
   for(var pg=1;pg<=total;pg++){
     doc.setPage(pg);
-    draw(cBorder);doc.setLineWidth(0.3);doc.line(ML,PH-20,PW-MR,PH-20);
+    drawFaixa(ML,PH-16.8,CW,1.4);
     fs(7.5);ft("normal");tc(cMuted);
-    doc.text("Municipio de Ijui  \u00b7  Capital Mundial das Etnias  \u00b7  Gestao de Processos Licitatorios",ML,PH-14);
-    doc.text("Pagina "+pg+" de "+total,PW-MR,PH-14,{align:"right"});
+    doc.text("Município de Ijuí  \u00b7  Capital Mundial das Etnias  \u00b7  Gestão de Processos Licitatórios",ML,PH-11.5);
+    doc.text("Página "+pg+" de "+total,PW-MR,PH-11.5,{align:"right"});
   }
 
   var nome="Pedido_Diligencia_"+("00"+(parseInt(dec.numero,10)||0)).slice(-3)+"_"+dec.ano+".pdf";
