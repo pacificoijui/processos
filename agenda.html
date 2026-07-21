@@ -7,8 +7,11 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Agenda COPAM">
-<meta name="theme-color" content="#1a3a6b">
+<meta name="theme-color" content="#081C52">
 <title>Agenda COPAM — Ijuí</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
 
 <!-- Firebase (MESMA configuração do index.html — comunicação 100%) -->
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
@@ -38,31 +41,37 @@
   }
 
   :root {
-    --navy:      #1a3a6b;
-    --navy-mid:  #1e4a8a;
-    --navy-dark: #12294d;
-    --navy-light:#2e5da8;
-    --gold:      #e8a020;
-    --gold-light:#f6b93b;
-    --card:      #ffffff;
-    --bg:        #eaeef6;
-    --text:      #1c2433;
-    --muted:     #6b7793;
-    --border:    #dde4f0;
-    --shadow:    0 2px 10px rgba(20,40,80,0.07);
-    --shadow-md: 0 6px 22px rgba(20,40,80,0.10);
-    --shadow-lg: 0 18px 50px rgba(15,30,70,0.22);
-    --blue-bg:   #e7eefb;
-    --blue-text: #1e4a8a;
-    --green:     #2a8a3a;  --green-bg:  #e6f4ea;
-    --red:       #c0282a;  --red-bg:    #fbe7e7;
-    --amber:     #c07000;  --amber-bg:  #fef3dc;
-    --today:     #fff6e2;
-    --radius:    16px;
+    /* ── Paleta "Mosaico das Etnias" — identidade unificada com o guia de Ramais ── */
+    --noite:#081C52; --marinho:#12306B; --real:#1440A8; --real-2:#1E52CC;
+    --vermelho:#E3242B; --laranja:#F26B21; --amarelo:#FFC20E;
+    --verde:#8CC63F; --verde-2:#1E7A34; --petroleo:#0B6E7F;
+    --faixa: linear-gradient(90deg,var(--vermelho) 0 14%,var(--laranja) 0 28%,var(--amarelo) 0 42%,var(--verde) 0 58%,var(--verde-2) 0 72%,var(--petroleo) 0 86%,var(--real) 0 100%);
+    /* ── Aliases legados (mapeados para a nova paleta) ── */
+    --navy:      var(--marinho);
+    --navy-mid:  var(--real);
+    --navy-dark: var(--noite);
+    --navy-light:var(--real-2);
+    --gold:      var(--amarelo);
+    --gold-light:var(--laranja);
+    --card:      #FFFFFF;
+    --bg:        #F2F5FB;
+    --text:      #101A33;
+    --muted:     #5A6685;
+    --border:    #E3E8F4;
+    --shadow:    0 1px 2px rgba(8,28,82,.06),0 8px 28px -12px rgba(8,28,82,.18);
+    --shadow-md: 0 6px 22px rgba(8,28,82,0.12);
+    --shadow-lg: 0 18px 50px rgba(8,28,82,0.25);
+    --blue-bg:   #E8EEFB;
+    --blue-text: var(--real);
+    --green:     #1E7A34;  --green-bg:  #EAF6EC;
+    --red:       #E3242B;  --red-bg:    #FDECEC;
+    --amber:     #C05300;  --amber-bg:  #FEF0E3;
+    --today:     #FFF7DD;
+    --radius:    18px;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body {
-    font-family: Arial, Helvetica, sans-serif;
+    font-family: 'Sora', system-ui, sans-serif;
     background:
       radial-gradient(1200px 600px at 100% -10%, rgba(46,93,168,0.10), transparent 60%),
       radial-gradient(900px 500px at -10% 0%, rgba(232,160,32,0.07), transparent 55%),
@@ -178,12 +187,19 @@
   }
 
   /* cores por status */
-  .ev-amber { background: var(--amber-bg); color: var(--amber); border-color: var(--amber); }
-  .ev-red   { background: var(--red-bg);   color: var(--red);   border-color: var(--red); }
-  .ev-blue  { background: var(--blue-bg);  color: var(--blue-text); border-color: var(--navy-light); }
-  .ev-green { background: var(--green-bg); color: var(--green); border-color: var(--green); }
-  .ev-gray  { background: #eef1f6; color: #5b6577; border-color: #9aa6bd; }
-  .ev-branco { background: #fff; color: var(--navy); border-color: #cdd5e3; }
+  /* cores dos eventos — paleta Mosaico das Etnias */
+  .ev-amber  { background:#FFF6D6; color:#8A6400; border-color:var(--amarelo); }
+  .ev-coral  { background:#FEF0E3; color:#C05300; border-color:var(--laranja); }
+  .ev-red    { background:var(--red-bg); color:var(--red); border-color:var(--red); }
+  .ev-olive  { background:#F3FAE4; color:#4F7A14; border-color:var(--verde); }
+  .ev-green  { background:var(--green-bg); color:var(--green); border-color:var(--green); }
+  .ev-teal   { background:#E6F4F6; color:var(--petroleo); border-color:var(--petroleo); }
+  .ev-blue   { background:var(--blue-bg); color:var(--blue-text); border-color:var(--real-2); }
+  .ev-indigo { background:#E9EFFE; color:var(--real-2); border-color:var(--real-2); }
+  .ev-navy   { background:#E7EAF4; color:var(--noite); border-color:var(--noite); }
+  .ev-purple { background:#EAEEF7; color:var(--marinho); border-color:var(--marinho); }
+  .ev-gray   { background:#EEF1F6; color:#5B6577; border-color:#9AA6BD; }
+  .ev-branco { background:#fff; color:var(--navy); border-color:#CDD5E3; }
 
   /* ── Seções (Próximos / Busca) ──────────────────────────────────────────── */
   .section { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow-md); overflow: hidden; }
@@ -470,7 +486,7 @@
   .obs-close:hover { background:var(--red-bg); color:var(--red); }
   .obs-wrap { display:flex; align-items:flex-start; gap:8px; margin: 0 20px 10px 20px; }
   .obs-icon { font-size:14px; color:var(--muted); flex-shrink:0; margin-top:3px; opacity:0.6; }
-  .obs-input { flex:1; font-family:Arial,Helvetica,sans-serif; font-size:12.5px; color:var(--text); background:transparent; border:none; border-bottom:1.5px dashed var(--border); resize:none; outline:none; padding:2px 0 4px; line-height:1.5; min-height:22px; max-height:80px; overflow-y:auto; transition:border-color .15s; }
+  .obs-input { flex:1; font-family:'Sora',system-ui,sans-serif; font-size:12.5px; color:var(--text); background:transparent; border:none; border-bottom:1.5px dashed var(--border); resize:none; outline:none; padding:2px 0 4px; line-height:1.5; min-height:22px; max-height:80px; overflow-y:auto; transition:border-color .15s; }
   .obs-input:focus { border-bottom-color:var(--navy-light); background:rgba(46,93,168,0.03); border-radius:0; }
   .obs-input::placeholder { color:#b0bacc; font-style:italic; }
   .obs-saving { font-size:10px; color:var(--muted); margin-left:4px; transition:opacity .3s; }
@@ -607,7 +623,7 @@
     .cal-nav .cal-novo { height:34px; }
     .cal-weekdays { flex-shrink:0; }
     .cal-weekdays div { padding:9px 0; }
-    .cal-grid { flex:1; min-height:0; grid-auto-rows:1fr; overflow:hidden; }
+    .cal-grid { flex:1; min-height:0; grid-auto-rows:minmax(84px,auto); overflow-y:auto; overflow-x:hidden; overscroll-behavior:contain; }
     .cal-cell { min-height:0; padding:7px 8px; gap:4px; }
     .list-head { flex-shrink:0; }
     .list-body { flex:1; min-height:0; overflow-y:auto; overscroll-behavior:contain; }
@@ -620,7 +636,135 @@
     .side-brand { order:0; }
     #proximosSection { order:1; }
   }
-</style>
+
+  /* ═══════════════════════════════════════════════════════════════════════
+     REFORMULAÇÃO VISUAL — identidade "Mosaico das Etnias" (padrão Ramais)
+     Tipografia Sora + Space Grotesk · noite/marinho/real + acentos do mosaico
+     ═══════════════════════════════════════════════════════════════════════ */
+  ::selection{background:var(--amarelo);color:var(--noite)}
+  body{
+    font-family:'Sora',system-ui,sans-serif;
+    background:
+      radial-gradient(1100px 520px at 100% -12%, rgba(30,82,204,.10), transparent 60%),
+      radial-gradient(820px 460px at -8% 0%, rgba(255,194,14,.07), transparent 55%),
+      var(--bg);
+  }
+  body::before{content:"";position:fixed;top:0;left:0;right:0;height:5px;background:var(--faixa);z-index:2000;pointer-events:none}
+
+  /* ── Botões ── */
+  .btn-primary{background:var(--real);border-color:var(--real);border-radius:12px;box-shadow:0 2px 10px rgba(20,64,168,.28)}
+  .btn-primary:hover{background:var(--real-2);box-shadow:0 4px 16px rgba(20,64,168,.34)}
+  .btn-save{background:var(--real);border-color:var(--real);border-radius:11px}
+  .btn-save:hover{background:var(--real-2)}
+  .btn-cancel{border-radius:11px}
+  .ag-voltar{border-radius:10px}
+  .ag-voltar:hover{background:var(--real);border-color:var(--real)}
+  .anna-btn.prim{background:var(--real);border-color:var(--real)}
+  .anna-btn.prim:hover{background:var(--real-2)}
+  .pn-add{background:var(--real);border-color:var(--real);border-radius:11px}
+  .pn-add:hover{background:var(--real-2)}
+
+  /* ── Calendário ── */
+  .cal-panel,.list-panel,.section,.side-brand{border-radius:var(--radius)}
+  .cal-title,.list-title{font-weight:800;letter-spacing:-.02em;color:var(--marinho)}
+  .cal-weekdays{background:linear-gradient(120deg,var(--noite) 0%,var(--marinho) 60%,var(--real) 135%)}
+  .cal-daynum{font-family:'Space Grotesk',monospace}
+  .cal-cell.today{background:var(--today)}
+  .cal-cell.today .cal-daynum{background:var(--amarelo);color:var(--noite);box-shadow:0 2px 8px rgba(255,194,14,.55)}
+  .cal-nav button:hover{background:var(--real);border-color:var(--real)}
+  .list-nav button:hover{background:var(--real)}
+  .view-toggle button.active{background:var(--real);box-shadow:0 1px 4px rgba(20,64,168,.3)}
+  .layer-pill-text.on{background:var(--real);border-color:var(--real);box-shadow:0 0 0 2px rgba(20,64,168,.18)}
+  .layer-pill-mini.on{border-color:var(--real);box-shadow:0 0 0 2px rgba(20,64,168,.18)}
+  .layer-pill-mini.on::after{background:var(--real)}
+  .gear-corner-btn:hover{background:var(--real);border-color:var(--real)}
+  .pdf-btn:hover{background:var(--real);border-color:var(--real)}
+
+  /* ── Lista / Agenda ── */
+  .list-daynum{font-family:'Space Grotesk',monospace}
+  .list-daygroup.today .list-daybox{background:var(--amarelo);box-shadow:0 2px 8px rgba(255,194,14,.5)}
+  .list-daygroup.today .list-daynum{color:var(--noite)}
+  .list-daygroup.today .list-dayweek{color:rgba(8,28,82,.75)}
+  .list-daygroup.today .list-dayrel{color:#C08F00}
+  .list-daygroup.has-note .list-daybox{box-shadow:0 0 0 2px var(--amarelo)}
+  .list-card{border-left-color:var(--real);border-radius:13px}
+  .list-card-num{font-family:'Space Grotesk',monospace;color:var(--marinho)}
+  .list-card-time{font-family:'Space Grotesk',monospace;background:var(--real);border-radius:8px}
+  .list-note-flag{color:#B76A00;background:#FEF3DC;border-color:#F4D9A6}
+
+  /* ── Seções laterais ── */
+  .section-head::before{content:"";width:5px;height:22px;border-radius:99px;background:var(--cor-secao,var(--real));flex-shrink:0}
+  #proximosSection{--cor-secao:var(--real)}
+  #buscaSection{--cor-secao:var(--petroleo)}
+  #annaSection{--cor-secao:#7E57C2}
+  .section-head .count,.fer-count{font-family:'Space Grotesk',monospace}
+  .side-brand{position:relative;overflow:hidden}
+  .side-brand::before{content:"";position:absolute;top:0;left:0;right:0;height:4px;background:var(--faixa)}
+  .up-card{border-left-color:var(--real);border-radius:13px}
+  .up-card:hover{transform:translateY(-3px)}
+  .up-daychip{font-family:'Space Grotesk',monospace;background:var(--real)}
+  .up-card.is-today .up-daychip{background:var(--amarelo);color:var(--noite)}
+  .up-num{font-family:'Space Grotesk',monospace}
+  .mini-card{border-left-color:var(--real)}
+  .mini-num,.mini-date{font-family:'Space Grotesk',monospace}
+  .req-card{border-left-color:var(--real)}
+
+  /* ── Busca / campos ── */
+  #buscaInput{border-radius:12px}
+  #buscaInput:focus{border-color:var(--real-2);box-shadow:0 0 0 3px rgba(20,64,168,.12)}
+  .field input:focus,.field select:focus,
+  .anna-c input:focus,.anna-c select:focus,.anna-c textarea:focus,
+  .ag-filtro-input:focus,.ag-filtro-select:focus{border-color:var(--real-2);box-shadow:0 0 0 3px rgba(20,64,168,.12)}
+
+  /* ── Modais / detalhe ── */
+  .modal{border-radius:var(--radius)}
+  .modal-header{position:relative;border-bottom:none}
+  .modal-header::after{content:"";position:absolute;left:0;right:0;bottom:0;height:3px;background:var(--faixa)}
+  .det-num{font-family:'Space Grotesk',monospace;color:var(--marinho)}
+  .det-portal-btn{background:var(--real);border-radius:10px}
+  .det-portal-btn:hover{background:var(--real-2)}
+  .det-whats-btn{background:#25D366}
+  .det-whats-btn:hover{background:#1EBC59}
+
+  /* ── Calendário: toques sutis do mosaico ── */
+  .cal-head{border-bottom:none;position:relative}
+  .cal-head::after{content:"";position:absolute;left:0;right:0;bottom:0;height:3px;background:var(--faixa)}
+  .list-head{border-bottom:none;position:relative}
+  .list-head::after{content:"";position:absolute;left:0;right:0;bottom:0;height:3px;background:var(--faixa)}
+  .cal-weekdays div{position:relative}
+  .cal-weekdays div::after{
+    content:"";position:absolute;left:50%;transform:translateX(-50%);bottom:3px;
+    width:26px;height:3px;border-radius:99px;background:var(--cor-dia,#fff);opacity:.95;
+  }
+  .cal-weekdays div:nth-child(1){--cor-dia:var(--vermelho)}
+  .cal-weekdays div:nth-child(2){--cor-dia:var(--laranja)}
+  .cal-weekdays div:nth-child(3){--cor-dia:var(--amarelo)}
+  .cal-weekdays div:nth-child(4){--cor-dia:var(--verde)}
+  .cal-weekdays div:nth-child(5){--cor-dia:#2FC1D8}
+  @media (max-width:768px){
+    .cal-weekdays div::after{width:16px;height:2px;bottom:2px}
+  }
+
+  /* ── Fundo sutil do mosaico por dia da semana (classe fixa, não nth-child —
+     garante a MESMA cor em toda a coluna, em qualquer linha, sem depender da
+     ordem/contagem de elementos no grid) ── */
+  .cal-cell.wd-seg:not(.out):not(.today):not(.holiday){background:#FBF3F3}
+  .cal-cell.wd-ter:not(.out):not(.today):not(.holiday){background:#FCF4EC}
+  .cal-cell.wd-qua:not(.out):not(.today):not(.holiday){background:#FCFAE9}
+  .cal-cell.wd-qui:not(.out):not(.today):not(.holiday){background:#F1F7EC}
+  .cal-cell.wd-sex:not(.out):not(.today):not(.holiday){background:#EBF3F4}
+  .cal-cell.wd-seg:not(.out):not(.today):not(.holiday):hover{background:#F6E9E9}
+  .cal-cell.wd-ter:not(.out):not(.today):not(.holiday):hover{background:#F9EADB}
+  .cal-cell.wd-qua:not(.out):not(.today):not(.holiday):hover{background:#F9F4D6}
+  .cal-cell.wd-qui:not(.out):not(.today):not(.holiday):hover{background:#E4F0DA}
+  .cal-cell.wd-sex:not(.out):not(.today):not(.holiday):hover{background:#DCEBEC}
+
+  /* ── Diversos ── */
+  .toast{border-radius:99px;background:var(--noite);box-shadow:0 10px 30px rgba(8,28,82,.4)}
+  .status-pop{border-radius:14px}
+  mark{background:var(--amarelo);color:var(--noite);border-radius:3px;padding:0 2px}
+
+  </style>
 
 <!-- PWA: Manifest + Service Worker -->
 <script>
@@ -633,8 +777,8 @@
     description: "Agenda de processos licitatórios do Município de Ijuí",
     start_url: "./agenda.html",
     display: "standalone",
-    background_color: "#eaeef6",
-    theme_color: "#1a3a6b",
+    background_color: "#F2F5FB",
+    theme_color: "#081C52",
     orientation: "portrait-primary",
     icons: [
       { src: iconB64, sizes: "192x192", type: "image/jpeg", purpose: "any maskable" },
@@ -1102,7 +1246,10 @@ function rotuloAgenda(p){
 function statusCorClasse(stId){
   var s=resolveStatus(stId);
   var cor=s?s.cor:"gray";
-  return "ev-"+(["amber","red","blue","green"].indexOf(cor)>=0?cor:"gray");
+  var m={amber:"amber",coral:"coral",brown:"coral",red:"red",pink:"red",olive:"olive",
+         green:"green",teal:"teal",cyan:"teal",blue:"blue",indigo:"indigo",
+         navy:"navy",purple:"purple",gray:"gray"};
+  return "ev-"+(m[cor]||"gray");
 }
 function statusNome(stId){
   var s=resolveStatus(stId);
@@ -1113,12 +1260,19 @@ function statusNome(stId){
 function statusBadgeStyle(stId){
   var s=resolveStatus(stId);
   var cor=s?s.cor:"gray";
-  var map={amber:["var(--amber-bg)","var(--amber)"],red:["var(--red-bg)","var(--red)"],blue:["var(--blue-bg)","var(--blue-text)"],green:["var(--green-bg)","var(--green)"],gray:["#eef1f6","#5b6577"]};
+  var map={amber:["#FFF6D6","#8A6400"],coral:["#FEF0E3","#C05300"],brown:["#FEF0E3","#C05300"],
+           red:["var(--red-bg)","var(--red)"],pink:["var(--red-bg)","var(--red)"],
+           olive:["#F3FAE4","#4F7A14"],green:["var(--green-bg)","var(--green)"],
+           teal:["#E6F4F6","#0B6E7F"],cyan:["#E6F4F6","#0B6E7F"],
+           blue:["var(--blue-bg)","var(--blue-text)"],indigo:["#E9EFFE","#1E52CC"],
+           navy:["#E7EAF4","#081C52"],purple:["#EAEEF7","#12306B"],gray:["#eef1f6","#5b6577"]};
   var c=map[cor]||map.gray;
   return "background:"+c[0]+";color:"+c[1];
 }
 /* Tom de fundo bem sutil por status, para colorir levemente o card */
-var STATUS_TINT_BG={amber:"#fff8ec",red:"#fdf3f3",blue:"#f1f6fd",green:"#f1f9f3",purple:"#f7f2fb",gray:"#f6f8fb"};
+var STATUS_TINT_BG={amber:"#FFFBEA",coral:"#FEF5EC",brown:"#FEF5EC",red:"#FDF1F1",pink:"#FDF1F1",
+  olive:"#F7FBEC",green:"#F0F8F2",teal:"#ECF7F9",cyan:"#ECF7F9",blue:"#EFF3FC",
+  indigo:"#F0F4FE",navy:"#EEF0F8",purple:"#EFF2F9",gray:"#F6F8FB"};
 function statusTintBg(stId){ var s=resolveStatus(stId); var cor=s?s.cor:"gray"; return STATUS_TINT_BG[cor]||STATUS_TINT_BG.gray; }
 /* Em Andamento só "acende" (amarelo) a partir do dia da abertura; antes disso o
    processo é futuro e fica branco — vale no calendário e nos próximos. */
@@ -1417,19 +1571,10 @@ var TRAMITES_PADRAO=[
   ]}
 ];
 var TRAMITES=[];   /* carregado do Firestore (editável) */
+/* Paleta Mosaico das Etnias — cores puras (linha 1) e tons suaves (linha 2) */
 var REQ_PALETA=[
-  "#0d47a1","#1565c0","#1e88e5","#64b5f6","#bbdefb",
-  "#006064","#00838f","#00acc1","#4dd0e1","#b2ebf2",
-  "#1b5e20","#2e7d32","#43a047","#81c784","#c8e6c9",
-  "#558b2f","#7cb342","#9ccc65","#c5e1a5","#dcedc8",
-  "#f57f17","#f9a825","#fbc02d","#fff176","#fff9c4",
-  "#e65100","#ef6c00","#fb8c00","#ffb74d","#ffe0b2",
-  "#bf360c","#e64a19","#ff7043","#ff8a65","#ffccbc",
-  "#b71c1c","#d32f2f","#ef5350","#e57373","#ffcdd2",
-  "#880e4f","#c2185b","#ec407a","#f06292","#f8bbd0",
-  "#4a148c","#6a1b9a","#8e24aa","#ba68c8","#e1bee7",
-  "#311b92","#4527a0","#5e35b1","#9575cd","#d1c4e9",
-  "#263238","#455a64","#607d8b","#90a4ae","#cfd8dc"
+  "#081C52","#12306B","#1440A8","#1E52CC","#0B6E7F","#1E7A34","#8CC63F","#FFC20E","#F26B21","#E3242B",
+  "#8FA3D9","#A7B6DE","#7C96D6","#9DB4EF","#7FB5BF","#7FBC93","#C4E29B","#FFDF7A","#F9B183","#F1969A"
 ];
 function tramiteById(id){ for(var i=0;i<TRAMITES.length;i++){ if(TRAMITES[i].id===id) return TRAMITES[i]; } return null; }
 function etapaById(tid, eid){ var t=tramiteById(tid); if(!t) return null; for(var i=0;i<t.etapas.length;i++){ if(t.etapas[i].id===eid) return t.etapas[i]; } return null; }
@@ -1893,7 +2038,7 @@ var _paletaCb=null;
 function abrirPaleta(cb, atual){
   _paletaCb=cb;
   document.getElementById("paletaGrid").innerHTML=REQ_PALETA.map(function(c){ return '<div class="pal-sw'+(c===atual?" sel":"")+'" style="background:'+c+'" onclick="paletaPick(\''+c+'\')"></div>'; }).join("");
-  var ci=document.getElementById("paletaCustom"); if(ci) ci.value=(/^#[0-9a-fA-F]{6}$/.test(atual||"")?atual:"#1565c0");
+  var ci=document.getElementById("paletaCustom"); if(ci) ci.value=(/^#[0-9a-fA-F]{6}$/.test(atual||"")?atual:"#1440A8");
   document.getElementById("annaOvPaleta").classList.add("open");
 }
 function paletaPick(c){ if(_paletaCb) _paletaCb(c); document.getElementById("annaOvPaleta").classList.remove("open"); _paletaCb=null; }
@@ -1947,7 +2092,8 @@ function renderCalendario(){
       var fora=dd.getMonth()!==mes;
       var ehHoje=iso===hoje;
       var nomeFer=feriadoNome(iso);
-      var cls="cal-cell"+(fora?" out":"")+(ehHoje?" today":"")+(nomeFer?" holiday":"");
+      var WD_CLS=["","wd-seg","wd-ter","wd-qua","wd-qui","wd-sex"]; /* getDay(): 1=Seg...5=Sex */
+      var cls="cal-cell "+WD_CLS[dd.getDay()]+(fora?" out":"")+(ehHoje?" today":"")+(nomeFer?" holiday":"");
       var temNota=!!(observacoes[iso]&&observacoes[iso].trim());
       var aberto=!!_diasAbertos[iso];
       var isoC=iso.replace(/-/g,"");
@@ -2114,7 +2260,9 @@ function popularFiltroAno(){
 function _buscaBorda(stId){
   var s=resolveStatus(stId);
   var cor=s?s.cor:"gray";
-  var map={amber:"#c07000",red:"#c0282a",blue:"#2e5da8",green:"#2a8a3a",gray:"#9aa6bd"};
+  var map={amber:"#FFC20E",coral:"#F26B21",brown:"#F26B21",red:"#E3242B",pink:"#E3242B",
+    olive:"#8CC63F",green:"#1E7A34",teal:"#0B6E7F",cyan:"#0B6E7F",blue:"#1440A8",
+    indigo:"#1E52CC",navy:"#081C52",purple:"#12306B",gray:"#9AA6BD"};
   return map[cor]||map.gray;
 }
 function limparBusca(){
@@ -2894,7 +3042,7 @@ function pnDelAniv(id){
     <div class="anna-mh"><h3>Escolher cor</h3><button class="x" onclick="document.getElementById('annaOvPaleta').classList.remove('open')">&times;</button></div>
     <div class="anna-mb">
       <div class="pal-grid" id="paletaGrid"></div>
-      <div class="pal-custom"><label>Cor personalizada</label><input type="color" id="paletaCustom" value="#1565c0"><button class="anna-btn prim" onclick="paletaUsarCustom()">Usar esta cor</button></div>
+      <div class="pal-custom"><label>Cor personalizada</label><input type="color" id="paletaCustom" value="#1440A8"><button class="anna-btn prim" onclick="paletaUsarCustom()">Usar esta cor</button></div>
     </div>
   </div>
 </div>
