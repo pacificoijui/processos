@@ -177,6 +177,7 @@
   .status-pop-opt .status-pop-check { margin-left: auto; color: var(--navy-light); font-weight: 800; }
   .status-em-andamento { background: #ff9800; color: #fff; }
   .status-concluido    { background: #2e7d32; color: #fff; }
+  .status-revogado     { background: #b01218; color: #fff; }
   .status-suspenso     { background: #d32f2f; color: #fff; }
   .status-aguardando   { background: #1565c0; color: #fff; }
   .status-purple       { background: #6a1b9a; color: #fff; }
@@ -841,6 +842,8 @@
   .card-concluido-bar { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; padding: 11px 14px; border: none; border-top: 1px solid var(--border); background: var(--green-bg); color: #1b6e2a; font-family: 'Sora', system-ui, sans-serif; font-size: 13px; font-weight: 800; cursor: pointer; transition: background .15s; }
   .card-concluido-bar:hover { background: #d3edd8; }
   .card-concluido-bar .ck { display: inline-flex; align-items: center; justify-content: center; width: 20px; height: 20px; border-radius: 50%; background: var(--green); color: #fff; font-size: 12px; font-weight: 900; }
+  .card-revogado-bar { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; padding: 11px 14px; border: none; border-top: 1px solid var(--border); background: var(--red-bg); color: #9c1419; font-family: 'Sora', system-ui, sans-serif; font-size: 13px; font-weight: 800; }
+  .card-revogado-bar .ck { display: inline-flex; align-items: center; justify-content: center; width: 20px; height: 20px; border-radius: 50%; background: var(--red); color: #fff; font-size: 11px; font-weight: 900; }
 
   /* ── Observação específica do processo (aparece na agenda) ──────────────── */
   .card-obs-wrap { padding: 10px 19px; border-top: 1px solid var(--border); background: transparent; }
@@ -1145,6 +1148,9 @@
   .proc-progress-label{color:var(--marinho)}
   .card-concluido-bar{color:var(--verde-2)}
   .card-concluido-bar .ck{background:var(--verde-2)}
+  .status-revogado{background:var(--vermelho)}
+  .card-revogado-bar{color:var(--vermelho)}
+  .card-revogado-bar .ck{background:var(--vermelho)}
 
   /* ── Modais ── */
   .modal{border-radius:var(--radius)}
@@ -2151,7 +2157,8 @@ var STATUS_DEFAULT=[
   {id:"em-andamento",      nome:"Em Andamento",        cor:"amber", ordem:0},
   {id:"em-recurso-suspenso",nome:"Suspenso / Em recurso",cor:"red", ordem:1},
   {id:"finalizacao",        nome:"Finalização",         cor:"blue",  ordem:2},
-  {id:"concluido",          nome:"Concluído",            cor:"green", ordem:3}
+  {id:"concluido",          nome:"Concluído",            cor:"green", ordem:3},
+  {id:"revogado",           nome:"Revogado",             cor:"pink",  ordem:4}
 ];
 /* Inicia as listas com os status padrão para evitar "status fantasma": sem
    isso, um card renderizado antes do snapshot de status caía no fallback cinza
@@ -2201,6 +2208,11 @@ function statusKey(val){
   return e?e.id:_normSt(val);
 }
 function isConcluido(val){ return statusKey(val)==="concluido" || _normSt(val)==="concluido"; }
+/* Revogado: mesma lógica de arquivamento do Concluído, porém SEM disparo de
+   e-mail (a revogação não notifica as secretarias).                          */
+function isRevogado(val){ return statusKey(val)==="revogado" || _normSt(val)==="revogado"; }
+/* Arquivado = sai da tela principal e só reaparece quando há busca ativa. */
+function isArquivado(val){ return isConcluido(val) || isRevogado(val); }
 /* Define o <select> de status já resolvendo para a opção canônica (evita salvar
    status vazio ao editar um processo com id/nome legado). */
 function setStatusSelect(elId, val){
@@ -2244,6 +2256,7 @@ agColRef.onSnapshot(function(snap){
   }
 }, function(err){ console.error("Agentes:", err); });
 
+var _seedRevogado=false;
 db.collection("status").onSnapshot(function(snap){
   if(snap.empty){
     /* First time: seed defaults into Firestore */
@@ -2275,6 +2288,12 @@ db.collection("status").onSnapshot(function(snap){
         var manter=canon||grupo[0];
         return s===manter;
       });
+    /* Semeia o status "Revogado" caso o banco tenha sido criado antes dele.
+       Roda uma única vez: assim que o doc existir, a condição deixa de valer. */
+    if(!_seedRevogado && !statusListAll.some(function(s){ return _normSt(s.id)==="revogado" || _normSt(s.nome||"")==="revogado"; })){
+      _seedRevogado=true;
+      db.collection("status").doc("revogado").set({nome:"Revogado",cor:"pink",ordem:4,createdAt:firebase.firestore.FieldValue.serverTimestamp()}).catch(function(){});
+    }
   }
   renderSelectStatus();
   renderListaStatus();
@@ -2383,8 +2402,10 @@ function mudarStatusRapido(pid, statusId){
   fecharStatusPop();
   if(!p || statusKey(p.status)===statusId) return;
   var eraConcluido=isConcluido(p.status), viraConcluido=isConcluido(statusId);
+  var eraRevogado=isRevogado(p.status),   viraRevogado=isRevogado(statusId);
   var upd={status:statusId, updatedAt:firebase.firestore.FieldValue.serverTimestamp()};
   if(viraConcluido && !eraConcluido) upd.dataConclusao=p.dataConclusao||hojeISO();
+  if(viraRevogado && !eraRevogado) upd.dataRevogacao=p.dataRevogacao||hojeISO();
   colRef.doc(pid).update(upd)
     .then(function(){
       var st=getStatusCfg(statusId); toast("Status: "+(st.nome||st.label||statusId));
@@ -2993,8 +3014,8 @@ function renderFiltroAnos(){
   el.innerHTML = h;
 }
 /* Filtro de status por botões foi removido: o status aparece só no card.
-   Concluídos ficam ocultos e voltam a aparecer quando há busca ativa
-   (tipo/número/objeto) — mesma lógica de antes. */
+   Concluídos e Revogados ficam ocultos e voltam a aparecer quando há busca
+   ativa (tipo/número/objeto) — mesma lógica de antes. */
 function renderSelectStatus(){
   ["inputStatus","updateStatus"].forEach(function(sid){
     var sel=document.getElementById(sid); if(!sel)return;
@@ -3063,8 +3084,8 @@ function renderizar(){
       if(!objTxt.includes(fObj))return false;
     }
     if(filtroAgentes.length && filtroAgentes.indexOf(p.responsavel)<0)return false;
-    /* concluídos ficam ocultos; aparecem quando há qualquer busca ativa */
-    if(!busca&&isConcluido(p.status))return false;
+    /* concluídos e revogados ficam ocultos; aparecem quando há busca ativa */
+    if(!busca&&isArquivado(p.status))return false;
     /* esconde processos com abertura futura: aparecem só na agenda até o dia da abertura (a busca ainda os encontra) */
     if(!busca&&p.dataLicit&&p.dataLicit>hoje())return false;
     if(filtroAno!=="todos"){ var ano=p.dataLicit?p.dataLicit.split("-")[0]:null; if(ano!==filtroAno)return false; }
@@ -3155,6 +3176,8 @@ function renderizar(){
     html+='</div>';
     if(isConcluido(p.status)){
       html+='<button class="card-concluido-bar" data-action="share-concluido" title="Copiar texto para o WhatsApp"><span class="ck">&#10003;</span> Processo concluído</button>';
+    } else if(isRevogado(p.status)){
+      html+='<div class="card-revogado-bar"><span class="ck">&#10006;</span> Processo revogado</div>';
     }
     html+='</div>';
   }
@@ -3300,8 +3323,10 @@ function salvarProcesso(){
   var ts=firebase.firestore.FieldValue.serverTimestamp();
   var existing=processos.find(function(x){return x.id===editandoId;});
   var eraConcluido=isConcluido(existing.status), viraConcluido=isConcluido(status);
+  var eraRevogado=isRevogado(existing.status),   viraRevogado=isRevogado(status);
   var payload={numero:numero,objeto:objeto,responsavel:resp,status:status,dataLicit:dataLicit,link:link,contato:contato,fixado:existing.fixado||false,observacao:existing.observacao||"",updatedAt:ts};
   if(viraConcluido && !eraConcluido) payload.dataConclusao=existing.dataConclusao||hojeISO();
+  if(viraRevogado && !eraRevogado) payload.dataRevogacao=existing.dataRevogacao||hojeISO();
   var op=colRef.doc(editandoId).set(payload,{merge:true});
   var pidSalvo=editandoId;
   op.then(function(){toast("Processo atualizado!"); fecharModal();
@@ -4349,30 +4374,83 @@ function habGerarPDF(){
   function fill(c){ doc.setFillColor(c[0],c[1],c[2]); }
   function draw(c){ doc.setDrawColor(c[0],c[1],c[2]); }
   function txt(c){ doc.setTextColor(c[0],c[1],c[2]); }
-  var C_NAVY=rgb(26,58,107), C_MUTED=rgb(90,110,153), C_TEXT=rgb(22,32,56);
-  var C_GREEN=rgb(30,95,58), C_RED=rgb(163,45,45), C_AMBER=rgb(140,90,10);
+  /* Paleta escurecida propositalmente: o relatório é impresso e precisa de
+     contraste alto no papel (cinzas claros somem em impressora a laser).   */
+  var C_NAVY=rgb(10,32,76), C_MUTED=rgb(48,64,100), C_TEXT=rgb(8,14,28);
+  var C_GREEN=rgb(14,70,36), C_RED=rgb(128,16,16), C_AMBER=rgb(115,72,4);
+  var C_GRAY=rgb(72,72,72);
   function drawHeader(){
     fill([255,255,255]); doc.rect(0,0,PW,HEADER_H,'F');
     try{ doc.addImage(LOGO_B64_PDF,'JPEG',ML,7.8,32,10.4); }catch(e){}
     doc.setLineWidth(0.3); draw(rgb(200,210,230)); doc.line(ML+36,5,ML+36,21);
-    txt(C_NAVY); doc.setFontSize(13); doc.setFont('helvetica','bold');
+    txt(C_NAVY); doc.setFontSize(14); doc.setFont('helvetica','bold');
     doc.text('Habilitação — '+(habProcessoAtual?habProcessoAtual.numero:''), ML+41, 10);
-    doc.setFontSize(8); doc.setFont('helvetica','normal'); txt(C_MUTED);
+    doc.setFontSize(9); doc.setFont('helvetica','normal'); txt(C_MUTED);
     doc.text('Município de Ijuí', ML+41, 15);
-    doc.text('Coordenadoria de Compras, Patrimônio e Adm. de Materiais — COPAM', ML+41, 19.5);
+    doc.text('Coordenadoria de Compras, Patrimônio e Adm. de Materiais — COPAM', ML+41, 19.8);
     doc.setLineWidth(0.7); draw(C_NAVY); doc.line(0,HEADER_H,PW,HEADER_H);
   }
+  /* Nome da empresa em curso: quando a lista dela quebra de página, a página
+     seguinte ganha uma tarja de "continuação" — no papel, sem isso, a colega
+     fica com uma folha de caixinhas sem saber de quem são.                  */
+  var _contEmp='';
   function checkPage(h){
-    if(y+h>BOTTOM){ doc.addPage(); drawHeader(); y=HEADER_H+6; }
+    if(y+h>BOTTOM){
+      doc.addPage(); drawHeader(); y=HEADER_H+6;
+      if(_contEmp){
+        fill(rgb(238,242,249)); doc.rect(ML,y,CW,6.8,'F');
+        draw(rgb(170,182,205)); doc.setLineWidth(0.3); doc.rect(ML,y,CW,6.8);
+        txt(C_NAVY); doc.setFontSize(8.5); doc.setFont('helvetica','bold');
+        doc.text(doc.splitTextToSize('continuação — '+_contEmp, CW-8)[0], ML+3, y+4.6);
+        y+=7.8;
+      }
+    }
   }
-  /* Linha de um documento */
-  function drawDocRow(nome, status, motivo, indented){
+  /* Zebra das linhas no modo checklist (reinicia a cada seção) */
+  var _zebra=0;
+  function dash(on){
+    try{ doc.setLineDashPattern(on?[0.8,0.9]:[], 0); }
+    catch(e){ try{ doc.setLineDash(on?[0.8,0.9]:[], 0); }catch(e2){} }
+  }
+  /* Linha de um documento.
+     chk = true → a empresa ainda NÃO teve a análise fechada no sistema, então
+     a linha sai como folha de conferência: caixa vazia para marcar de caneta
+     e linha pontilhada à direita para anotar a pendência. Depois que a
+     análise é aprovada no sistema, a mesma linha volta ao formato normal,
+     com o verde/vermelho e o selo de status.                                */
+  function drawDocRow(nome, status, motivo, indented, chk){
     var indL=indented?4:0;
-    var nW=CW-40-indL;
-    doc.setFontSize(7.5); doc.setFont('helvetica','normal');
+    if(chk){
+      var BOX=5.6;                       /* lado da caixinha, em mm */
+      var obsW=50;                       /* faixa livre p/ anotação à caneta */
+      var nX=ML+indL+4+BOX+4;
+      var nW=(PW-MR-obsW-4)-nX;
+      doc.setFontSize(10.5); doc.setFont('helvetica','normal');
+      var nomeC=doc.splitTextToSize(nome, nW);
+      var rowHc=Math.max(10, nomeC.length*5+4.6);
+      checkPage(rowHc);
+      if(_zebra%2===1){ fill(rgb(245,247,251)); doc.rect(ML,y,CW,rowHc,'F'); }
+      draw(rgb(185,194,212)); doc.setLineWidth(0.15); doc.line(ML,y+rowHc,ML+CW,y+rowHc);
+      if(indL){ draw(rgb(165,178,204)); doc.setLineWidth(0.35); doc.line(ML+2,y+1.2,ML+2,y+rowHc-1.2); }
+      /* caixinha para marcar V / OK */
+      fill([255,255,255]); draw(rgb(18,38,80)); doc.setLineWidth(0.55);
+      doc.rect(ML+indL+4, y+(rowHc-BOX)/2, BOX, BOX, 'FD');
+      /* nome do documento */
+      txt(C_TEXT); doc.setFontSize(10.5); doc.setFont('helvetica','normal');
+      doc.text(nomeC, nX, y+6);
+      /* linha pontilhada para anotar pendência */
+      draw(rgb(150,160,180)); doc.setLineWidth(0.3); dash(true);
+      doc.line(PW-MR-obsW, y+rowHc-3.2, PW-MR-2, y+rowHc-3.2); dash(false);
+      _zebra++;
+      y+=rowHc;
+      return;
+    }
+    var nW=CW-48-indL;
+    doc.setFontSize(9.5); doc.setFont('helvetica','normal');
     var nomeL=doc.splitTextToSize(nome, nW-3);
+    doc.setFontSize(8.2); doc.setFont('helvetica','italic');
     var mvL=motivo?doc.splitTextToSize(motivo, nW-3):[];
-    var rowH=Math.max(6, nomeL.length*3.4+2+(mvL.length?mvL.length*3.2+2:0));
+    var rowH=Math.max(8, nomeL.length*4.5+3.2+(mvL.length?mvL.length*4.1+2:0));
     checkPage(rowH);
     /* fundo por status */
     var bg=status==='aprovado'?rgb(245,253,248):status==='recusado'?rgb(255,245,245):status==='na'?rgb(248,248,248):rgb(255,255,255);
@@ -4380,27 +4458,36 @@ function habGerarPDF(){
     draw(rgb(230,235,242)); doc.setLineWidth(0.05); doc.line(ML,y+rowH,ML+CW,y+rowH);
     /* indentação pra docs jurídica */
     if(indL){ draw(rgb(200,210,230)); doc.setLineWidth(0.3); doc.line(ML+2,y+1,ML+2,y+rowH-1); }
-    txt(status==='aprovado'?C_GREEN:status==='recusado'?C_RED:status==='na'?rgb(150,150,150):C_TEXT);
-    doc.text(nomeL, ML+indL+3, y+3.8);
+    txt(status==='aprovado'?C_GREEN:status==='recusado'?C_RED:status==='na'?C_GRAY:C_TEXT);
+    doc.setFontSize(9.5); doc.setFont('helvetica','normal');
+    doc.text(nomeL, ML+indL+3, y+5);
     if(mvL.length){
-      txt(C_RED); doc.setFontSize(6.8); doc.setFont('helvetica','italic');
-      doc.text(mvL, ML+indL+3, y+3.8+nomeL.length*3.4+1);
+      txt(C_RED); doc.setFontSize(8.2); doc.setFont('helvetica','italic');
+      doc.text(mvL, ML+indL+3, y+5+nomeL.length*4.5+1.2);
     }
     /* Badge de status à direita */
     var bdgTxt=status==='aprovado'?'Aprovado':status==='recusado'?'Recusado':status==='na'?'N/A':'Não enviado';
-    var bdgC=status==='aprovado'?C_GREEN:status==='recusado'?C_RED:rgb(150,150,150);
-    doc.setFontSize(6.5); doc.setFont('helvetica','bold'); txt(bdgC);
-    doc.text(bdgTxt, PW-MR-2, y+3.8, {align:'right'});
+    var bdgC=status==='aprovado'?C_GREEN:status==='recusado'?C_RED:C_GRAY;
+    doc.setFontSize(8.5); doc.setFont('helvetica','bold'); txt(bdgC);
+    doc.text(bdgTxt, PW-MR-2, y+5, {align:'right'});
     y+=rowH;
   }
   /* Cabeçalho de seção de documentos */
-  function drawSecHeader(label, hint){
-    checkPage(8);
-    fill(rgb(234,238,247)); doc.rect(ML,y,CW,6,'F');
-    txt(C_NAVY); doc.setFontSize(7.5); doc.setFont('helvetica','bold');
-    doc.text(label, ML+3, y+4);
-    if(hint){ txt(C_MUTED); doc.setFontSize(6.5); doc.setFont('helvetica','normal'); doc.text(hint, PW-MR-2, y+4, {align:'right'}); }
-    y+=6;
+  function drawSecHeader(label, hint, chk){
+    checkPage(10);
+    _zebra=0;
+    fill(rgb(225,231,244)); doc.rect(ML,y,CW,8,'F');
+    txt(C_NAVY); doc.setFontSize(9.5); doc.setFont('helvetica','bold');
+    doc.text(label, ML+3, y+5.5);
+    if(chk){
+      /* no modo conferência a dica fica ao centro e as colunas ganham título */
+      if(hint){ txt(C_MUTED); doc.setFontSize(8); doc.setFont('helvetica','normal'); doc.text(hint, PW-MR-54, y+5.5, {align:'right'}); }
+      txt(C_NAVY); doc.setFontSize(7.5); doc.setFont('helvetica','bold');
+      doc.text('OBSERVAÇÃO', PW-MR-2, y+5.5, {align:'right'});
+    } else if(hint){
+      txt(C_MUTED); doc.setFontSize(8); doc.setFont('helvetica','normal'); doc.text(hint, PW-MR-2, y+5.5, {align:'right'});
+    }
+    y+=8;
   }
   var lista=habEmpresas.map(function(e){ var k=habKeyEmpresa(e.nome); var info=habCalcInfo(k); return {e:e,k:k,info:info,s:info.status}; });
   if(habFiltroAtivo==='habilitado') lista=lista.filter(function(x){ return x.s==='habilitado'; });
@@ -4414,69 +4501,118 @@ function habGerarPDF(){
     var m=habDocMotivos[k]||{};
     var mv=habMotivos[k]||'';
     var nItens=(e.itens&&e.itens.length)||0;
+    /* Sem status fechado no sistema → sai como folha de conferência (checklist) */
+    var chkMode=!s;
     /* Bloco cabeçalho da empresa */
-    var empH=14;
+    var empH=18;
     checkPage(empH+6);
     /* Separador entre empresas (exceto primeira) */
     if(idx>0){ y+=3; }
-    /* Faixa empresa */
-    var empBg=s==='habilitado'?rgb(26,95,58):s==='inabilitado'?rgb(140,30,30):rgb(40,60,100);
-    fill(empBg); doc.rect(ML,y,CW,empH,'F');
-    /* Nome */
-    txt([255,255,255]); doc.setFontSize(10); doc.setFont('helvetica','bold');
-    var nomeEmp=doc.splitTextToSize(e.nome, CW-55);
-    doc.text(nomeEmp, ML+3, y+5);
-    /* CNPJ e cidade */
-    doc.setFontSize(7.5); doc.setFont('helvetica','normal'); txt(rgb(200,220,200));
     var linha2=[];
     if(e.cnpj) linha2.push('CNPJ: '+e.cnpj);
     if(e.cidade) linha2.push(e.cidade);
     if(nItens) linha2.push(nItens+' '+(nItens>1?'itens':'item')+' arrematado'+(nItens>1?'s':''));
-    if(linha2.length) doc.text(linha2.join('   '), ML+3, y+10);
-    /* Badge status */
-    var bdgLabel=s==='habilitado'?'HABILITADA':s==='inabilitado'?'INABILITADA':'PENDENTE';
-    doc.setFontSize(8); doc.setFont('helvetica','bold'); txt([255,255,255]);
-    var bdgW=doc.getTextWidth(bdgLabel)+6;
-    fill(s==='habilitado'?rgb(20,75,45):s==='inabilitado'?rgb(110,22,22):rgb(30,50,80));
-    doc.roundedRect(PW-MR-bdgW-2, y+3, bdgW, 6, 1, 1, 'F');
-    doc.text(bdgLabel, PW-MR-bdgW/2-2, y+7.2, {align:'center'});
-    /* Progresso docs */
-    doc.setFontSize(6.5); doc.setFont('helvetica','normal'); txt(rgb(180,210,185));
-    doc.text(info.done+'/'+info.total+' documentos aprovados', PW-MR-bdgW-2, y+12, {align:'right'});
+    if(chkMode){
+      /* Folha de conferência: faixa vazada (menos toner, mais legível no papel) */
+      fill([255,255,255]); doc.rect(ML,y,CW,empH,'F');
+      draw(C_NAVY); doc.setLineWidth(0.6); doc.rect(ML,y,CW,empH);
+      fill(C_NAVY); doc.rect(ML,y,2,empH,'F');
+      txt(C_NAVY); doc.setFontSize(12); doc.setFont('helvetica','bold');
+      doc.text(doc.splitTextToSize(e.nome, CW-74), ML+6, y+6);
+      doc.setFontSize(9); doc.setFont('helvetica','normal'); txt(C_MUTED);
+      if(linha2.length) doc.text(linha2.join('   '), ML+6, y+12);
+      var bdgLabelC='PARA CONFERÊNCIA';
+      doc.setFontSize(9.5); doc.setFont('helvetica','bold');
+      var bdgWc=doc.getTextWidth(bdgLabelC)+8;
+      fill([255,255,255]); draw(C_NAVY); doc.setLineWidth(0.55);
+      doc.roundedRect(PW-MR-bdgWc-2, y+3, bdgWc, 7.4, 1.2, 1.2, 'FD');
+      txt(C_NAVY); doc.text(bdgLabelC, PW-MR-bdgWc/2-2, y+8, {align:'center'});
+      doc.setFontSize(7.5); doc.setFont('helvetica','normal'); txt(C_MUTED);
+      doc.text('marque a caixa de cada documento conferido', PW-MR-2, y+15, {align:'right'});
+    } else {
+
+      /* Faixa empresa (análise já fechada no sistema) */
+      var empBg=s==='habilitado'?rgb(26,95,58):rgb(140,30,30);
+      fill(empBg); doc.rect(ML,y,CW,empH,'F');
+      /* Nome */
+      txt([255,255,255]); doc.setFontSize(12); doc.setFont('helvetica','bold');
+      doc.text(doc.splitTextToSize(e.nome, CW-62), ML+3, y+6);
+      /* CNPJ e cidade */
+      doc.setFontSize(9); doc.setFont('helvetica','normal'); txt(rgb(232,243,233));
+      if(linha2.length) doc.text(linha2.join('   '), ML+3, y+12);
+      /* Badge status */
+      var bdgLabel=s==='habilitado'?'HABILITADA':'INABILITADA';
+      doc.setFontSize(9.5); doc.setFont('helvetica','bold'); txt([255,255,255]);
+      var bdgW=doc.getTextWidth(bdgLabel)+8;
+      fill(s==='habilitado'?rgb(14,60,34):rgb(92,14,14));
+      doc.roundedRect(PW-MR-bdgW-2, y+3, bdgW, 7.4, 1.2, 1.2, 'F');
+      doc.text(bdgLabel, PW-MR-bdgW/2-2, y+8, {align:'center'});
+      /* Progresso docs */
+      doc.setFontSize(8); doc.setFont('helvetica','normal'); txt(rgb(220,238,223));
+      doc.text(info.done+'/'+info.total+' documentos aprovados', PW-MR-bdgW-2, y+15, {align:'right'});
+    }
     y+=empH+1;
+    _contEmp=e.nome;
     /* ── 9.16 Jurídica (alternativos) */
-    drawSecHeader('9.16 HABILITAÇÃO JURÍDICA', 'apresentar UM — basta 1 aprovado');
+    drawSecHeader('9.16 HABILITAÇÃO JURÍDICA', 'apresentar UM — basta 1 aprovado', chkMode);
     HAB_DOCS_JUR.forEach(function(x){
-      drawDocRow(x.nome, d[x.id]||'', m[x.id]||'', true);
+      drawDocRow(x.nome, d[x.id]||'', m[x.id]||'', true, chkMode);
     });
     /* ── 9.17 Fiscal, Social e Trabalhista */
-    drawSecHeader('9.17 FISCAL, SOCIAL E TRABALHISTA', 'todos obrigatórios');
+    drawSecHeader('9.17 FISCAL, SOCIAL E TRABALHISTA', 'todos obrigatórios', chkMode);
     HAB_DOCS_FIS.forEach(function(x){
-      drawDocRow(x.nome, d[x.id]||'', m[x.id]||'', false);
+      drawDocRow(x.nome, d[x.id]||'', m[x.id]||'', false, chkMode);
     });
     /* ── 9.18 Econômico-financeira */
-    drawSecHeader('9.18 ECONÔMICO-FINANCEIRA', '');
+    drawSecHeader('9.18 ECONÔMICO-FINANCEIRA', '', chkMode);
     HAB_DOCS_ECO.forEach(function(x){
-      drawDocRow(x.nome, d[x.id]||'', m[x.id]||'', false);
+      drawDocRow(x.nome, d[x.id]||'', m[x.id]||'', false, chkMode);
     });
     /* ── 9.19 Técnica (se exigida) */
     if(habConfig.tecnicaExige){
-      drawSecHeader('9.19 QUALIFICAÇÃO TÉCNICA', 'exigida neste processo');
-      if(tecDocs.length) tecDocs.forEach(function(x){ drawDocRow(x.nome, d[x.id]||'', m[x.id]||'', false); });
-      else { checkPage(6); txt(C_MUTED); doc.setFontSize(7); doc.text('Nenhuma exigência técnica cadastrada.', ML+3, y+4); y+=6; }
+      drawSecHeader('9.19 QUALIFICAÇÃO TÉCNICA', 'exigida neste processo', chkMode);
+      if(tecDocs.length) tecDocs.forEach(function(x){ drawDocRow(x.nome, d[x.id]||'', m[x.id]||'', false, chkMode); });
+      else { checkPage(8); txt(C_MUTED); doc.setFontSize(9); doc.setFont('helvetica','normal'); doc.text('Nenhuma exigência técnica cadastrada.', ML+3, y+5.4); y+=8; }
+    }
+    /* Rodapé da folha de conferência: resultado + assinatura à caneta */
+    if(chkMode){
+      checkPage(24);
+      y+=3;
+      fill(rgb(248,249,252)); doc.rect(ML,y,CW,21,'F');
+      draw(rgb(160,170,190)); doc.setLineWidth(0.4); doc.rect(ML,y,CW,21);
+      txt(C_NAVY); doc.setFontSize(9); doc.setFont('helvetica','bold');
+      doc.text('RESULTADO DA CONFERÊNCIA:', ML+4, y+6.5);
+      var cx=ML+4+doc.getTextWidth('RESULTADO DA CONFERÊNCIA:')+7;
+      doc.setFont('helvetica','normal'); txt(C_TEXT);
+      ['HABILITADA','INABILITADA'].forEach(function(lb){
+        fill([255,255,255]); draw(rgb(18,38,80)); doc.setLineWidth(0.55);
+        doc.rect(cx, y+2.6, 5.2, 5.2, 'FD');
+        txt(C_TEXT); doc.setFontSize(9); doc.setFont('helvetica','bold');
+        doc.text(lb, cx+7.4, y+6.6);
+        cx+=7.4+doc.getTextWidth(lb)+10;
+      });
+      draw(rgb(90,100,125)); doc.setLineWidth(0.35);
+      doc.line(ML+4, y+16.5, ML+84, y+16.5);
+      doc.line(ML+92, y+16.5, ML+134, y+16.5);
+      txt(C_MUTED); doc.setFontSize(7.5); doc.setFont('helvetica','normal');
+      doc.text('Conferido por (nome e assinatura)', ML+4, y+19.6);
+      doc.text('Data', ML+92, y+19.6);
+      y+=21+1;
     }
     /* Justificativa complementar de inabilitação */
     if(s==='inabilitado'&&mv){
       checkPage(8);
       fill(rgb(255,240,240)); doc.rect(ML,y,CW,0,'F');
-      var mvL=doc.splitTextToSize('Justificativa complementar: '+mv, CW-6);
-      var jH=mvL.length*3.4+4;
-      fill(rgb(255,240,240)); doc.rect(ML,y,CW,jH,'F');
-      draw(rgb(240,180,180)); doc.setLineWidth(0.2); doc.rect(ML,y,CW,jH);
-      txt(C_RED); doc.setFontSize(7); doc.setFont('helvetica','italic');
-      doc.text(mvL, ML+3, y+3.8);
+      doc.setFontSize(9); doc.setFont('helvetica','italic');
+      var mvL=doc.splitTextToSize('Justificativa complementar: '+mv, CW-8);
+      var jH=mvL.length*4.4+5;
+      fill(rgb(255,238,238)); doc.rect(ML,y,CW,jH,'F');
+      draw(rgb(226,150,150)); doc.setLineWidth(0.25); doc.rect(ML,y,CW,jH);
+      txt(C_RED); doc.setFontSize(9); doc.setFont('helvetica','italic');
+      doc.text(mvL, ML+3, y+5);
       y+=jH+1;
     }
+    _contEmp='';
   });
   var total=doc.internal.getNumberOfPages();
   for(var pp=1;pp<=total;pp++){
@@ -6642,14 +6778,35 @@ function decGerarPDF(dec){
     if(last<s.length) r.push({t:s.slice(last),b:false});
     return r;
   }
+  /* Uma "palavra" pode misturar trechos em negrito e normal (ex.: "**2026**,"
+     ou "n**º**"). Guardamos as partes juntas para que a pontuação encostada no
+     fechamento do ** não vire uma palavra separada — era isso que gerava o
+     espaço indevido antes da vírgula na justificação do parágrafo.          */
   function mkWords(sgArr){
-    var w=[];
+    var w=[], cur=null;
     sgArr.forEach(function(sg){
       sg.t.split(/(\s+)/).forEach(function(tk){
-        if(/\S/.test(tk)) w.push({t:tk,b:sg.b});
+        if(!tk) return;
+        if(!/\S/.test(tk)){ cur=null; return; }
+        if(!cur){ cur={p:[]}; w.push(cur); }
+        cur.p.push({t:tk,b:sg.b});
       });
     });
     return w;
+  }
+  /* Largura total da palavra somando cada parte com sua própria fonte. */
+  function wWidth(wd){
+    var t=0;
+    for(var i=0;i<wd.p.length;i++){ ft(wd.p[i].b?"bold":"normal"); t+=doc.getTextWidth(wd.p[i].t); }
+    return t;
+  }
+  /* Desenha a palavra parte a parte, sem espaços internos. Retorna o novo x. */
+  function drawWord(wd,cx){
+    for(var i=0;i<wd.p.length;i++){
+      ft(wd.p[i].b?"bold":"normal"); fs(FS); tc(cText);
+      doc.text(wd.p[i].t,cx,y); cx+=doc.getTextWidth(wd.p[i].t);
+    }
+    return cx;
   }
 
   function buildLines(wsArr,maxW,xOffset){
@@ -6657,8 +6814,7 @@ function decGerarPDF(dec){
     var spW=doc.getTextWidth(" ");
     var lines=[],cur=[],curW=0,fst=true;
     wsArr.forEach(function(w){
-      ft(w.b?"bold":"normal");
-      var ww=doc.getTextWidth(w.t);
+      var ww=wWidth(w);
       var lmW=maxW-(fst&&xOffset?xOffset:0);
       if(curW+ww>lmW&&cur.length){
         lines.push({ws:cur,fi:fst,xo:(fst&&xOffset?xOffset:0)});
@@ -6674,22 +6830,21 @@ function decGerarPDF(dec){
   function renderLine(line,isLast,xBase,availW){
     var x=xBase+(line.xo||0);
     var w=availW-(line.xo||0);
+    var cx=x;
     if(isLast||line.ws.length<=1){
-      var cx=x;
+      fs(FS); ft("normal");
+      var spW=doc.getTextWidth(" ");
       line.ws.forEach(function(wd,wi){
-        ft(wd.b?"bold":"normal"); fs(FS); tc(cText);
-        var t2=wd.t+(wi<line.ws.length-1?" ":"");
-        doc.text(t2,cx,y); cx+=doc.getTextWidth(t2);
+        cx=drawWord(wd,cx);
+        if(wi<line.ws.length-1) cx+=spW;
       });
     } else {
       var totalWW=0;
-      line.ws.forEach(function(wd){ ft(wd.b?"bold":"normal"); totalWW+=doc.getTextWidth(wd.t); });
+      line.ws.forEach(function(wd){ totalWW+=wWidth(wd); });
       var gap=(w-totalWW)/(line.ws.length-1);
-      var cx=x;
       line.ws.forEach(function(wd,wi){
-        ft(wd.b?"bold":"normal"); fs(FS); tc(cText);
-        doc.text(wd.t,cx,y);
-        cx+=doc.getTextWidth(wd.t)+(wi<line.ws.length-1?gap:0);
+        cx=drawWord(wd,cx);
+        if(wi<line.ws.length-1) cx+=gap;
       });
     }
   }
@@ -7276,14 +7431,35 @@ function dilGerarPDF(dec){
     if(last<s.length) r.push({t:s.slice(last),b:false});
     return r;
   }
+  /* Uma "palavra" pode misturar trechos em negrito e normal (ex.: "**2026**,"
+     ou "n**º**"). Guardamos as partes juntas para que a pontuação encostada no
+     fechamento do ** não vire uma palavra separada — era isso que gerava o
+     espaço indevido antes da vírgula na justificação do parágrafo.          */
   function mkWords(sgArr){
-    var w=[];
+    var w=[], cur=null;
     sgArr.forEach(function(sg){
       sg.t.split(/(\s+)/).forEach(function(tk){
-        if(/\S/.test(tk)) w.push({t:tk,b:sg.b});
+        if(!tk) return;
+        if(!/\S/.test(tk)){ cur=null; return; }
+        if(!cur){ cur={p:[]}; w.push(cur); }
+        cur.p.push({t:tk,b:sg.b});
       });
     });
     return w;
+  }
+  /* Largura total da palavra somando cada parte com sua própria fonte. */
+  function wWidth(wd){
+    var t=0;
+    for(var i=0;i<wd.p.length;i++){ ft(wd.p[i].b?"bold":"normal"); t+=doc.getTextWidth(wd.p[i].t); }
+    return t;
+  }
+  /* Desenha a palavra parte a parte, sem espaços internos. Retorna o novo x. */
+  function drawWord(wd,cx){
+    for(var i=0;i<wd.p.length;i++){
+      ft(wd.p[i].b?"bold":"normal"); fs(FS); tc(cText);
+      doc.text(wd.p[i].t,cx,y); cx+=doc.getTextWidth(wd.p[i].t);
+    }
+    return cx;
   }
 
   function buildLines(wsArr,maxW,xOffset){
@@ -7291,8 +7467,7 @@ function dilGerarPDF(dec){
     var spW=doc.getTextWidth(" ");
     var lines=[],cur=[],curW=0,fst=true;
     wsArr.forEach(function(w){
-      ft(w.b?"bold":"normal");
-      var ww=doc.getTextWidth(w.t);
+      var ww=wWidth(w);
       var lmW=maxW-(fst&&xOffset?xOffset:0);
       if(curW+ww>lmW&&cur.length){
         lines.push({ws:cur,fi:fst,xo:(fst&&xOffset?xOffset:0)});
@@ -7308,22 +7483,21 @@ function dilGerarPDF(dec){
   function renderLine(line,isLast,xBase,availW){
     var x=xBase+(line.xo||0);
     var w=availW-(line.xo||0);
+    var cx=x;
     if(isLast||line.ws.length<=1){
-      var cx=x;
+      fs(FS); ft("normal");
+      var spW=doc.getTextWidth(" ");
       line.ws.forEach(function(wd,wi){
-        ft(wd.b?"bold":"normal"); fs(FS); tc(cText);
-        var t2=wd.t+(wi<line.ws.length-1?" ":"");
-        doc.text(t2,cx,y); cx+=doc.getTextWidth(t2);
+        cx=drawWord(wd,cx);
+        if(wi<line.ws.length-1) cx+=spW;
       });
     } else {
       var totalWW=0;
-      line.ws.forEach(function(wd){ ft(wd.b?"bold":"normal"); totalWW+=doc.getTextWidth(wd.t); });
+      line.ws.forEach(function(wd){ totalWW+=wWidth(wd); });
       var gap=(w-totalWW)/(line.ws.length-1);
-      var cx=x;
       line.ws.forEach(function(wd,wi){
-        ft(wd.b?"bold":"normal"); fs(FS); tc(cText);
-        doc.text(wd.t,cx,y);
-        cx+=doc.getTextWidth(wd.t)+(wi<line.ws.length-1?gap:0);
+        cx=drawWord(wd,cx);
+        if(wi<line.ws.length-1) cx+=gap;
       });
     }
   }
