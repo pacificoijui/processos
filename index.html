@@ -452,6 +452,85 @@
   .rk-pct-acima{color:#A32D2D;font-weight:700;font-size:11px;white-space:nowrap}
   .rk-pct-zero{color:#888;font-size:11px;white-space:nowrap}
   .rk-no-results{text-align:center;padding:24px;color:#999;font-size:13px}
+
+  /* ══ Modo Compartilhado Vencedores (?venc=ID) ═════════════════════════════
+     Página pública, só leitura, desenhada para o celular da secretaria:
+     nada de tabela com rolagem lateral — cada item vira um bloco legível. */
+  body.venc-shared-mode>*:not(#vencSharedPanel){display:none!important}
+  #vencSharedPanel{position:fixed;inset:0;z-index:9999;display:none;flex-direction:column;
+    font-family:'Sora',system-ui,sans-serif;background:#eef1f6;-webkit-text-size-adjust:100%;
+    overscroll-behavior:none}
+  .vcs-header{background:#0d2b6b;color:#fff;padding:12px 16px;padding-top:max(12px,env(safe-area-inset-top));
+    display:flex;align-items:center;gap:12px;flex-shrink:0;box-shadow:0 2px 10px rgba(8,28,82,.25)}
+  .vcs-logo{height:30px;width:auto;flex-shrink:0}
+  .vcs-hdiv{width:1px;height:26px;background:rgba(255,255,255,.32);flex-shrink:0}
+  .vcs-hinfo{display:flex;flex-direction:column;gap:2px;min-width:0}
+  .vcs-htitle{font-size:14.5px;font-weight:800;line-height:1.15}
+  .vcs-hsub{font-size:11.5px;color:#c3d2f0;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .vcs-faixa{height:4px;flex-shrink:0;display:flex}
+  .vcs-faixa i{display:block;height:100%}
+  .vcs-objeto{background:#fff;border-bottom:1px solid #dde3ef;padding:11px 16px;font-size:12.5px;
+    color:#3a4767;line-height:1.45;flex-shrink:0}
+  .vcs-stats{display:flex;gap:8px;padding:10px 12px;background:#fff;border-bottom:1px solid #dde3ef;flex-shrink:0}
+  .vcs-stat{flex:1;background:#f3f6fc;border:1px solid #dde5f4;border-radius:11px;padding:8px 6px;text-align:center;min-width:0}
+  .vcs-stat .n{font-size:15px;font-weight:800;color:#0d2b6b;line-height:1.15;word-break:break-word}
+  .vcs-stat .l{font-size:9.5px;color:#6b7899;text-transform:uppercase;letter-spacing:.3px;margin-top:2px;font-weight:700}
+  .vcs-stat.tot{background:#eaf6ec;border-color:#cfe8d4}
+  .vcs-stat.tot .n{color:#166b31}
+  .vcs-searchwrap{padding:10px 12px;background:#fff;border-bottom:1px solid #dde3ef;flex-shrink:0}
+  .vcs-search{width:100%;border:1.5px solid #d3dbeb;border-radius:11px;padding:11px 13px;font-size:16px;
+    font-family:inherit;color:#101a33;background:#f7f9fd;-webkit-appearance:none}
+  .vcs-search:focus{outline:none;border-color:#1440A8;background:#fff}
+  .vcs-body{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:12px 12px 18px}
+  .vcs-msg{text-align:center;color:#6b7899;font-size:13.5px;padding:38px 18px;line-height:1.5}
+  .vcs-emp{background:#fff;border:1px solid #dbe2f0;border-radius:14px;margin-bottom:11px;overflow:hidden;
+    box-shadow:0 1px 3px rgba(16,32,64,.06)}
+  .vcs-emp-head{display:flex;align-items:center;gap:10px;padding:13px 14px;cursor:pointer;
+    -webkit-tap-highlight-color:transparent;user-select:none}
+  .vcs-emp-head:active{background:#f5f7fc}
+  .vcs-emp-main{flex:1;min-width:0}
+  .vcs-emp-nome{font-size:13.5px;font-weight:800;color:#0d2b6b;line-height:1.3;word-break:break-word}
+  .vcs-emp-meta{font-size:11px;color:#6b7899;margin-top:3px;line-height:1.4;word-break:break-word}
+  .vcs-emp-right{display:flex;flex-direction:column;align-items:flex-end;gap:3px;flex-shrink:0}
+  .vcs-emp-total{font-size:13px;font-weight:800;color:#166b31;white-space:nowrap}
+  .vcs-emp-cnt{font-size:10px;color:#6b7899;font-weight:700;white-space:nowrap}
+  .vcs-caret{width:22px;height:22px;flex-shrink:0;display:flex;align-items:center;justify-content:center;
+    color:#8b98b8;font-size:12px;transition:transform .18s}
+  .vcs-emp.open .vcs-caret{transform:rotate(90deg)}
+  .vcs-itens{display:none;border-top:1px solid #e6ebf5;background:#fafbfe}
+  .vcs-emp.open .vcs-itens{display:block}
+  .vcs-item{padding:11px 14px;border-bottom:1px solid #eceff7}
+  .vcs-item:last-child{border-bottom:none}
+  .vcs-item-top{display:flex;gap:9px;align-items:flex-start}
+  .vcs-item-num{background:#0d2b6b;color:#fff;font-size:10.5px;font-weight:800;border-radius:6px;
+    padding:3px 7px;flex-shrink:0;min-width:30px;text-align:center}
+  .vcs-item-desc{flex:1;font-size:12.5px;color:#101a33;line-height:1.42;word-break:break-word}
+  .vcs-item-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:6px 10px;margin:9px 0 0 39px}
+  .vcs-f{min-width:0}
+  .vcs-f .k{font-size:9.5px;color:#8b98b8;text-transform:uppercase;letter-spacing:.3px;font-weight:700}
+  .vcs-f .v{font-size:12px;color:#26324e;font-weight:600;line-height:1.3;word-break:break-word}
+  .vcs-f.money .v{color:#166b31;font-weight:800;white-space:nowrap}
+  .vcs-emp-foot{background:#eaf6ec;border-top:1px solid #cfe8d4;padding:10px 14px;display:flex;
+    justify-content:space-between;align-items:center;font-size:12px;font-weight:800;color:#166b31}
+  .vcs-nota{font-size:11px;color:#8b6b1a;background:#fff8e6;border:1px solid #f0e0b0;border-radius:10px;
+    padding:9px 12px;margin-top:4px;line-height:1.45}
+  .vcs-footer{flex-shrink:0;background:#fff;border-top:1px solid #dde3ef;padding:10px 12px;
+    padding-bottom:max(10px,env(safe-area-inset-bottom));display:flex;align-items:center;gap:10px;
+    box-shadow:0 -2px 12px rgba(16,32,64,.07)}
+  .vcs-ftot{flex:1;min-width:0}
+  .vcs-ftot .k{font-size:9.5px;color:#8b98b8;text-transform:uppercase;letter-spacing:.4px;font-weight:700}
+  .vcs-ftot .v{font-size:16px;font-weight:800;color:#0d2b6b;line-height:1.2}
+  .vcs-share{background:#25a657;color:#fff;border:none;border-radius:11px;padding:12px 16px;
+    font-family:inherit;font-size:13px;font-weight:800;cursor:pointer;flex-shrink:0;min-height:44px;
+    -webkit-tap-highlight-color:transparent}
+  .vcs-share:active{background:#1e8c49}
+  @media (min-width:720px){
+    .vcs-body{max-width:880px;margin:0 auto;width:100%;padding:16px 16px 24px}
+    .vcs-stats,.vcs-searchwrap,.vcs-objeto{padding-left:max(12px,calc(50% - 440px));padding-right:max(12px,calc(50% - 440px))}
+    .vcs-item-grid{grid-template-columns:repeat(4,1fr)}
+    .vcs-emp-nome{font-size:15px}
+    .vcs-item-desc{font-size:13.5px}
+  }
   /* ── Modo Compartilhado Habilitação (?hab=ID) ── */
   body.hab-shared-mode>*:not(#habSharedPanel){display:none!important}
   #habSharedPanel{position:fixed;inset:0;z-index:9999;display:none;flex-direction:column;font-family:'Sora',system-ui,sans-serif;background:#f0f2f5;-webkit-text-size-adjust:100%}
@@ -1960,6 +2039,32 @@
     <span id="hbsStatus">Aguardando alterações</span>
   </div>
 </div>
+<div id="vencSharedPanel">
+  <div class="vcs-header">
+    <img class="vcs-logo" id="vcsLogo" src="" alt="Município de Ijuí">
+    <div class="vcs-hdiv"></div>
+    <div class="vcs-hinfo">
+      <div class="vcs-htitle">Vencedores do Processo</div>
+      <div class="vcs-hsub" id="vcsNumero">Carregando...</div>
+      <div class="vcs-hsub">Município de Ijuí — COPAM</div>
+    </div>
+  </div>
+  <div class="vcs-faixa"><i style="flex:14;background:#E3242B"></i><i style="flex:14;background:#F26B21"></i><i style="flex:14;background:#FFC20E"></i><i style="flex:16;background:#8CC63F"></i><i style="flex:14;background:#1E7A34"></i><i style="flex:14;background:#0B6E7F"></i><i style="flex:14;background:#1440A8"></i></div>
+  <div class="vcs-objeto" id="vcsObjeto" style="display:none"></div>
+  <div class="vcs-stats" id="vcsStats" style="display:none">
+    <div class="vcs-stat"><div class="n" id="vcsNEmp">0</div><div class="l">Empresas</div></div>
+    <div class="vcs-stat"><div class="n" id="vcsNItens">0</div><div class="l">Itens</div></div>
+    <div class="vcs-stat tot"><div class="n" id="vcsNTotal">—</div><div class="l">Valor</div></div>
+  </div>
+  <div class="vcs-searchwrap" id="vcsSearchWrap" style="display:none">
+    <input class="vcs-search" id="vcsBusca" type="search" placeholder="Buscar empresa, item ou marca..." autocomplete="off">
+  </div>
+  <div class="vcs-body" id="vcsBody"><div class="vcs-msg">Carregando vencedores...</div></div>
+  <div class="vcs-footer" id="vcsFooter" style="display:none">
+    <div class="vcs-ftot"><div class="k">Valor total do processo</div><div class="v" id="vcsTotalGeral">R$ 0,00</div></div>
+    <button class="vcs-share" id="vcsShare">&#128257; Compartilhar</button>
+  </div>
+</div>
 <div class="toast" id="toast">&#10003; <span id="toastMsg"></span></div>
 
 
@@ -2072,8 +2177,9 @@
       <h2 class="rk-panel-title" id="vencPanelTitle">Vencedores</h2>
     </div>
     <div class="rk-topbar-actions">
+      <button class="rk-btn rk-btn-pdf" style="background:#0d2b6b" onclick="vencCopiarLink()">&#128279; Link p/ secretaria</button>
       <button class="rk-btn rk-btn-pdf" style="background:#25a657" onclick="vencCompartilharWhatsapp()">&#128203; Copiar p/ WhatsApp</button>
-      <button class="rk-btn rk-btn-pdf" style="background:#1a3a6b" onclick="vencGerarWord()">&#128196; Baixar Word</button>
+      <button class="rk-btn rk-btn-pdf" style="background:#1a3a6b" onclick="vencGerarODT()">&#128196; Baixar ODT</button>
       <button class="rk-btn rk-btn-close" onclick="fecharVencedores()">&#10005;</button>
     </div>
   </div>
@@ -2465,6 +2571,20 @@ function montarTextoVencedores(proc, empresas){
   if(proc.objeto) txt+=proc.objeto+"\n\n";
   if(proc.link) txt+="Confira toda a documentação: "+proc.link;
   return txt.replace(/\n{3,}/g,"\n\n").trim();
+}
+/* Link público (só leitura, otimizado para celular) para a secretaria. */
+function vencLinkPublico(pid){
+  return window.location.origin+window.location.pathname+'?venc='+pid;
+}
+function vencCopiarLink(){
+  if(!vencProcessoAtual){ toast('Abra um processo primeiro.'); return; }
+  var link=vencLinkPublico(vencProcessoAtual.id);
+  var tipo=tipoLicitacao(vencProcessoAtual.numero);
+  var titulo=tipo?(tipo+' '+numeroSeq(vencProcessoAtual.numero)):(vencProcessoAtual.numero||'Processo');
+  var txt='*Vencedores — '+titulo+'*\n'
+    +(vencProcessoAtual.objeto?vencProcessoAtual.objeto+'\n':'')
+    +'\nConfira a relação completa de itens e valores:\n'+link;
+  copiarParaClipboard(txt);
 }
 function vencCompartilharWhatsapp(){
   if(!vencProcessoAtual){ toast("Abra um processo primeiro."); return; }
@@ -4769,78 +4889,295 @@ function vencRenderLista(){
   document.getElementById('vencLista').innerHTML=html;
 }
 
-/* Exporta a relação de vencedores em um arquivo .doc (compatível com o Word),
-   sem depender de bibliotecas externas — mesmo padrão de robustez do restante
-   do sistema (single-file, sem build). */
-function vencGerarWord(){
+/* ══ EXPORTAÇÃO ODT (OpenDocument / LibreOffice) ════════════════════════════
+   A versão antiga gerava um .doc que era, na verdade, HTML com mime do Word.
+   O LibreOffice importa esse HTML ignorando as larguras de coluna, e a tabela
+   de vencedores saía quebrada (produto espremido, "R$ 27.500,00" partido em
+   duas linhas). Aqui montamos um ODT de verdade: um ZIP com mimetype,
+   META-INF/manifest.xml, styles.xml e content.xml, com larguras de coluna
+   fixas em cm, cabeçalho que se repete a cada página e página em paisagem.
+   Tudo em JS puro — nenhuma biblioteca externa, mantendo o single-file.     */
+
+/* CRC-32 (necessário para os cabeçalhos do ZIP) */
+var _crcTab=null;
+function _crc32(bytes){
+  if(!_crcTab){
+    _crcTab=new Uint32Array(256);
+    for(var i=0;i<256;i++){
+      var c=i;
+      for(var k=0;k<8;k++) c=(c&1)?(0xEDB88320^(c>>>1)):(c>>>1);
+      _crcTab[i]=c>>>0;
+    }
+  }
+  var crc=0xFFFFFFFF;
+  for(var b=0;b<bytes.length;b++) crc=(crc>>>8)^_crcTab[(crc^bytes[b])&0xFF];
+  return (crc^0xFFFFFFFF)>>>0;
+}
+/* ZIP mínimo, todas as entradas "stored" (sem compressão). A especificação
+   ODF exige que "mimetype" seja a PRIMEIRA entrada e não comprimida — é assim
+   que o LibreOffice reconhece o arquivo antes mesmo de ler o manifest.      */
+function _zipStore(files){
+  var enc=new TextEncoder();
+  var u16=function(v){ return [v&255,(v>>8)&255]; };
+  var u32=function(v){ return [v&255,(v>>8)&255,(v>>16)&255,(v>>>24)&255]; };
+  var parts=[], central=[], off=0, cdSize=0;
+  files.forEach(function(f){
+    var nm=enc.encode(f.name);
+    var dt=(typeof f.data==='string')?enc.encode(f.data):f.data;
+    var crc=_crc32(dt);
+    var lh=new Uint8Array([].concat(
+      [0x50,0x4b,0x03,0x04], u16(20), u16(0), u16(0), u16(0), u16(0),
+      u32(crc), u32(dt.length), u32(dt.length), u16(nm.length), u16(0)));
+    parts.push(lh, nm, dt);
+    var cd=new Uint8Array([].concat(
+      [0x50,0x4b,0x01,0x02], u16(20), u16(20), u16(0), u16(0), u16(0), u16(0),
+      u32(crc), u32(dt.length), u32(dt.length), u16(nm.length),
+      u16(0), u16(0), u16(0), u16(0), u32(0), u32(off)));
+    central.push(cd, nm);
+    off += lh.length + nm.length + dt.length;
+    cdSize += cd.length + nm.length;
+  });
+  var eocd=new Uint8Array([].concat(
+    [0x50,0x4b,0x05,0x06], u16(0), u16(0), u16(files.length), u16(files.length),
+    u32(cdSize), u32(off), u16(0)));
+  var total=off+cdSize+eocd.length;
+  var out=new Uint8Array(total), pos=0;
+  parts.concat(central).concat([eocd]).forEach(function(a){ out.set(a,pos); pos+=a.length; });
+  return out;
+}
+/* Escape de XML (o escHtml do sistema não cobre apóstrofo e não aceita número) */
+function _x(v){
+  return String(v===undefined||v===null?'':v)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;').replace(/'/g,'&apos;');
+}
+/* Parágrafo ODF; quebras de linha viram <text:line-break/> */
+function _odP(style,txt){
+  var t=_x(txt).replace(/\r?\n/g,'<text:line-break/>');
+  return '<text:p text:style-name="'+style+'">'+t+'</text:p>';
+}
+/* Célula de tabela */
+function _odTd(cellStyle,parStyle,txt,span){
+  return '<table:table-cell table:style-name="'+cellStyle+'" office:value-type="string"'
+    +(span?' table:number-columns-spanned="'+span+'"':'')+'>'
+    +_odP(parStyle,txt)+'</table:table-cell>'
+    +(span?new Array(span).join('<table:covered-table-cell/>'):'');
+}
+/* Espaço inquebrável: mantém "R$" colado no valor e o número junto da unidade */
+function _nb(s){ return String(s).replace(/ /g,'\u00a0'); }
+
+function vencGerarODT(){
   if(!vencEmpresas.length){ toast('Nenhuma empresa vencedora para exportar.'); return; }
   var numero=(vencProcessoAtual&&vencProcessoAtual.numero)||'';
-  var totalGeral=0; vencEmpresas.forEach(function(e){ totalGeral+=e.total; });
-  var body='';
-  vencEmpresas.forEach(function(e){
-    var meta=[];
-    if(e.tipo) meta.push('Tipo: '+escHtml(e.tipo));
-    if(e.lc123!=='') meta.push('LC123: '+escHtml(e.lc123===true?'Sim':e.lc123===false?'Não':String(e.lc123)));
-    if(e.cnpj) meta.push('Documento '+escHtml(e.cnpj));
-    if(e.endereco) meta.push('Endereço: '+escHtml(e.endereco));
-    if(e.cep) meta.push('CEP: '+escHtml(e.cep));
-    if(e.uf) meta.push('UF: '+escHtml(e.uf));
-    if(e.cidade) meta.push('Município: '+escHtml(e.cidade));
-    if(e.telefone) meta.push('Telefone: '+escHtml(e.telefone));
-    body+='<div class="empresa">'+escHtml(e.nome)+(meta.length?' | '+meta.join(' - '):'')+'</div>';
-    body+='<table><thead><tr><th>Código</th><th>Produto</th><th>Modelo</th><th>Marca/Fabricante</th><th class="r">Qtde</th><th class="r">Valor Unit.</th><th class="r">Valor Total</th></tr></thead><tbody>';
-    e.itens.forEach(function(it){
-      body+='<tr><td class="cod">'+escHtml(it.num)+'</td><td>'+escHtml(it.desc)+'</td><td>'+escHtml(it.modelo)+'</td><td>'+escHtml(it.marca)+'</td>'
-        +'<td class="r">'+(it.qtde!==null?vencFmtNum(it.qtde)+(it.unidade?' '+escHtml(it.unidade):''):'—')+'</td>'
-        +'<td class="r">R$ '+vencFmtBRL(it.valorUnit)+'</td>'
-        +'<td class="r">'+(it.valorTotal!==null?'R$ '+vencFmtBRL(it.valorTotal):'—')+'</td></tr>';
-    });
-    body+='<tr class="totalrow"><td colspan="6" class="r">TOTAL DO VENCEDOR</td><td class="r">R$ '+vencFmtBRL(e.total)+'</td></tr>';
-    body+='</tbody></table>';
+  var totalGeral=0, parcial=false;
+  vencEmpresas.forEach(function(e){ totalGeral+=e.total; if(e.totalParcial) parcial=true; });
+  var lista=vencEmpresas.slice().sort(function(a,b){
+    return (a.nome||'').localeCompare((b.nome||''),'pt-BR',{sensitivity:'base'});
   });
-  var FAIXA='<table class="faixa"><tr>'
-    +'<td width="14%" bgcolor="#E3242B"></td>'
-    +'<td width="14%" bgcolor="#F26B21"></td>'
-    +'<td width="14%" bgcolor="#FFC20E"></td>'
-    +'<td width="16%" bgcolor="#8CC63F"></td>'
-    +'<td width="14%" bgcolor="#1E7A34"></td>'
-    +'<td width="14%" bgcolor="#0B6E7F"></td>'
-    +'<td width="14%" bgcolor="#1440A8"></td>'
-    +'</tr></table>';
-  var htmlDoc = '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40">'
-    +'<head><meta charset="utf-8"><title>Vencedores '+escHtml(numero)+'</title>'
-    +'<style>'
-    +'body{font-family:Arial,sans-serif;font-size:11pt;color:#101A33}'
-    +'h1{font-size:16pt;color:#12306B;text-align:center;margin:8pt 0 2pt;letter-spacing:.3px}'
-    +'.sub{text-align:center;font-size:10pt;color:#5A6685;margin:0}'
-    +'.empresa{background:#081C52;color:#fff;font-weight:bold;font-size:10.5pt;padding:7pt 9pt;margin-top:16pt}'
-    +'table{width:100%;border-collapse:collapse;margin-bottom:2pt}'
-    +'th{background:#12306B;color:#fff;font-size:9pt;padding:5pt 6pt;border:1px solid #b9c6e4;text-align:left}'
-    +'td{font-size:9.5pt;padding:5pt 6pt;border:1px solid #d8dff0}'
-    +'.cod{text-align:center;font-weight:bold;color:#12306B}'
-    +'.r{text-align:right}'
-    +'.totalrow td{background:#EAF6EC;font-weight:bold;color:#1E7A34;border-color:#cfe8d4}'
-    +'.grandtotal{text-align:right;font-size:13pt;font-weight:bold;color:#12306B;margin-top:18pt;border-top:2px solid #12306B;padding-top:8pt}'
-    +'.faixa{width:100%;border-collapse:collapse;margin:0 0 4pt;table-layout:fixed}'
-    +'.faixa td{padding:0;border:none;height:6pt;font-size:1pt;line-height:6pt}'
-    +'</style></head><body>'
-    +FAIXA
-    +'<h1>VENCEDORES DO PROCESSO</h1>'
-    +'<p class="sub">Município de Ijuí — Poder Executivo</p>'
-    +'<p class="sub">Coordenadoria de Compras, Patrimônio e Administração de Materiais — COPAM'+(numero?' &middot; '+escHtml(numero):'')+'</p>'
+
+  /* Larguras fixas (paisagem A4, margens de 1,2cm → 27,3cm úteis).
+     É isto que o import de HTML não conseguia respeitar.                    */
+  /* Modelo e Marca ganharam folga: quando a tabela é colada num documento em
+     RETRATO (a ata), o LibreOffice reduz tudo proporcionalmente, e era aí que
+     "SURGIFORCE" virava "SURGIFORC / E". Produto absorve a diferença porque
+     é texto corrido e quebra bem em várias linhas.                          */
+  var COLS=[1.8, 7.6, 5.4, 4.2, 2.0, 2.7, 3.6];   /* soma = 27,3 */
+  var TW=0; COLS.forEach(function(c){ TW+=c; });
+
+  var FAIXA=[['#E3242B',3.82],['#F26B21',3.82],['#FFC20E',3.82],['#8CC63F',4.37],
+             ['#1E7A34',3.82],['#0B6E7F',3.82],['#1440A8',3.83]];
+
+  /* ── Estilos automáticos ─────────────────────────────────────────────── */
+  /* IMPORTANTE: a fonte vai declarada em CADA estilo, nunca só herdada do
+     "Standard". Ao copiar a tabela e colar em outro documento, o LibreOffice
+     descarta o Standard de origem e aplica o do destino — era por isso que a
+     tabela colava em Times New Roman. Com style:font-name em cada estilo, a
+     formatação viaja junto com o conteúdo.                                  */
+  var FONTE='style:font-name="Arial" style:font-name-asian="Arial" style:font-name-complex="Arial"';
+  var st='';
+  function pStyle(nome,props,txtProps){
+    st+='<style:style style:name="'+nome+'" style:family="paragraph" style:parent-style-name="Standard">'
+      +'<style:paragraph-properties '+props+'/>'
+      +'<style:text-properties '+FONTE+' '+txtProps+'/></style:style>';
+  }
+  function cStyle(nome,props){
+    st+='<style:style style:name="'+nome+'" style:family="table-cell">'
+      +'<style:table-cell-properties '+props+'/></style:style>';
+  }
+  var BD_TH='fo:border="0.02cm solid #b9c6e4"', BD_TD='fo:border="0.02cm solid #d8dff0"';
+  var PAD='fo:padding-top="0.08cm" fo:padding-bottom="0.08cm" fo:padding-left="0.12cm" fo:padding-right="0.12cm"';
+
+  pStyle('PTit','fo:text-align="center" fo:margin-top="0.15cm" fo:margin-bottom="0.1cm"',
+         'fo:font-size="16pt" fo:font-weight="bold" fo:color="#12306B"');
+  pStyle('PSub','fo:text-align="center" fo:margin-bottom="0.05cm"',
+         'fo:font-size="10pt" fo:color="#5A6685"');
+  pStyle('PEmp','fo:text-align="left" fo:margin-top="0.5cm" fo:margin-bottom="0cm" '
+         +'fo:background-color="#081C52" fo:padding="0.16cm" fo:keep-with-next="always"',
+         'fo:font-size="11pt" fo:font-weight="bold" fo:color="#ffffff"');
+  pStyle('PMeta','fo:text-align="left" fo:margin-top="0cm" fo:margin-bottom="0.12cm" '
+         +'fo:background-color="#EAEEF7" fo:padding="0.12cm" fo:keep-with-next="always"',
+         'fo:font-size="9pt" fo:color="#12306B"');
+  pStyle('PTh','fo:text-align="left"','fo:font-size="10pt" fo:font-weight="bold" fo:color="#ffffff"');
+  pStyle('PThR','fo:text-align="right"','fo:font-size="10pt" fo:font-weight="bold" fo:color="#ffffff"');
+  pStyle('PTd','fo:text-align="left"','fo:font-size="10pt" fo:color="#101A33"');
+  pStyle('PTdC','fo:text-align="center"','fo:font-size="10pt" fo:font-weight="bold" fo:color="#12306B"');
+  pStyle('PTdR','fo:text-align="right"','fo:font-size="10pt" fo:color="#101A33"');
+  pStyle('PTot','fo:text-align="right"','fo:font-size="10pt" fo:font-weight="bold" fo:color="#1E7A34"');
+  pStyle('PGrand','fo:text-align="right" fo:margin-top="0.6cm" fo:padding-top="0.25cm" '
+         +'fo:border-top="0.06cm solid #12306B"',
+         'fo:font-size="13pt" fo:font-weight="bold" fo:color="#12306B"');
+  pStyle('PNota','fo:text-align="left" fo:margin-top="0.3cm"','fo:font-size="8pt" fo:font-style="italic" fo:color="#5A6685"');
+  pStyle('PFoot','fo:text-align="center" fo:margin-top="0.3cm"','fo:font-size="8pt" fo:color="#8590a8"');
+  pStyle('PFx','fo:text-align="left"','fo:font-size="4pt"');
+
+  cStyle('CTh','fo:background-color="#12306B" '+BD_TH+' '+PAD);
+  cStyle('CTd',BD_TD+' '+PAD);
+  cStyle('CTot','fo:background-color="#EAF6EC" fo:border="0.02cm solid #cfe8d4" '+PAD);
+  FAIXA.forEach(function(f,i){ cStyle('CFx'+i,'fo:background-color="'+f[0]+'" fo:padding="0cm" fo:border="none"'); });
+
+  /* Tabela + colunas + linhas */
+  st+='<style:style style:name="TVen" style:family="table">'
+    +'<style:table-properties style:width="'+TW+'cm" table:align="margins" '
+    +'style:may-break-between-rows="true"/></style:style>';
+  COLS.forEach(function(w,i){
+    st+='<style:style style:name="TVen.C'+i+'" style:family="table-column">'
+      +'<style:table-column-properties style:column-width="'+w+'cm"/></style:style>';
+  });
+  /* keep-together evita que uma linha alta (descrição longa) rache no meio */
+  st+='<style:style style:name="RVen" style:family="table-row">'
+    +'<style:table-row-properties fo:keep-together="always"/></style:style>';
+  st+='<style:style style:name="TFx" style:family="table">'
+    +'<style:table-properties style:width="'+TW+'cm" table:align="margins" fo:margin-bottom="0.1cm"/></style:style>';
+  FAIXA.forEach(function(f,i){
+    st+='<style:style style:name="TFx.C'+i+'" style:family="table-column">'
+      +'<style:table-column-properties style:column-width="'+f[1]+'cm"/></style:style>';
+  });
+  st+='<style:style style:name="RFx" style:family="table-row">'
+    +'<style:table-row-properties style:row-height="0.18cm" style:min-row-height="0.18cm"/></style:style>';
+
+  /* ── Corpo ───────────────────────────────────────────────────────────── */
+  function faixa(id){
+    var h='<table:table table:name="Faixa'+id+'" table:style-name="TFx">';
+    FAIXA.forEach(function(f,i){ h+='<table:table-column table:style-name="TFx.C'+i+'"/>'; });
+    h+='<table:table-row table:style-name="RFx">';
+    FAIXA.forEach(function(f,i){ h+=_odTd('CFx'+i,'PFx',''); });
+    return h+'</table:table-row></table:table>';
+  }
+  var HEAD=['Código','Produto','Modelo','Marca/Fabricante','Qtde','Valor Unit.','Valor Total'];
+  var body='';
+  lista.forEach(function(e,ei){
+    body+=_odP('PEmp',e.nome);
+    var meta=[];
+    if(e.tipo) meta.push('Tipo: '+e.tipo);
+    if(e.lc123!=='') meta.push('LC123: '+(e.lc123===true?'Sim':e.lc123===false?'Não':String(e.lc123)));
+    if(e.cnpj) meta.push('Documento '+e.cnpj);
+    if(e.endereco) meta.push('Endereço: '+e.endereco);
+    if(e.cep) meta.push('CEP: '+e.cep);
+    if(e.uf) meta.push('UF: '+e.uf);
+    if(e.cidade) meta.push('Município: '+e.cidade);
+    if(e.telefone) meta.push('Telefone: '+e.telefone);
+    body+=_odP('PMeta', meta.length?meta.join('  ·  '):' ');
+
+    var t='<table:table table:name="Venc'+ei+'" table:style-name="TVen">';
+    COLS.forEach(function(w,i){ t+='<table:table-column table:style-name="TVen.C'+i+'"/>'; });
+    /* cabeçalho que se repete automaticamente quando a tabela quebra a página */
+    t+='<table:table-header-rows><table:table-row table:style-name="RVen">';
+    HEAD.forEach(function(h,i){ t+=_odTd('CTh', i>=4?'PThR':'PTh', h); });
+    t+='</table:table-row></table:table-header-rows>';
+    e.itens.forEach(function(it){
+      t+='<table:table-row table:style-name="RVen">';
+      t+=_odTd('CTd','PTdC',it.num);
+      t+=_odTd('CTd','PTd',it.desc);
+      t+=_odTd('CTd','PTd',it.modelo);
+      t+=_odTd('CTd','PTd',it.marca);
+      t+=_odTd('CTd','PTdR', it.qtde!==null?_nb(vencFmtNum(it.qtde)+(it.unidade?' '+it.unidade:'')):'—');
+      t+=_odTd('CTd','PTdR', _nb('R$ '+vencFmtBRL(it.valorUnit)));
+      t+=_odTd('CTd','PTdR', it.valorTotal!==null?_nb('R$ '+vencFmtBRL(it.valorTotal)):'—');
+      t+='</table:table-row>';
+    });
+    t+='<table:table-row table:style-name="RVen">';
+    t+=_odTd('CTot','PTot','TOTAL DO VENCEDOR',6);
+    t+=_odTd('CTot','PTot',_nb('R$ '+vencFmtBRL(e.total)));
+    t+='</table:table-row>';
+    body+=t+'</table:table>';
+  });
+
+  var NS='xmlns:office="urn:oasis:names:tc:opendocument:xmlns:office:1.0" '
+    +'xmlns:style="urn:oasis:names:tc:opendocument:xmlns:style:1.0" '
+    +'xmlns:text="urn:oasis:names:tc:opendocument:xmlns:text:1.0" '
+    +'xmlns:table="urn:oasis:names:tc:opendocument:xmlns:table:1.0" '
+    +'xmlns:fo="urn:oasis:names:tc:opendocument:xmlns:xsl-fo-compatible:1.0" '
+    +'xmlns:svg="urn:oasis:names:tc:opendocument:xmlns:svg-compatible:1.0" '
+    +'office:version="1.2"';
+
+  var content='<?xml version="1.0" encoding="UTF-8"?>'
+    +'<office:document-content '+NS+'>'
+    +'<office:font-face-decls>'
+    +'<style:font-face style:name="Arial" svg:font-family="Arial, &apos;Liberation Sans&apos;" style:font-family-generic="swiss" style:font-pitch="variable"/>'
+    +'</office:font-face-decls>'
+    +'<office:automatic-styles>'+st+'</office:automatic-styles>'
+    +'<office:body><office:text>'
+    +faixa('T')
+    +_odP('PTit','VENCEDORES DO PROCESSO')
+    +_odP('PSub','Município de Ijuí — Poder Executivo')
+    +_odP('PSub','Coordenadoria de Compras, Patrimônio e Administração de Materiais — COPAM'+(numero?'  ·  '+numero:''))
     +body
-    +'<p class="grandtotal">Valor Total: R$ '+vencFmtBRL(totalGeral)+'</p>'
-    +FAIXA
-    +'<p class="sub" style="margin-top:7pt;font-size:8pt;color:#8590a8">Município de Ijuí &middot; Capital Mundial das Etnias &middot; Gestão de Processos Licitatórios</p>'
-    +'</body></html>';
-  var blob=new Blob(['\ufeff', htmlDoc], {type:'application/msword'});
-  var url=URL.createObjectURL(blob);
-  var a=document.createElement('a');
-  a.href=url;
-  a.download='Vencedores_'+String(numero).replace(/[^a-zA-Z0-9]/g,'_')+'.doc';
-  document.body.appendChild(a); a.click(); document.body.removeChild(a);
-  setTimeout(function(){ URL.revokeObjectURL(url); }, 1500);
-  toast('Word gerado!');
+    +_odP('PGrand',_nb('Valor Total: R$ '+vencFmtBRL(totalGeral)))
+    +(parcial?_odP('PNota','* Itens sem quantidade informada não entram nos totais.'):'')
+    +faixa('B')
+    +_odP('PFoot','Município de Ijuí · Capital Mundial das Etnias · Gestão de Processos Licitatórios')
+    +'</office:text></office:body></office:document-content>';
+
+  var styles='<?xml version="1.0" encoding="UTF-8"?>'
+    +'<office:document-styles '+NS+'>'
+    +'<office:font-face-decls>'
+    +'<style:font-face style:name="Arial" svg:font-family="Arial, &apos;Liberation Sans&apos;" style:font-family-generic="swiss" style:font-pitch="variable"/>'
+    +'</office:font-face-decls>'
+    +'<office:styles>'
+    +'<style:style style:name="Standard" style:family="paragraph">'
+    +'<style:paragraph-properties fo:margin-top="0cm" fo:margin-bottom="0.1cm" fo:hyphenate="false"/>'
+    +'<style:text-properties '
+    +'style:font-name="Arial" style:font-name-asian="Arial" style:font-name-complex="Arial" '
+    +'fo:font-size="10pt" style:font-size-asian="10pt" style:font-size-complex="10pt" '
+    +'fo:color="#101A33" fo:language="pt" fo:country="BR"/>'
+    +'</style:style>'
+    +'</office:styles>'
+    +'<office:automatic-styles>'
+    +'<style:page-layout style:name="pm1"><style:page-layout-properties '
+    +'fo:page-width="29.7cm" fo:page-height="21cm" style:print-orientation="landscape" '
+    +'fo:margin-top="1.2cm" fo:margin-bottom="1.2cm" fo:margin-left="1.2cm" fo:margin-right="1.2cm" '
+    +'style:writing-mode="lr-tb"/></style:page-layout>'
+    +'</office:automatic-styles>'
+    +'<office:master-styles>'
+    +'<style:master-page style:name="Standard" style:page-layout-name="pm1"/>'
+    +'</office:master-styles>'
+    +'</office:document-styles>';
+
+  var manifest='<?xml version="1.0" encoding="UTF-8"?>'
+    +'<manifest:manifest xmlns:manifest="urn:oasis:names:tc:opendocument:xmlns:manifest:1.0" manifest:version="1.2">'
+    +'<manifest:file-entry manifest:full-path="/" manifest:version="1.2" manifest:media-type="application/vnd.oasis.opendocument.text"/>'
+    +'<manifest:file-entry manifest:full-path="content.xml" manifest:media-type="text/xml"/>'
+    +'<manifest:file-entry manifest:full-path="styles.xml" manifest:media-type="text/xml"/>'
+    +'</manifest:manifest>';
+
+  try{
+    var zip=_zipStore([
+      {name:'mimetype', data:'application/vnd.oasis.opendocument.text'},
+      {name:'META-INF/manifest.xml', data:manifest},
+      {name:'styles.xml', data:styles},
+      {name:'content.xml', data:content}
+    ]);
+    var blob=new Blob([zip],{type:'application/vnd.oasis.opendocument.text'});
+    var url=URL.createObjectURL(blob);
+    var a=document.createElement('a');
+    a.href=url;
+    a.download='Vencedores_'+String(numero).replace(/[^a-zA-Z0-9]/g,'_')+'.odt';
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    setTimeout(function(){ URL.revokeObjectURL(url); }, 1500);
+    toast('ODT gerado!');
+  }catch(err){
+    alert('Falha ao gerar o ODT: '+err.message);
+  }
 }
 
 /* ── Gerar PDF do Ranking (jsPDF) ────────────────────────────────────────────── */
@@ -8245,10 +8582,175 @@ function usuariosExcluir(id, usuario, total){
   }).catch(function(e){ alert("Erro: "+e.message); });
 }
 
+/* ══ MODO COMPARTILHADO VENCEDORES (?venc=ID) ═══════════════════════════════
+   Página pública de leitura para a secretaria se organizar. Espelha em tempo
+   real o mesmo documento rankings/{pid} que alimenta o painel interno, então
+   qualquer ajuste no julgamento aparece aqui sem republicar nada.
+   Layout de cards (não tabela): em celular, tabela de 7 colunas obriga rolagem
+   lateral e fica ilegível.                                                   */
+(function(){
+  var params=new URLSearchParams(window.location.search);
+  var pid=params.get('venc');
+  if(!pid) return;
+
+  document.body.classList.add('venc-shared-mode');
+  var panel=document.getElementById('vencSharedPanel');
+  if(panel) panel.style.display='flex';
+  var logo=document.getElementById('vcsLogo'); if(logo) logo.src=LOGO_B64_PDF;
+
+  var empresas=[], proc=null, busca='', aberto={}, carregou=false;
+
+  function el(id){ return document.getElementById(id); }
+  function norm(v){ return String(v==null?'':v).toLowerCase(); }
+
+  /* Cabeçalho: número e objeto do processo */
+  colRef.doc(pid).get().then(function(d){
+    if(!d.exists) return;
+    proc=Object.assign({id:d.id}, d.data());
+    var tipo=tipoLicitacao(proc.numero);
+    el('vcsNumero').textContent=tipo?(tipo+' '+numeroSeq(proc.numero)):(proc.numero||'Processo');
+    if(proc.objeto){
+      var o=el('vcsObjeto');
+      o.textContent=proc.objeto;
+      o.style.display='block';
+    }
+    document.title='Vencedores — '+(proc.numero||'Processo');
+  }).catch(function(){});
+
+  /* Vencedores em tempo real */
+  rkColRef.doc(pid).onSnapshot(function(doc){
+    var itens=[], estados={};
+    if(doc.exists){ var d=doc.data(); itens=d.itens||[]; estados=d.estados||{}; }
+    empresas=vencDerivarEmpresas(itens, estados).sort(function(a,b){
+      return (a.nome||'').localeCompare((b.nome||''),'pt-BR',{sensitivity:'base'});
+    });
+    if(!carregou){
+      carregou=true;
+      /* empresa única já abre expandida — evita um toque à toa */
+      if(empresas.length===1) aberto[0]=true;
+    }
+    render();
+  }, function(){
+    el('vcsBody').innerHTML='<div class="vcs-msg">Não foi possível carregar os vencedores deste processo.<br>Verifique o link ou tente novamente.</div>';
+  });
+
+  function empCasa(e){
+    if(!busca) return true;
+    if(norm(e.nome).indexOf(busca)!==-1) return true;
+    if(norm(e.cnpj).indexOf(busca)!==-1) return true;
+    return (e.itens||[]).some(function(it){
+      return norm(it.desc).indexOf(busca)!==-1
+          || norm(it.marca).indexOf(busca)!==-1
+          || norm(it.modelo).indexOf(busca)!==-1
+          || norm(it.num).indexOf(busca)!==-1;
+    });
+  }
+
+  function render(){
+    var body=el('vcsBody');
+    if(!empresas.length){
+      el('vcsStats').style.display='none';
+      el('vcsSearchWrap').style.display='none';
+      el('vcsFooter').style.display='none';
+      body.innerHTML='<div class="vcs-msg">Nenhuma empresa vencedora divulgada para este processo ainda.</div>';
+      return;
+    }
+    var totalItens=0, totalGeral=0, parcial=false;
+    empresas.forEach(function(e){
+      totalItens+=e.itens.length; totalGeral+=e.total; if(e.totalParcial) parcial=true;
+    });
+    el('vcsNEmp').textContent=empresas.length;
+    el('vcsNItens').textContent=totalItens;
+    el('vcsNTotal').textContent='R$ '+vencFmtBRL(totalGeral);
+    el('vcsTotalGeral').textContent='R$ '+vencFmtBRL(totalGeral);
+    el('vcsStats').style.display='flex';
+    el('vcsSearchWrap').style.display=(empresas.length>1||totalItens>6)?'block':'none';
+    el('vcsFooter').style.display='flex';
+
+    var lista=empresas.filter(empCasa);
+    if(!lista.length){
+      body.innerHTML='<div class="vcs-msg">Nenhum resultado para “'+escHtml(busca)+'”.</div>';
+      return;
+    }
+    var html='';
+    lista.forEach(function(e){
+      var i=empresas.indexOf(e);
+      /* com busca ativa, abre sozinho — o que a pessoa procurou tem que aparecer */
+      var open=busca?true:!!aberto[i];
+      var meta=[];
+      if(e.cnpj) meta.push('CNPJ '+e.cnpj);
+      if(e.cidade) meta.push(e.cidade+(e.uf?'/'+e.uf:''));
+      if(e.tipo) meta.push(e.tipo);
+      if(e.lc123===true) meta.push('LC 123');
+      html+='<div class="vcs-emp'+(open?' open':'')+'" data-i="'+i+'">';
+      html+='<div class="vcs-emp-head" data-toggle="'+i+'">';
+      html+='<div class="vcs-emp-main"><div class="vcs-emp-nome">'+escHtml(e.nome)+'</div>';
+      if(meta.length) html+='<div class="vcs-emp-meta">'+escHtml(meta.join(' · '))+'</div>';
+      html+='</div>';
+      html+='<div class="vcs-emp-right"><div class="vcs-emp-total">R$ '+vencFmtBRL(e.total)+'</div>'
+           +'<div class="vcs-emp-cnt">'+e.itens.length+(e.itens.length===1?' item':' itens')+'</div></div>';
+      html+='<div class="vcs-caret">&#9654;</div>';
+      html+='</div>';
+      html+='<div class="vcs-itens">';
+      e.itens.forEach(function(it){
+        html+='<div class="vcs-item">';
+        html+='<div class="vcs-item-top"><div class="vcs-item-num">'+escHtml(it.num)+'</div>'
+             +'<div class="vcs-item-desc">'+escHtml(it.desc)+'</div></div>';
+        html+='<div class="vcs-item-grid">';
+        if(it.modelo) html+='<div class="vcs-f"><div class="k">Modelo</div><div class="v">'+escHtml(it.modelo)+'</div></div>';
+        if(it.marca)  html+='<div class="vcs-f"><div class="k">Marca</div><div class="v">'+escHtml(it.marca)+'</div></div>';
+        html+='<div class="vcs-f"><div class="k">Qtde</div><div class="v">'
+             +(it.qtde!==null?escHtml(vencFmtNum(it.qtde))+(it.unidade?' '+escHtml(it.unidade):''):'—')+'</div></div>';
+        html+='<div class="vcs-f money"><div class="k">Unitário</div><div class="v">R$ '+vencFmtBRL(it.valorUnit)+'</div></div>';
+        html+='<div class="vcs-f money"><div class="k">Total do item</div><div class="v">'
+             +(it.valorTotal!==null?'R$ '+vencFmtBRL(it.valorTotal):'—')+'</div></div>';
+        html+='</div></div>';
+      });
+      html+='</div>';
+      html+='<div class="vcs-emp-foot"><span>Total da empresa</span><span>R$ '+vencFmtBRL(e.total)+'</span></div>';
+      html+='</div>';
+    });
+    if(parcial) html+='<div class="vcs-nota">Itens sem quantidade informada não entram na soma dos valores.</div>';
+    body.innerHTML=html;
+  }
+
+  /* Expandir/recolher */
+  el('vcsBody').addEventListener('click', function(ev){
+    var h=ev.target.closest('[data-toggle]');
+    if(!h) return;
+    var i=parseInt(h.dataset.toggle,10);
+    if(busca){
+      /* durante a busca tudo já está aberto; o toque recolhe só aquele card */
+      var card=h.closest('.vcs-emp');
+      if(card) card.classList.toggle('open');
+      return;
+    }
+    aberto[i]=!aberto[i];
+    render();
+  });
+
+  var bi=el('vcsBusca');
+  if(bi) bi.addEventListener('input', function(){ busca=norm(this.value).trim(); render(); });
+
+  /* Compartilhar: usa a folha nativa do celular quando disponível */
+  var sb=el('vcsShare');
+  if(sb) sb.addEventListener('click', function(){
+    var titulo=el('vcsNumero').textContent||'Processo';
+    var dados={title:'Vencedores — '+titulo, text:'Relação de vencedores — '+titulo, url:window.location.href};
+    if(navigator.share){ navigator.share(dados).catch(function(){}); return; }
+    if(navigator.clipboard&&navigator.clipboard.writeText){
+      navigator.clipboard.writeText(window.location.href).then(function(){
+        sb.innerHTML='&#10003; Link copiado';
+        setTimeout(function(){ sb.innerHTML='&#128257; Compartilhar'; }, 2200);
+      }).catch(function(){ prompt('Copie o link:', window.location.href); });
+    } else prompt('Copie o link:', window.location.href);
+  });
+})();
+
 /* Inicialização do portão de acesso */
 (function(){
   var params=new URLSearchParams(window.location.search);
-  if(params.has("ranking")||params.has("hab")||params.has("assinar")){
+  if(params.has("ranking")||params.has("hab")||params.has("assinar")||params.has("venc")){
     var g0=document.getElementById("authGate"); if(g0) g0.style.display="none";
     return;
   }
