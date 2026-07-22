@@ -4981,7 +4981,7 @@ function vencGerarODT(){
      RETRATO (a ata), o LibreOffice reduz tudo proporcionalmente, e era aí que
      "SURGIFORCE" virava "SURGIFORC / E". Produto absorve a diferença porque
      é texto corrido e quebra bem em várias linhas.                          */
-  var COLS=[1.8, 7.6, 5.4, 4.2, 2.0, 2.7, 3.6];   /* soma = 27,3 */
+  var COLS=[1.5, 7.9, 5.4, 4.2, 2.0, 2.7, 3.6];   /* soma = 27,3 */
   var TW=0; COLS.forEach(function(c){ TW+=c; });
 
   var FAIXA=[['#E3242B',3.82],['#F26B21',3.82],['#FFC20E',3.82],['#8CC63F',4.37],
@@ -5013,16 +5013,16 @@ function vencGerarODT(){
          'fo:font-size="10pt" fo:color="#5A6685"');
   pStyle('PEmp','fo:text-align="left" fo:margin-top="0.5cm" fo:margin-bottom="0cm" '
          +'fo:background-color="#081C52" fo:padding="0.16cm" fo:keep-with-next="always"',
-         'fo:font-size="11pt" fo:font-weight="bold" fo:color="#ffffff"');
+         'fo:font-size="10pt" fo:font-weight="bold" fo:color="#ffffff"');
   pStyle('PMeta','fo:text-align="left" fo:margin-top="0cm" fo:margin-bottom="0.12cm" '
          +'fo:background-color="#EAEEF7" fo:padding="0.12cm" fo:keep-with-next="always"',
-         'fo:font-size="9pt" fo:color="#12306B"');
-  pStyle('PTh','fo:text-align="left"','fo:font-size="10pt" fo:font-weight="bold" fo:color="#ffffff"');
-  pStyle('PThR','fo:text-align="right"','fo:font-size="10pt" fo:font-weight="bold" fo:color="#ffffff"');
-  pStyle('PTd','fo:text-align="left"','fo:font-size="10pt" fo:color="#101A33"');
-  pStyle('PTdC','fo:text-align="center"','fo:font-size="10pt" fo:font-weight="bold" fo:color="#12306B"');
-  pStyle('PTdR','fo:text-align="right"','fo:font-size="10pt" fo:color="#101A33"');
-  pStyle('PTot','fo:text-align="right"','fo:font-size="10pt" fo:font-weight="bold" fo:color="#1E7A34"');
+         'fo:font-size="8.5pt" fo:color="#12306B"');
+  pStyle('PTh','fo:text-align="left"','fo:font-size="9pt" fo:font-weight="bold" fo:color="#ffffff"');
+  pStyle('PThR','fo:text-align="right"','fo:font-size="9pt" fo:font-weight="bold" fo:color="#ffffff"');
+  pStyle('PTd','fo:text-align="left"','fo:font-size="9pt" fo:color="#101A33"');
+  pStyle('PTdC','fo:text-align="center"','fo:font-size="9pt" fo:font-weight="bold" fo:color="#12306B"');
+  pStyle('PTdR','fo:text-align="right"','fo:font-size="9pt" fo:color="#101A33"');
+  pStyle('PTot','fo:text-align="right"','fo:font-size="9pt" fo:font-weight="bold" fo:color="#1E7A34"');
   pStyle('PGrand','fo:text-align="right" fo:margin-top="0.6cm" fo:padding-top="0.25cm" '
          +'fo:border-top="0.06cm solid #12306B"',
          'fo:font-size="13pt" fo:font-weight="bold" fo:color="#12306B"');
@@ -5063,7 +5063,7 @@ function vencGerarODT(){
     FAIXA.forEach(function(f,i){ h+=_odTd('CFx'+i,'PFx',''); });
     return h+'</table:table-row></table:table>';
   }
-  var HEAD=['Código','Produto','Modelo','Marca/Fabricante','Qtde','Valor Unit.','Valor Total'];
+  var HEAD=['Item','Produto','Modelo','Marca/Fabricante','Qtde','Valor Unit.','Valor Total'];
   var body='';
   lista.forEach(function(e,ei){
     body+=_odP('PEmp',e.nome);
@@ -5138,7 +5138,7 @@ function vencGerarODT(){
     +'<style:paragraph-properties fo:margin-top="0cm" fo:margin-bottom="0.1cm" fo:hyphenate="false"/>'
     +'<style:text-properties '
     +'style:font-name="Arial" style:font-name-asian="Arial" style:font-name-complex="Arial" '
-    +'fo:font-size="10pt" style:font-size-asian="10pt" style:font-size-complex="10pt" '
+    +'fo:font-size="9pt" style:font-size-asian="9pt" style:font-size-complex="9pt" '
     +'fo:color="#101A33" fo:language="pt" fo:country="BR"/>'
     +'</style:style>'
     +'</office:styles>'
