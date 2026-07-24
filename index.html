@@ -693,7 +693,7 @@
     body>*:not(#rankingPanel){display:none!important}
     #rankingPanel{position:static!important;display:block!important;zoom:1!important;overflow:visible!important}
     .rk-topbar{display:none!important}
-    .rk-hint,.rk-filters-wrap,.rk-stats{display:none!important}
+    .rk-hint,.rk-filters-wrap,.rk-stats,.rk-acoes-row{display:none!important}
     /* Conteúdo encostado nas margens laterais da página (alinhado ao cabeçalho) */
     .rk-body{overflow:visible!important;padding:0!important}
     /* Cores de fundo impressas */
@@ -1249,6 +1249,48 @@
   .rk-stat.sdesc .n{color:#B45309}
   .rk-stat.sdesc.rk-active{border-color:var(--laranja);background:#FEF3E7}
 
+  /* ── Timeline de desclassificações x Portal ── */
+  .rkd-resumo{display:flex;gap:10px;flex-wrap:wrap;padding:14px 18px 4px}
+  .rkd-box{flex:1;min-width:120px;background:#fff;border:1px solid #e7dfd2;border-radius:11px;padding:9px 14px;text-align:center}
+  .rkd-box .n{font-family:'Space Grotesk',monospace;font-size:21px;font-weight:700;line-height:1.1}
+  .rkd-box .l{font-size:11px;color:#7a6a52;margin-top:2px;font-weight:600}
+  .rkd-box.tot .n{color:#57534E}.rkd-box.ok .n{color:#1E5F3A}.rkd-box.falta .n{color:#B45309}
+  .rkd-barra{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;padding:12px 18px 6px}
+  .rkd-toggle{display:inline-flex;background:#f1e9dc;border:1px solid #e2d6c2;border-radius:11px;padding:3px;gap:2px}
+  .rkd-tbtn{background:transparent;border:none;border-radius:8px;padding:8px 15px;font-family:'Sora',system-ui,sans-serif;font-size:13px;font-weight:700;color:#7a6a52;cursor:pointer;white-space:nowrap}
+  .rkd-tbtn.active{background:#fff;color:#8a3f06;box-shadow:0 1px 4px rgba(120,70,10,.14)}
+  .rkd-marcar-todas{background:#fff;border:1.5px solid #cfe3d4;color:#1E5F3A;border-radius:9px;padding:8px 14px;font-family:'Sora',system-ui,sans-serif;font-size:12.5px;font-weight:700;cursor:pointer}
+  .rkd-marcar-todas:hover{background:#eef8f0}
+  .rkd-lista{padding:8px 18px 22px;max-height:62vh;overflow:auto}
+  .rkd-dia{font-size:11.5px;font-weight:800;color:#8a7a60;text-transform:uppercase;letter-spacing:.6px;margin:14px 0 7px;padding-left:2px}
+  .rkd-dia:first-child{margin-top:2px}
+  .rkd-card{display:flex;gap:12px;align-items:flex-start;background:#fff;border:1px solid #ece3d5;border-left:4px solid #B45309;border-radius:11px;padding:11px 14px;margin-bottom:8px}
+  .rkd-card.feito{border-left-color:#1E5F3A;background:#f7fcf8;opacity:.82}
+  .rkd-chk{flex-shrink:0;width:24px;height:24px;border-radius:7px;border:2px solid #d8c9ae;background:#fff;cursor:pointer;font-size:14px;font-weight:800;color:transparent;line-height:1;padding:0;margin-top:2px}
+  .rkd-chk:hover{border-color:#B45309}
+  .rkd-card.feito .rkd-chk{background:#1E5F3A;border-color:#1E5F3A;color:#fff}
+  .rkd-info{flex:1;min-width:0}
+  .rkd-top{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:3px}
+  .rkd-item{background:linear-gradient(120deg,#8a3f06,#B45309);color:#fff;border-radius:7px;padding:2px 9px;font-family:'Space Grotesk',monospace;font-size:12px;font-weight:700}
+  .rkd-emp{font-size:13.5px;font-weight:800;color:#1E3A5F;word-break:break-word}
+  .rkd-hora{font-size:11.5px;color:#9a8a70;font-weight:600;white-space:nowrap}
+  .rkd-desc{font-size:11.5px;color:#8a7a60;margin-bottom:4px;word-break:break-word}
+  .rkd-motivo{font-size:12.5px;color:#4a4238;background:#faf6ef;border:1px solid #efe6d7;border-radius:8px;padding:6px 9px;line-height:1.45;word-break:break-word}
+  .rkd-motivo.vazio{color:#a89880;font-style:italic}
+  .rkd-feito-em{font-size:11.5px;color:#1E5F3A;font-weight:700;margin-top:5px}
+  .rkd-acoes{display:flex;flex-direction:column;gap:5px;flex-shrink:0}
+  .rkd-cbtn{background:#fff;border:1px solid #ddd2be;border-radius:7px;padding:5px 9px;font-size:11.5px;font-weight:700;color:#7a6a52;cursor:pointer;white-space:nowrap}
+  .rkd-cbtn:hover{background:#f6f0e6;color:#8a3f06}
+  .rkd-vazio{text-align:center;color:#8a7a60;font-size:13.5px;padding:34px 10px;line-height:1.6}
+  /* Aviso no card da tela inicial */
+  .card-desc-alert{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;background:#FEF3E7;border:none;border-top:1px solid #f0dcc2;padding:9px 19px;font-family:'Sora',system-ui,sans-serif;font-size:11.5px;font-weight:800;color:#8a3f06;cursor:pointer;text-align:center;letter-spacing:.2px}
+  .card-desc-alert:hover{background:#fbe8d3}
+  @media(max-width:640px){
+    .rkd-card{flex-wrap:wrap}
+    .rkd-acoes{flex-direction:row;width:100%}
+    .rkd-lista{max-height:none}
+  }
+
   /* ── Alternância do modo de análise (por empresa / itens corridos) ── */
   .rk-modo-toggle{display:inline-flex;background:#EEF2FB;border:1px solid var(--border);border-radius:11px;padding:3px;gap:2px}
   .rk-modo-btn{background:transparent;border:none;border-radius:8px;padding:8px 15px;font-family:'Sora',system-ui,sans-serif;font-size:13px;font-weight:700;color:var(--muted);cursor:pointer;transition:all .15s;white-space:nowrap;display:inline-flex;align-items:center;gap:6px}
@@ -1468,7 +1510,7 @@
       <div class="filtros-wrap">
         <div class="filtro-campo cf-tipo">
           <span class="filtro-label">Tipo</span>
-          <select class="filtro-select" id="filtroTipoSel" onchange="renderizar()">
+          <select class="filtro-select" id="filtroTipoSel" onfocus="buscaGlobalOn()" onchange="buscaGlobalOn();renderizar()">
             <option value="todos">Todos</option>
             <option value="Pregão">Pregão</option>
             <option value="Concorrência">Concorrência</option>
@@ -1476,11 +1518,11 @@
         </div>
         <div class="filtro-campo cf-num">
           <span class="filtro-label">Número</span>
-          <input type="text" class="filtro-input" id="filtroNumero" placeholder="Ex: 75" oninput="renderizar()">
+          <input type="text" class="filtro-input" id="filtroNumero" placeholder="Ex: 75" title="Ao clicar aqui a busca abre para TODOS os anos e TODOS os agentes" onfocus="buscaGlobalOn()" onclick="buscaGlobalOn()" oninput="buscaGlobalOn();renderizar()">
         </div>
         <div class="filtro-campo cf-obj">
           <span class="filtro-label">Objeto</span>
-          <input type="text" class="filtro-input" id="filtroObjeto" placeholder="Buscar no objeto, responsável ou contato..." oninput="renderizar()">
+          <input type="text" class="filtro-input" id="filtroObjeto" placeholder="Buscar no objeto, responsável ou contato..." title="Ao clicar aqui a busca abre para TODOS os anos e TODOS os agentes" onfocus="buscaGlobalOn()" onclick="buscaGlobalOn()" oninput="buscaGlobalOn();renderizar()">
         </div>
         <button class="btn-limpar-filtros" onclick="limparFiltrosBusca()" title="Limpar filtros de busca">&#10005; Limpar</button>
       </div>
@@ -1775,6 +1817,27 @@
       </div>
       <div style="padding:14px 18px 6px;font-size:12.5px;color:#4a5a76;line-height:1.55">Cada card mostra os itens <b>em diligência</b> e <b>pendentes</b> em que a empresa é a colocação atual. Defina o prazo e use os botões: a mensagem já sai com a lista de itens, e o motivo de todos os itens é atualizado de uma vez.</div>
       <div id="rkEmpLista" style="padding:10px 18px 20px"></div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL DESCLASSIFICAÇÕES x PORTAL (timeline + checklist) -->
+<div id="rkDescModal" style="display:none;position:fixed;inset:0;z-index:99991;background:rgba(15,23,42,.55);backdrop-filter:blur(2px)">
+  <div style="position:absolute;inset:0;display:flex;align-items:flex-start;justify-content:center;padding:26px 12px;overflow:auto" onclick="if(event.target===this)rkFecharDesclassificacoes()">
+    <div style="background:#fbf8f3;border-radius:16px;max-width:900px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.35);overflow:hidden">
+      <div style="background:#B45309;color:#fff;padding:16px 22px;display:flex;align-items:center;justify-content:space-between;gap:12px">
+        <div style="font-size:17px;font-weight:800">&#128220; Desclassificações &times; Portal</div>
+        <button onclick="rkFecharDesclassificacoes()" style="background:rgba(255,255,255,.18);border:none;color:#fff;font-size:15px;font-weight:700;border-radius:8px;padding:6px 14px;cursor:pointer">Fechar &#10005;</button>
+      </div>
+      <div id="rkDescResumo" class="rkd-resumo"></div>
+      <div class="rkd-barra">
+        <div class="rkd-toggle" role="group">
+          <button type="button" id="rkDescFiltroPend" class="rkd-tbtn active" onclick="rkDescSetFiltro('pendentes')">&#9888;&#65039; Faltam lançar</button>
+          <button type="button" id="rkDescFiltroTodas" class="rkd-tbtn" onclick="rkDescSetFiltro('todas')">&#128203; Todas</button>
+        </div>
+        <button type="button" class="rkd-marcar-todas" onclick="rkDescMarcarTodas()">&#10003; Marcar todas como lançadas</button>
+      </div>
+      <div id="rkDescLista" class="rkd-lista"></div>
     </div>
   </div>
 </div>
@@ -2108,12 +2171,15 @@
         <div class="rk-stat spe" id="rkBtnPe" onclick="rkSetFiltro('pendente')"><div class="n" id="rks-pe">0</div><div class="l">Itens Pendentes</div></div>
         <div class="rk-stat sdesc" id="rkBtnDesc" onclick="rkSetFiltro('desclassificado')" title="Itens em que alguma empresa foi desclassificada — para revisar/conferir no portal"><div class="n" id="rks-desc">0</div><div class="l">Com Desclassificação</div></div>
       </div>
-      <div style="margin:2px 0 10px;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap">
+      <div class="rk-acoes-row" style="margin:2px 0 10px;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap">
         <div class="rk-modo-toggle" role="group" aria-label="Modo de análise das propostas">
           <button type="button" id="rkModoEmpBtn" class="rk-modo-btn active" onclick="rkSetModo('empresa')">&#127970; Por empresa</button>
           <button type="button" id="rkModoItensBtn" class="rk-modo-btn" onclick="rkSetModo('itens')">&#128203; Itens corridos</button>
         </div>
-        <button onclick="rkAbrirPainelEmpresas()" style="background:#1d4ed8;color:#fff;border:none;border-radius:9px;padding:10px 18px;font-size:13.5px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:8px;box-shadow:0 2px 8px rgba(29,78,216,.25)">&#127970; Painel por Empresa <span id="rkEmpBadge" style="background:#fff;color:#1d4ed8;border-radius:99px;padding:1px 8px;font-size:12px;font-weight:800">0</span></button>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button onclick="rkAbrirDesclassificacoes()" id="rkBtnDescPainel" style="background:#B45309;color:#fff;border:none;border-radius:9px;padding:10px 18px;font-size:13.5px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:8px;box-shadow:0 2px 8px rgba(180,83,9,.25)" title="Timeline das desclassificações e checklist do que já foi lançado no portal">&#128220; Desclassificações <span id="rkDescBadge" style="background:#fff;color:#B45309;border-radius:99px;padding:1px 8px;font-size:12px;font-weight:800">0</span></button>
+          <button onclick="rkAbrirPainelEmpresas()" style="background:#1d4ed8;color:#fff;border:none;border-radius:9px;padding:10px 18px;font-size:13.5px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:8px;box-shadow:0 2px 8px rgba(29,78,216,.25)">&#127970; Painel por Empresa <span id="rkEmpBadge" style="background:#fff;color:#1d4ed8;border-radius:99px;padding:1px 8px;font-size:12px;font-weight:800">0</span></button>
+        </div>
       </div>
       <p class="rk-hint">Cada item mostra os reprovados e a colocação atual. Clique em Reprovado / Aprovado / Diligência na colocação atual — o motivo é salvo sozinho ao digitar. &nbsp;|&nbsp; Use os filtros acima para filtrar.</p>
       <div class="rk-filters-wrap">
@@ -2347,18 +2413,24 @@ colRef.onSnapshot(function(snap){
   document.getElementById("grid").innerHTML = '<div class="empty"><div class="empty-icon">&#9888;</div><h3>Erro de conexão</h3><p>'+escHtml(err.message)+'</p></div>';
 });
 
+var _agUrlAplicado=false;
 agColRef.onSnapshot(function(snap){
   agentes = snap.docs.map(function(d){ return Object.assign({id:d.id}, d.data()); })
     .sort(function(a,b){ return (a.nomeAbrev||"").localeCompare(b.nomeAbrev||""); });
   renderFiltrosAgentes();
   renderSelectAgentes();
   renderListaAgentes();
-  /* Re-apply URL filter now that agent buttons exist (aceita "agente=Pedro,Lucilda") */
-  var _ag = new URLSearchParams(window.location.search).get("agente");
-  if(_ag){
-    filtroAgentes = _ag.split(",").map(function(s){return s.trim();}).filter(Boolean);
-    syncFiltroAgentesUI();
-    renderizar();
+  /* Aplica o filtro vindo da URL ("agente=Pedro,Lucilda") UMA ÚNICA VEZ, na
+     primeira carga. Antes isso rodava a cada alteração em qualquer agente e
+     jogava o filtro de volta para o da URL no meio do trabalho.            */
+  if(!_agUrlAplicado){
+    _agUrlAplicado=true;
+    var _ag = new URLSearchParams(window.location.search).get("agente");
+    if(_ag){
+      filtroAgentes = _ag.split(",").map(function(s){return s.trim();}).filter(Boolean);
+      syncFiltroAgentesUI();
+      renderizar();
+    }
   }
 }, function(err){ console.error("Agentes:", err); });
 
@@ -2427,6 +2499,7 @@ document.addEventListener("click", function(e){
   if(action === "abrir-pasta" && pid){ abrirPastaProcesso(pid); return; }
   if(action === "portal" && pid) { /* removido */ }
   if(action === "ranking" && pid) abrirRanking(pid);
+  if(action === "desc-portal" && pid){ rkDescAbrirAoCarregar=true; abrirRanking(pid); return; }
   if(action === "vencedores" && pid) abrirVencedores(pid);
   if(action === "habilitacao" && pid) abrirHabilitacao(pid);
   if(action === "obs-add" && pid){ abrirObsBox(pid); return; }
@@ -3104,10 +3177,44 @@ function setFiltroAno(btn){
   filtroAno = btn.dataset.filterAno;
   renderizar();
 }
+/* ── Busca global ────────────────────────────────────────────────────────────
+   Ao clicar (ou digitar) em qualquer campo de busca, os filtros de Ano e de
+   Agente voltam automaticamente para "Todos" — assim a busca varre TODOS os
+   processos de TODOS os anos e nenhum processo fica escondido por um filtro
+   que ficou ligado. Ao limpar a busca, o ano padrão (o ano corrente) volta. */
+function syncFiltroAnosUI(){
+  var alvo=filtroAno||"todos";
+  document.querySelectorAll("#filtroAnos .filter-btn").forEach(function(b){
+    b.classList.toggle("active", b.dataset.filterAno===alvo);
+  });
+}
+function buscaTextoAtiva(){
+  var t=(document.getElementById("filtroTipoSel")||{value:"todos"}).value;
+  var n=((document.getElementById("filtroNumero")||{value:""}).value||"").trim();
+  var o=((document.getElementById("filtroObjeto")||{value:""}).value||"").trim();
+  return (t!=="todos")||!!n||!!o;
+}
+function anoPadraoLista(){
+  var anos={};
+  processos.forEach(function(p){ if(p.dataLicit){ var a=p.dataLicit.split("-")[0]; if(a) anos[a]=true; } });
+  var lista=Object.keys(anos).sort();
+  if(!lista.length) return "todos";
+  var atual=String(new Date().getFullYear());
+  return (lista.indexOf(atual)>=0) ? atual : lista[lista.length-1];
+}
+function buscaGlobalOn(){
+  var mudou=false;
+  if(filtroAno!=="todos"){ filtroAno="todos"; syncFiltroAnosUI(); mudou=true; }
+  if(filtroAgentes.length){ filtroAgentes=[]; syncFiltroAgentesUI(); mudou=true; }
+  if(mudou){ if(typeof atualizarURL==="function") atualizarURL(); renderizar(); }
+}
 function limparFiltrosBusca(){
   var t=document.getElementById("filtroTipoSel"); if(t) t.value="todos";
   var n=document.getElementById("filtroNumero"); if(n) n.value="";
   var o=document.getElementById("filtroObjeto"); if(o) o.value="";
+  /* volta ao ano padrão para a tela não ficar com todos os anos abertos */
+  filtroAno=anoPadraoLista(); syncFiltroAnosUI();
+  if(typeof atualizarURL==="function") atualizarURL();
   renderizar();
 }
 function renderFiltroAnos(){
@@ -3121,8 +3228,9 @@ function renderFiltroAnos(){
   var curr = listaAnos.join(",");
   if(prev===curr) return;
   el.dataset.anos = curr;
-  /* na primeira carga (filtroAno ainda é "todos"), seleciona o ano ATUAL se houver processos nele; senão o mais recente disponível */
-  if(filtroAno==="todos" && listaAnos.length){
+  /* na primeira carga (filtroAno ainda é "todos"), seleciona o ano ATUAL se houver processos nele; senão o mais recente disponível.
+     Com busca ativa NÃO mexe: a busca é sempre global (todos os anos). */
+  if(filtroAno==="todos" && listaAnos.length && !buscaTextoAtiva()){
     var anoAtual=String(new Date().getFullYear());
     filtroAno = (listaAnos.indexOf(anoAtual)>=0) ? anoAtual : listaAnos[listaAnos.length-1];
   }
@@ -3173,17 +3281,32 @@ function cardProgresso(ex){
   var emps=habDerivarEmpresas(itens, estados);
   if(!emps.length&&(hb.empresas||[]).length) emps=hb.empresas;
   var docs=hb.docs||{}, cfg=hb.config||{tecnicaExige:false,tecnicaItens:[]};
-  var decl=hb.declarados||{}, legE=hb.estados||{};
+  var decl=hb.declarados||{}, legE=hb.estados||{}, declInab=hb.declaradosInab||{};
   var tec=habTecDocsFrom(cfg);
   var julg=0;
   emps.forEach(function(e){
     var k=habKeyEmpresa(e.nome);
-    var st=habCalcDocsStatus(docs[k]||{}, tec, legE[k]||'', decl[k]).status;
+    var st=habCalcDocsStatus(docs[k]||{}, tec, legE[k]||'', decl[k], declInab[k]).status;
     if(st) julg++;
   });
   var total=itens.length+emps.length;
   var done=resI+julg;
   return {pct: total?Math.round(done/total*100):0, done:done, total:total};
+}
+
+/* Desclassificações do processo que ainda não foram marcadas como lançadas no
+   Portal de Compras Públicas — alimenta o aviso laranja no rodapé do card.  */
+function cardDescPendentes(ex){
+  var rk=(ex||{}).rk||{};
+  var itens=rk.itens||[], est=rk.estados||{}, port=rk.descPortal||{};
+  var n=0;
+  itens.forEach(function(it){
+    (it.fornecedores||[]).forEach(function(f,i){
+      var k=String(it.num)+'-'+i;
+      if((est[k]||'neutro')==='reprovado' && !port[k]) n++;
+    });
+  });
+  return n;
 }
 
 function renderizar(){
@@ -3294,6 +3417,11 @@ function renderizar(){
     html+='<button class="btn-sm" data-action="vencedores" style="background:#e8a020;color:#fff;border-color:#e8a020">&#127942; Vencedores</button>';
     html+='<button class="card-cfg-btn" data-action="editar" title="Editar processo">&#9881;&#65039;</button>';
     html+='</div>';
+    var _descPend=cardDescPendentes(ex);
+    if(_descPend>0){
+      html+='<button class="card-desc-alert" data-action="desc-portal" title="Abrir a timeline de desclassificações">&#9888;&#65039; '
+        +_descPend+' desclassificaç'+(_descPend>1?'ões':'ão')+' para lançar no portal</button>';
+    }
     if(isConcluido(p.status)){
       html+='<button class="card-concluido-bar" data-action="share-concluido" title="Copiar texto para o WhatsApp"><span class="ck">&#10003;</span> Processo concluído</button>';
     } else if(isRevogado(p.status)){
@@ -3740,6 +3868,12 @@ var rkItens = [];
 var rkEstados = {};
 var rkMotivos = {};
 var rkEventos = [];
+/* ── Controle de desclassificações x Portal ──────────────────────────────────
+   rkDescTs[key]     = quando a proposta foi reprovada (ISO) — alimenta a timeline
+   rkDescPortal[key] = quando o pregoeiro marcou "já lancei no portal" (ISO)
+   Chave = "numeroDoItem-indiceDoFornecedor" (mesma de rkEstados/rkMotivos).   */
+var rkDescTs = {};
+var rkDescPortal = {};
 var rkPendConfirm = null; /* {key, st} aguardando confirmação */
 var rkPendDil = null; /* {num, key} aguardando confirmação do prazo da diligência */
 var rkDilUltimaHora = '17:00'; /* lembra o último horário usado no prazo da diligência */
@@ -3828,8 +3962,10 @@ function rkApplySnap(d){
     rkEstados=d.estados||{};
     rkMotivos=d.motivos||{};
     rkEventos=d.eventos||[];
+    rkDescTs=d.descTs||{};
+    rkDescPortal=d.descPortal||{};
   } else {
-    rkItens=[]; rkEstados={}; rkMotivos={}; rkEventos=[];
+    rkItens=[]; rkEstados={}; rkMotivos={}; rkEventos=[]; rkDescTs={}; rkDescPortal={};
   }
   var noJson=document.getElementById('rkNoJson');
   if(rkItens.length){
@@ -3842,6 +3978,7 @@ function rkApplySnap(d){
       noJson.style.display='block';
     }
     document.getElementById('rkConteudo').style.display='none';
+    rkDescAbrirAoCarregar=false;
   }
 }
 function rkDigitando(){
@@ -3865,6 +4002,8 @@ function rkSalvarFirestore(){
     estados: rkEstados,
     motivos: rkMotivos,
     eventos: rkEventos,
+    descTs: rkDescTs,
+    descPortal: rkDescPortal,
     numero: rkProcessoAtual.numero,
     linkPortal: rkProcessoAtual.link||'',
     updatedAt: firebase.firestore.FieldValue.serverTimestamp()
@@ -3907,7 +4046,7 @@ function abrirRanking(pid){
   var fn=document.getElementById('rkFiltroNum'); if(fn) fn.value='';
   var fd=document.getElementById('rkFiltroDesc'); if(fd) fd.value='';
   var ff=document.getElementById('rkFiltroForn'); if(ff) ff.value='';
-  rkItens=[]; rkEstados={}; rkMotivos={}; rkEventos=[];
+  rkItens=[]; rkEstados={}; rkMotivos={}; rkEventos=[]; rkDescTs={}; rkDescPortal={};
   var noJson=document.getElementById('rkNoJson');
   noJson.innerHTML='<h3>Carregando...</h3>';
   noJson.style.display='block';
@@ -3917,6 +4056,10 @@ function abrirRanking(pid){
   rkOwn=false; rkHasPending=false; rkPendingSnap=null; rkPendConfirm=null; rkPendDil=null;
   rkGruposAbertos={};
   rkEmpModalAberto=false; var _em=document.getElementById('rkEmpModal'); if(_em) _em.style.display='none';
+  rkDescModalAberto=false; var _dm=document.getElementById('rkDescModal'); if(_dm) _dm.style.display='none';
+  rkDescFiltro='pendentes';
+  var _bp=document.getElementById('rkDescFiltroPend'); if(_bp) _bp.classList.add('active');
+  var _bt=document.getElementById('rkDescFiltroTodas'); if(_bt) _bt.classList.remove('active');
   var primeiraCarga=true;
   rkUnsubscribe=rkColRef.doc(pid).onSnapshot(function(doc){
     var d=doc.exists?doc.data():null;
@@ -3933,6 +4076,7 @@ function abrirRanking(pid){
 }
 function fecharRanking(){
   document.getElementById('rankingPanel').classList.remove('open');
+  rkDescModalAberto=false; var _dm=document.getElementById('rkDescModal'); if(_dm) _dm.style.display='none';
   if(rkUnsubscribe){ rkUnsubscribe(); rkUnsubscribe=null; }
   rkHasPending=false; rkPendingSnap=null;
 }
@@ -4229,6 +4373,7 @@ function habDesclassificarNoRanking(empKey, nomeEmp){
       if(habRkEstados[key]==='reprovado') return; /* já desclassificada, não sobrescreve motivo anterior */
       upd['estados.'+key]='reprovado';
       upd['motivos.'+key]=HAB_MOTIVO_INABILITACAO;
+      upd['descTs.'+key]=new Date().toISOString();
       habRkEstados=Object.assign({}, habRkEstados); habRkEstados[key]='reprovado'; /* coerência local até o próximo snapshot */
       alterou=true;
     });
@@ -5474,6 +5619,7 @@ function rkConfirmarReprovacao(key){
   var it=rkItens.find(function(x){ return String(x.num)===nIt; }); if(!it) return;
   var fn=(it.fornecedores[idx]?it.fornecedores[idx].nome:'');
   rkEstados[key]='reprovado'; rkMotivos[key]=mv;
+  rkDescTs[key]=new Date().toISOString(); delete rkDescPortal[key];
   rkLogEvento('Item '+nIt+' — proposta de '+fn+' reprovada');
   rkPendConfirm=null;
   rkHasPending=false; rkSalvarFirestore(); rkRenderProcesso();
@@ -5789,9 +5935,11 @@ function rkEmpDesclassificar(nomeEmp){
   var emp=rkAgruparPorEmpresa().find(function(e){ return e.nome===nomeEmp; }); if(!emp||!emp.dil.length) return;
   var nums=emp.dil.map(function(r){ return r.num; });
   if(!confirm('Desclassificar a empresa '+nomeEmp+' em '+rkFormatarListaItens(nums)+' por não retornar a diligência?\n\nA proposta seguinte de cada item vira a nova colocação atual.')) return;
+  var _tsLote=new Date().toISOString();
   emp.dil.forEach(function(r){
     rkEstados[r.key]='reprovado';
     rkMotivos[r.key]='Não retornou a diligência.';
+    rkDescTs[r.key]=_tsLote; delete rkDescPortal[r.key];
   });
   rkLogEvento('Desclassificação em lote — '+nomeEmp+' ('+rkFormatarListaItens(nums)+') por não retornar a diligência');
   rkHasPending=false; rkSalvarFirestore(); rkRenderProcesso(); rkRenderPainelEmpresas();
@@ -5817,10 +5965,199 @@ function rkNaoEnviouCatalogo(num){
 }
 function rkDesfazerReprovado(key){
   rkEstados[key]='neutro'; delete rkMotivos[key];
+  delete rkDescTs[key]; delete rkDescPortal[key];
   var sep=key.lastIndexOf('-'); var numIt=key.slice(0,sep);
   rkLogEvento('Item '+numIt+' — reprovação desfeita');
   rkHasPending=false; rkSalvarFirestore(); rkRenderProcesso();
 }
+/* ══ DESCLASSIFICAÇÕES × PORTAL ══════════════════════════════════════════════
+   A secretaria reprova itens pelo link compartilhado e o pregoeiro precisa
+   repetir cada desclassificação no Portal de Compras Públicas. Esta timeline
+   lista as reprovações da mais recente para a mais antiga e mantém um
+   checklist interno: ao marcar, fica registrado que aquela já foi lançada no
+   portal — o que sobra é exatamente o que ainda falta fazer.               */
+var rkDescModalAberto=false;
+var rkDescFiltro='pendentes';   /* 'pendentes' | 'todas' */
+var rkDescAbrirAoCarregar=false; /* abre a timeline assim que o ranking carregar */
+
+function rkFmtHoraISO(iso){
+  var d=new Date(iso); if(isNaN(d)) return '';
+  return ('0'+d.getHours()).slice(-2)+':'+('0'+d.getMinutes()).slice(-2);
+}
+function rkFmtDataISOcurta(iso){
+  var d=new Date(iso); if(isNaN(d)) return '';
+  return ('0'+d.getDate()).slice(-2)+'/'+('0'+(d.getMonth()+1)).slice(-2)+'/'+d.getFullYear();
+}
+/* Rótulo do agrupamento por dia: HOJE / ONTEM / 12/07/2026 — quinta-feira */
+function rkDescDiaLabel(iso){
+  if(!iso) return 'Sem data registrada';
+  var d=new Date(iso); if(isNaN(d)) return 'Sem data registrada';
+  var hoje=new Date(); hoje.setHours(0,0,0,0);
+  var alvo=new Date(d.getFullYear(),d.getMonth(),d.getDate());
+  var dif=Math.round((hoje-alvo)/86400000);
+  var dias=['domingo','segunda-feira','terça-feira','quarta-feira','quinta-feira','sexta-feira','sábado'];
+  if(dif===0) return 'Hoje — '+rkFmtDataISOcurta(iso);
+  if(dif===1) return 'Ontem — '+rkFmtDataISOcurta(iso);
+  return rkFmtDataISOcurta(iso)+' — '+dias[d.getDay()];
+}
+/* Descobre a chave (item-índice) a partir do nº do item e do nome da empresa */
+function rkKeyPorItemForn(num, nomeForn){
+  var it=rkItens.find(function(x){ return String(x.num)===String(num).trim(); });
+  if(!it||!it.fornecedores) return null;
+  var alvo=String(nomeForn||'').trim().toLowerCase();
+  for(var i=0;i<it.fornecedores.length;i++){
+    if(String(it.fornecedores[i].nome||'').trim().toLowerCase()===alvo) return String(it.num)+'-'+i;
+  }
+  return null;
+}
+/* Desclassificações antigas (anteriores a esta versão) não têm descTs gravado.
+   Aqui a data é deduzida do histórico de eventos já salvo, apenas em memória —
+   nada é regravado no Firestore, para não gerar escrita em cascata entre os
+   computadores que estiverem com o mesmo processo aberto.                   */
+var _rkBackCache=null, _rkBackSig='';
+function rkDescTsDosEventos(){
+  /* O cálculo varre todos os eventos contra todos os itens; num pregão grande
+     isso é caro para rodar a cada render. Como o resultado só muda quando o
+     histórico ou a lista de itens muda, fica em cache com uma assinatura. */
+  var _ult=(rkEventos&&rkEventos.length)?(rkEventos[rkEventos.length-1].t||''):'';
+  var sig=(rkEventos?rkEventos.length:0)+'|'+(rkItens?rkItens.length:0)+'|'+_ult+'|'+(rkProcessoAtual?rkProcessoAtual.id:'');
+  if(_rkBackCache&&_rkBackSig===sig) return _rkBackCache;
+  var out={};
+  (rkEventos||[]).forEach(function(ev){
+    var msg=String((ev&&ev.msg)||''), t=(ev&&ev.t)||'';
+    if(!t) return;
+    var m=msg.match(/^Item\s+(\S+)\s+—\s+proposta de\s+(.+?)\s+reprovada\s*$/);
+    if(m){ var k=rkKeyPorItemForn(m[1], m[2]); if(k) out[k]=t; return; }
+    var m2=msg.match(/^Desclassificação em lote\s+—\s+(.+?)\s+\(\s*(?:o item|os itens)\s+(.+?)\)/);
+    if(m2){
+      var emp=m2[1];
+      m2[2].split(/,|\se\s/).forEach(function(s){
+        var n=s.trim(); if(!n) return;
+        var kk=rkKeyPorItemForn(n, emp); if(kk) out[kk]=t;
+      });
+    }
+  });
+  _rkBackCache=out; _rkBackSig=sig;
+  return out;
+}
+/* Lista completa das desclassificações, da mais recente para a mais antiga */
+function rkListaDesc(){
+  var back=rkDescTsDosEventos();
+  var out=[];
+  (rkItens||[]).forEach(function(it){
+    (it.fornecedores||[]).forEach(function(f,i){
+      var key=String(it.num)+'-'+i;
+      if((rkEstados[key]||'neutro')!=='reprovado') return;
+      out.push({
+        key:key, num:String(it.num), desc:it.desc||'', emp:(f.nome||''),
+        motivo:rkMotivos[key]||'', t:rkDescTs[key]||back[key]||'', portal:rkDescPortal[key]||''
+      });
+    });
+  });
+  out.sort(function(a,b){
+    if(a.t&&b.t) return a.t<b.t?1:(a.t>b.t?-1:0);
+    if(a.t) return -1;
+    if(b.t) return 1;
+    return (parseFloat(b.num)||0)-(parseFloat(a.num)||0);
+  });
+  return out;
+}
+function rkDescPendentes(){
+  return rkListaDesc().filter(function(r){ return !r.portal; }).length;
+}
+function rkAbrirDesclassificacoes(){
+  if(!rkItens.length){ toast('Importe o ranking primeiro.'); return; }
+  rkDescModalAberto=true;
+  var el=document.getElementById('rkDescModal'); if(el) el.style.display='block';
+  rkRenderDesclassificacoes();
+}
+function rkFecharDesclassificacoes(){
+  rkDescModalAberto=false;
+  var el=document.getElementById('rkDescModal'); if(el) el.style.display='none';
+  rkFlushPending();
+}
+function rkDescSetFiltro(f){
+  rkDescFiltro=(f==='todas')?'todas':'pendentes';
+  var bp=document.getElementById('rkDescFiltroPend'), bt=document.getElementById('rkDescFiltroTodas');
+  if(bp) bp.classList.toggle('active', rkDescFiltro==='pendentes');
+  if(bt) bt.classList.toggle('active', rkDescFiltro==='todas');
+  rkRenderDesclassificacoes();
+}
+function rkRenderDesclassificacoes(){
+  if(!rkDescModalAberto) return;
+  var cont=document.getElementById('rkDescLista'); if(!cont) return;
+  var todas=rkListaDesc();
+  var falta=todas.filter(function(r){ return !r.portal; }).length;
+  var feitas=todas.length-falta;
+
+  var res=document.getElementById('rkDescResumo');
+  if(res){
+    var _proc=(typeof processos!=='undefined'&&rkProcessoAtual)?processos.find(function(p){ return p.id===rkProcessoAtual.id; }):null;
+    var linkSes=(rkProcessoAtual&&rkProcessoAtual.link)?linkSessaoPublica(rkProcessoAtual.link,(_proc&&_proc.responsavel)||''):'';
+    res.innerHTML='<div class="rkd-box tot"><div class="n">'+todas.length+'</div><div class="l">Desclassificações</div></div>'
+      +'<div class="rkd-box ok"><div class="n">'+feitas+'</div><div class="l">Já no portal</div></div>'
+      +'<div class="rkd-box falta"><div class="n">'+falta+'</div><div class="l">Faltam lançar</div></div>'
+      +(linkSes?'<a href="'+escHtml(linkSes)+'" target="_blank" rel="noopener" class="rkd-box" style="text-decoration:none;display:flex;flex-direction:column;justify-content:center;background:#1d4ed8;border-color:#1d4ed8"><div class="l" style="color:#fff;font-size:12.5px;font-weight:800">&#128279; Abrir sessão<br>no portal</div></a>':'');
+  }
+
+  var lista=(rkDescFiltro==='pendentes')?todas.filter(function(r){ return !r.portal; }):todas;
+  if(!lista.length){
+    cont.innerHTML='<div class="rkd-vazio">'+(todas.length
+      ? '&#127881; Nenhuma desclassificação pendente.<br>Todas as '+todas.length+' já foram lançadas no portal.'
+      : 'Nenhuma desclassificação registrada neste processo ainda.')+'</div>';
+    return;
+  }
+  var html='', diaAtual=null;
+  lista.forEach(function(r){
+    var dia=rkDescDiaLabel(r.t);
+    if(dia!==diaAtual){ diaAtual=dia; html+='<div class="rkd-dia">'+escHtml(dia)+'</div>'; }
+    var hora=r.t?rkFmtHoraISO(r.t):'';
+    var descCurta=(r.desc||'').length>110?(r.desc||'').slice(0,110)+'…':(r.desc||'');
+    html+='<div class="rkd-card'+(r.portal?' feito':'')+'">'
+      +'<button class="rkd-chk" data-rkdchk="'+escHtml(r.key)+'" title="'+(r.portal?'Desmarcar':'Marcar como lançada no portal')+'">&#10003;</button>'
+      +'<div class="rkd-info">'
+      +'<div class="rkd-top"><span class="rkd-item">Item '+escHtml(r.num)+'</span>'
+      +'<span class="rkd-emp">'+escHtml(r.emp)+'</span>'
+      +(hora?'<span class="rkd-hora">'+escHtml(hora)+'</span>':'<span class="rkd-hora">sem hora registrada</span>')+'</div>'
+      +(descCurta?'<div class="rkd-desc">'+escHtml(descCurta)+'</div>':'')
+      +'<div class="rkd-motivo'+(r.motivo?'':' vazio')+'">'+escHtml(r.motivo||'Sem motivo registrado')+'</div>'
+      +(r.portal?'<div class="rkd-feito-em">&#10003; Lançada no portal em '+escHtml(rkFmtDataISOcurta(r.portal))+' às '+escHtml(rkFmtHoraISO(r.portal))+'</div>':'')
+      +'</div>'
+      +'<div class="rkd-acoes"><button class="rkd-cbtn" data-rkdcopy="'+escHtml(r.key)+'" title="Copiar item, empresa e motivo">&#128203; Copiar</button></div>'
+      +'</div>';
+  });
+  cont.innerHTML=html;
+  cont.querySelectorAll('[data-rkdchk]').forEach(function(b){
+    b.addEventListener('click',function(){ rkToggleDescPortal(b.dataset.rkdchk); });
+  });
+  cont.querySelectorAll('[data-rkdcopy]').forEach(function(b){
+    b.addEventListener('click',function(){ rkDescCopiar(b.dataset.rkdcopy); });
+  });
+}
+function rkToggleDescPortal(key){
+  if(rkDescPortal[key]) delete rkDescPortal[key];
+  else rkDescPortal[key]=new Date().toISOString();
+  rkHasPending=false; rkSalvarFirestore();
+  rkRenderDesclassificacoes();
+  var b=document.getElementById('rkDescBadge'); if(b) b.textContent=rkDescPendentes();
+}
+function rkDescMarcarTodas(){
+  var pend=rkListaDesc().filter(function(r){ return !r.portal; });
+  if(!pend.length){ toast('Não há desclassificações pendentes.'); return; }
+  if(!confirm('Marcar '+pend.length+' desclassificaç'+(pend.length>1?'ões':'ão')+' como já lançada'+(pend.length>1?'s':'')+' no portal?\n\nUse isso para zerar o histórico antigo deste processo.')) return;
+  var agora=new Date().toISOString();
+  pend.forEach(function(r){ rkDescPortal[r.key]=agora; });
+  rkHasPending=false; rkSalvarFirestore();
+  rkRenderDesclassificacoes();
+  var b=document.getElementById('rkDescBadge'); if(b) b.textContent=rkDescPendentes();
+  toast(pend.length+' desclassificaç'+(pend.length>1?'ões marcadas':'ão marcada')+' como lançada'+(pend.length>1?'s':'')+'.');
+}
+function rkDescCopiar(key){
+  var r=rkListaDesc().find(function(x){ return x.key===key; }); if(!r) return;
+  var txt='Item '+r.num+' — '+r.emp+(r.motivo?'\n'+r.motivo:'');
+  copiarTextoClipboard(txt, 'Item '+r.num+' copiado — cole no portal!');
+}
+
 function rkSetMotivo(key,val){
   rkMotivos[key]=val;
   if(rkMotivoTimer) clearTimeout(rkMotivoTimer);
@@ -5867,6 +6204,9 @@ function rkRenderProcesso(){
   document.getElementById('rks-pe').textContent=pe;
   var de=document.getElementById('rks-desc'); if(de) de.textContent=desc;
   var eb=document.getElementById('rkEmpBadge'); if(eb) eb.textContent=rkAgruparPorEmpresa().length;
+  var db=document.getElementById('rkDescBadge'); if(db) db.textContent=rkDescPendentes();
+  if(rkDescModalAberto) rkRenderDesclassificacoes();
+  if(rkDescAbrirAoCarregar){ rkDescAbrirAoCarregar=false; rkAbrirDesclassificacoes(); }
   ['rkBtnTodos','rkBtnAp','rkBtnDil','rkBtnFrac','rkBtnPe','rkBtnDesc'].forEach(function(id){ var el=document.getElementById(id); if(el) el.classList.remove('rk-active'); });
   var m={null:'rkBtnTodos',aprovado:'rkBtnAp',diligencia:'rkBtnDil',pendente:'rkBtnPe',fracassado:'rkBtnFrac',desclassificado:'rkBtnDesc'};
   var el=document.getElementById(m[rkFiltroAtivo]); if(el) el.classList.add('rk-active');
@@ -6131,6 +6471,9 @@ function rkCopiarLink(){
 
   var sharedItens=[], sharedEstados={}, sharedMotivos={}, sharedNumero='';
   var sharedEvts=[];
+  /* Mantidos aqui só para não serem apagados na gravação — quem usa é o painel
+     do pregoeiro (timeline de desclassificações x portal). */
+  var sharedDescTs={}, sharedDescPortal={};
   var sharedLinkPortal='';   /* link externo do Portal de Compras (o mesmo cadastrado na agenda) */
   var sharedLinkTentado=false; /* fallback: busca no doc do processo caso o ranking ainda não tenha o link salvo */
   var sharedGruposAbertos={}; /* empresas com o grupo expandido (por nome) — fechado é o padrão */
@@ -6148,6 +6491,7 @@ function rkCopiarLink(){
       sharedItens=d.itens||[]; sharedEstados=d.estados||{};
       sharedMotivos=d.motivos||{}; sharedNumero=d.numero||'';
       sharedEvts=d.eventos||[];
+      sharedDescTs=d.descTs||{}; sharedDescPortal=d.descPortal||{};
       if(d.linkPortal) sharedLinkPortal=d.linkPortal;
     } else { sharedItens=[]; sharedNumero='Não encontrado'; }
     /* Rankings salvos antes desta versão não têm o link — busca uma vez no
@@ -6178,6 +6522,7 @@ function rkCopiarLink(){
     rkColRef.doc(sharedId).set({
       itens:sharedItens, estados:sharedEstados, motivos:sharedMotivos,
       eventos:sharedEvts,
+      descTs:sharedDescTs, descPortal:sharedDescPortal,
       numero:sharedNumero, linkPortal:sharedLinkPortal||'',
       updatedAt:firebase.firestore.FieldValue.serverTimestamp()
     }).then(function(){ setSaveDot('saved'); setTimeout(function(){ sharedOwn=false; sFlushPending(); },3000); })
@@ -6226,6 +6571,8 @@ function rkCopiarLink(){
     var key=String(it.num)+'-'+idx;
     sharedEstados[key]='reprovado';
     if(mv&&mv.trim()) sharedMotivos[key]=mv.trim(); else delete sharedMotivos[key];
+    /* carimba a hora da desclassificação e zera o "já lancei no portal" */
+    sharedDescTs[key]=new Date().toISOString(); delete sharedDescPortal[key];
     sLog('Item '+it.num+' — proposta de '+(it.fornecedores[idx]?it.fornecedores[idx].nome:'')+' reprovada');
   }
   function sContaReprovados(it){
@@ -6501,6 +6848,10 @@ function rkCopiarLink(){
   var sharedEmpresas=[], sharedEstados={}, sharedMotivos={}, sharedNumero='';
   var sharedDocs={}, sharedDocMotivos={}, sharedConfig={tecnicaExige:false,tecnicaItens:[]};
   var sharedDeclarados={}, sharedEvtsH=[];
+  /* Inabilitação declarada pelo pregoeiro (botão vermelho). A secretaria não
+     mexe nisso, mas PRECISA carregar e regravar: a gravação daqui é um set()
+     inteiro e, sem este campo, a inabilitação seria apagada do documento.   */
+  var sharedDeclaradosInab={};
   var sharedRkItens=[], sharedRkEstados={}, sharedLegacy=[];
   var sharedExpand={};
   var saveTimer=null, sharedOwn=false;
@@ -6518,7 +6869,7 @@ function rkCopiarLink(){
     else { d.className='hbs-dot'; t.textContent='Aguardando alterações'; }
   }
   function sharedCalc(k){
-    return habCalcDocsStatus(sharedDocs[k]||{}, habTecDocsFrom(sharedConfig), sharedEstados[k]||'', sharedDeclarados[k]);
+    return habCalcDocsStatus(sharedDocs[k]||{}, habTecDocsFrom(sharedConfig), sharedEstados[k]||'', sharedDeclarados[k], sharedDeclaradosInab[k]);
   }
   /* Status SÓ da qualificação técnica (visão da secretaria) */
   function tecStatus(k){
@@ -6545,7 +6896,7 @@ function rkCopiarLink(){
     habColRef.doc(habId).set({
       empresas:sharedEmpresas, estados:estadosDerivados, motivos:sharedMotivos,
       docs:sharedDocs, docMotivos:sharedDocMotivos, config:sharedConfig,
-      declarados:sharedDeclarados, eventos:sharedEvtsH,
+      declarados:sharedDeclarados, declaradosInab:sharedDeclaradosInab, eventos:sharedEvtsH,
       numero:sharedNumero,
       updatedAt:firebase.firestore.FieldValue.serverTimestamp()
     }).then(function(){ setDot('saved'); setTimeout(function(){ sharedOwn=false; },3000); })
@@ -6689,11 +7040,12 @@ function rkCopiarLink(){
       sharedMotivos=d.motivos||{};
       sharedDocs=d.docs||{}; sharedDocMotivos=d.docMotivos||{};
       sharedDeclarados=d.declarados||{}; sharedEvtsH=d.eventos||[];
+      sharedDeclaradosInab=d.declaradosInab||{};
       sharedConfig=d.config||{tecnicaExige:false,tecnicaItens:[]};
       sharedLegacy=d.empresas||[];
       if(d.numero) sharedNumero=d.numero;
       hbsMigrar();
-    } else { sharedEstados={}; sharedMotivos={}; sharedDocs={}; sharedDocMotivos={}; sharedDeclarados={}; sharedEvtsH=[]; sharedConfig={tecnicaExige:false,tecnicaItens:[]}; sharedLegacy=[]; }
+    } else { sharedEstados={}; sharedMotivos={}; sharedDocs={}; sharedDocMotivos={}; sharedDeclarados={}; sharedDeclaradosInab={}; sharedEvtsH=[]; sharedConfig={tecnicaExige:false,tecnicaItens:[]}; sharedLegacy=[]; }
     hbsAtualizar();
   }, function(err){
     var b=document.getElementById('hbsBody');
